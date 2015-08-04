@@ -14,6 +14,7 @@ Simulator::Simulator()
 	_beltHeight = DEFAULT_BELT_HEIGHT;
 	_simulationCount = 0;
 	_viewerMode = DEFAULT_VIEWER_MODE;
+	_saveImages = DEFAULT_SAVE_IMAGES;
 	_sensorCount = DEFAULT_SENSOR_COUNT;
 	_horizontalVelocityThreshold = DEFAULT_VERTICAL_VELOCITY_THRESHOLD;
 	_verticalVelocityThereshold = DEFAULT_HORIZONTAL_VELOCITY_THRESHOLD;
@@ -134,7 +135,10 @@ void Simulator::generateAndDisplaySensorsAndData()
 	displayProperties();
 	namedWindow(DISPLAY_WINDOW, WINDOW_AUTOSIZE);
 	imshow(DISPLAY_WINDOW, _belt);
-	cv::waitKey(100);
+	if(_viewerMode)
+	{
+		cv::waitKey(100);
+	}
 	saveImage();
 }
 
@@ -170,12 +174,19 @@ void Simulator::appendGraphToImage()
 		, Scalar(0,0,255));
 	namedWindow(DISPLAY_WINDOW, WINDOW_AUTOSIZE);
 	imshow(DISPLAY_WINDOW, _belt);
-	cv::waitKey(100);
+	if(_viewerMode)
+	{
+		cv::waitKey(100);
+	}
 	saveImage();
 }
 
 void Simulator::saveImage()
 {
+	if(!_saveImages)
+	{
+		return;
+	}
 	_imageCount++;
 	char imageName[20];
 	sprintf(imageName,"img%4d.jpg",_imageCount);
@@ -186,6 +197,10 @@ void Simulator::saveImage()
 
 void Simulator::generateAndSaveVideo()
 {
+	if(!_saveImages)
+	{
+		return;
+	}
 	char inputPath[400];
 	sprintf(inputPath,"%s/img%%4d.jpg",_simulationDirectory);
 	printf("InputPath : %s\n", inputPath);
@@ -202,7 +217,10 @@ void Simulator::generateAndSaveVideo()
 			break;	
 		namedWindow("video", WINDOW_AUTOSIZE);
 		imshow("video", img);
-		cv::waitKey(10);
+		if(_viewerMode)
+		{
+			cv::waitKey(10);
+		}
 		out_capture.write(img);
 	}
 	out_capture.release();
@@ -216,9 +234,9 @@ void Simulator::randomizeSensors()
 	{
 		_coordinates[i].x = (double)rand() / (double)RAND_MAX * _beltWidth;
 		_coordinates[i].y = (double)rand() / (double)RAND_MAX * _beltHeight;
-		printf("%d %lf,%lf\n",i,_coordinates[i].x, _coordinates[i].y );
+		//printf("%d %lf,%lf\n",i,_coordinates[i].x, _coordinates[i].y );
 	}
-	printf("Size of coordinates vector here %ld\n", _coordinates.size());
+	//printf("Size of coordinates vector here %ld\n", _coordinates.size());
 	_geometricGraph.setCoordinates(_coordinates);
 	generateAndDisplaySensorsAndData();
 	appendGraphToImage();
@@ -261,7 +279,7 @@ void Simulator::loopForces()
 		{
 			currentHorizontalVelocity += horizontalVelocity((_coordinates[i].x - _coordinates[graph[i][j]].x), 2.0 * _sensingRange);
 		}
-		printf("Current Horizontal Velocity %d = %lf\n", i , currentHorizontalVelocity);
+		//printf("Current Horizontal Velocity %d = %lf\n", i , currentHorizontalVelocity);
 		if(abs(currentHorizontalVelocity) <= _horizontalVelocityThreshold)
 		{
 			_horizontalVelocities[i] = currentHorizontalVelocity;
@@ -312,7 +330,7 @@ bool Simulator::isStable()
 {
 	// Checks if the horizontal and vertical velocities are within permissible limits
 	// Check if current configuration is k-barrier covered
-	printf("Quality of the belt = %lf width = %lf\n", _geometricGraph.getQuality(), _beltWidth);
+	//printf("Quality of the belt = %lf width = %lf\n", _geometricGraph.getQuality(), _beltWidth);
 	if(_geometricGraph.getQuality() == _beltWidth)
 	{
 		return true;
@@ -320,8 +338,8 @@ bool Simulator::isStable()
 	int i;
 	for(i = 1; i < _verticalVelocities.size() - 1; i++)
 	{
-		printf("%d (%lf,%lf) -> (%lf,%lf) limits (%lf,%lf) thresholds (%lf, %lf)\n",i,_coordinates[i].x,_coordinates[i].y,_horizontalVelocities[i],_verticalVelocities[i]
-		,HORIZONTAL_PERMISSIBLE_LIMIT, VERTICAL_PERMISSIBLE_LIMIT ,_horizontalVelocityThreshold,_verticalVelocityThereshold);
+		//printf("%d (%lf,%lf) -> (%lf,%lf) limits (%lf,%lf) thresholds (%lf, %lf)\n",i,_coordinates[i].x,_coordinates[i].y,_horizontalVelocities[i],_verticalVelocities[i]
+		//,HORIZONTAL_PERMISSIBLE_LIMIT, VERTICAL_PERMISSIBLE_LIMIT ,_horizontalVelocityThreshold,_verticalVelocityThereshold);
 		if(abs(_horizontalVelocities[i]) > HORIZONTAL_PERMISSIBLE_LIMIT || abs(_verticalVelocities[i]) > VERTICAL_PERMISSIBLE_LIMIT)
 		{ return false; }
 	}
@@ -344,18 +362,22 @@ void Simulator::moveSensors()
 		_coordinates[i].x -= _horizontalVelocities[i];
 		currentSensorMovement += sqrt(_verticalVelocities[i]*_verticalVelocities[i] + _horizontalVelocities[i]*_horizontalVelocities[i]);
 	}
-	_avgSensorMovement += currentSensorMovement / (double)_sensorCount;
+	_avgSensorMovement += (currentSensorMovement / (double)_sensorCount);
 	_geometricGraph.setCoordinates(_coordinates);
 }
 
 void Simulator::simulate()
 {
-	sprintf(_simulationDirectory,"simulation%d",_simulationCount);
-	char directoryCreationCommand[400];
-	sprintf(directoryCreationCommand,"mkdir %s",_simulationDirectory);
-	system(directoryCreationCommand);
+	if(_saveImages)
+	{
+		sprintf(_simulationDirectory,"simulation%d",_simulationCount);
+		char directoryCreationCommand[400];
+		sprintf(directoryCreationCommand,"mkdir %s",_simulationDirectory);
+		system(directoryCreationCommand);
+	}	
 	_imageCount = 0;
 	_avgSensorMovement = 0.0;
+	_simulationIterationCount = 0;
 	while(true)
 	{
 		// Calculate forces
@@ -372,6 +394,7 @@ void Simulator::simulate()
 			// Else break and stop simulation
 			break;
 		}
+		_simulationIterationCount++;
 	}
 	generateAndSaveVideo();
 	_simulationCount++;
@@ -458,5 +481,22 @@ void Simulator::setViewerMode(bool viewerMode)
 	_viewerMode = viewerMode;
 }
 
+void Simulator::saveImages(bool saveImages)
+{
+	_saveImages = saveImages;
+}
+
 int Simulator::getSimulationCount()
 { return _simulationCount; }
+
+double Simulator::getQuality()
+{ return _geometricGraph.getQuality(); }
+
+double Simulator::getNumberOfCriticalRegions()
+{ return _geometricGraph.getNumberOfCriticalRegions(); }
+
+double Simulator::getAverageSensorMovement()
+{ return _avgSensorMovement; }
+
+int Simulator::getNumberOfIterations()
+{ return _simulationIterationCount; }

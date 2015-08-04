@@ -6,6 +6,7 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 	Simulator simulator;
+	simulator.setViewerMode(true);
 	int n;
 	while(true)
 	{

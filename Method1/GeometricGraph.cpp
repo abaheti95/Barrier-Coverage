@@ -174,12 +174,12 @@ void GeometricGraph::calculateQuality()
 	// Generate dummy graph from the orignal fully connected graph
 	// The dummy graph will only contain edges which are smaller than the diameter
 	double diameter = 2.0 * _sensingRange;
-	printGeometricGraph();
-	printf("DummyGraph\n");
+	//printGeometricGraph();
+	//printf("DummyGraph\n");
 	for(i = 0; i < (int)_graph.size(); i++)
 	{
 		visited[i] = true;
-		printf("%d : ",i);
+		//printf("%d : ",i);
 		for(j = 0; j < (int)_graph[i].size(); j++)
 		{
 			if(visited[_graph[i][j]])
@@ -191,10 +191,10 @@ void GeometricGraph::calculateQuality()
 			{
 				sensorChainGraph[i].push_back(_graph[i][j]);
 				sensorChainGraph[_graph[i][j]].push_back(i);
-				printf("%d ",_graph[i][j]);
+				//printf("%d ",_graph[i][j]);
 			}
 		}
-		printf("\n");
+		//printf("\n");
 	}
 	// Generate Segments from components of sensor chain graph
 	// For this we will perform multiple BFS on the graph
@@ -253,7 +253,7 @@ void GeometricGraph::calculateQuality()
 	{
 		weakBarrierCovered = false;
 	}
-	printf("Number of SensorChains = %ld\n", _sensorChains.size());
+	//printf("Number of SensorChains = %ld\n", _sensorChains.size());
 	if(weakBarrierCovered)
 	{
 		_quality = minimumCriticalRegion;

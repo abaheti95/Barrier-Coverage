@@ -7,6 +7,7 @@
 #include <string>
 
 #define DEFAULT_VIEWER_MODE false
+#define DEFAULT_SAVE_IMAGES true
 #define DEFAULT_SENSING_RANGE 0.4
 #ifndef DEFAULT_BELT_WIDTH
 #define DEFAULT_BELT_WIDTH 10.0
@@ -44,7 +45,9 @@ private:
 	double _beltWidth;
 	double _beltHeight;
 	int _simulationCount;			// Number of Simulations Carried out
+	int _simulationIterationCount;
 	bool _viewerMode;				// If true then a delay will be there for easy visibility
+	bool _saveImages;
 	int _sensorCount;				// Number of sensor in current Simulation
 	double _horizontalVelocityThreshold;
 	double _verticalVelocityThereshold;
@@ -97,8 +100,12 @@ public:
 	void setVerticalVelocityThreshold(double);
 	double getVerticalVelocityThreshold();
 	void setViewerMode(bool);
+	void saveImages(bool);
 	int getSimulationCount();
-
+	double getQuality();
+	double getNumberOfCriticalRegions();
+	double getAverageSensorMovement();
+	int getNumberOfIterations();
 };
 
 

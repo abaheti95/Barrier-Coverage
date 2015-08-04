@@ -1,6 +1,9 @@
 test: Tester.cpp Simulator.o GeometricGraph.o Coordinate.o
 	g++ -Wall -g Tester.cpp Simulator.o GeometricGraph.o Coordinate.o `pkg-config opencv --cflags --libs` -o test
 
+simulations: Simulations.cpp Simulator.o GeometricGraph.o Coordinate.o
+	g++ -Wall -g Simulations.cpp Simulator.o GeometricGraph.o Coordinate.o `pkg-config opencv --cflags --libs` -o simulations
+
 Coordinate.o: Coordinate.cpp Coordinate.hpp
 	g++ -Wall -g -c Coordinate.cpp -o Coordinate.o
 
@@ -11,4 +14,4 @@ Simulator.o: Simulator.cpp Simulator.hpp
 	g++ -c Simulator.cpp `pkg-config opencv --cflags --libs` -o Simulator.o
 
 clean:
-	rm Coordinate.o GeometricGraph.o Simulator.o test
+	rm Coordinate.o GeometricGraph.o Simulator.o test simulations
