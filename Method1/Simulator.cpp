@@ -120,7 +120,7 @@ void Simulator::displayProperties()
 	char printString[100];
 	sprintf(printString, "Quality : %lf", _geometricGraph.getQuality());
 	putText(_belt,printString,Point(RECTANGLE_START_X, LINE1), FONT_HERSHEY_PLAIN, 1, Scalar(255,0,255));
-	sprintf(printString, "Avg. Sensor Movement : %lf", _avgSensorMovement);
+	sprintf(printString, "Avg. Sensor Movement : %lf", getAverageSensorMovement());
 	putText(_belt,printString,Point((IMAGE_WIDTH>>1), LINE1), FONT_HERSHEY_PLAIN, 1, Scalar(255,0,255));
 	sprintf(printString, "Number of Sensors : %d", _sensorCount);
 	putText(_belt,printString,Point(RECTANGLE_START_X, LINE2), FONT_HERSHEY_PLAIN, 1, Scalar(255,0,255));
@@ -360,9 +360,8 @@ void Simulator::moveSensors()
 			continue;
 		}
 		_coordinates[i].x -= _horizontalVelocities[i];
-		currentSensorMovement += sqrt(_verticalVelocities[i]*_verticalVelocities[i] + _horizontalVelocities[i]*_horizontalVelocities[i]);
+		_movement[i] += sqrt(_verticalVelocities[i]*_verticalVelocities[i] + _horizontalVelocities[i]*_horizontalVelocities[i]);
 	}
-	_avgSensorMovement += (currentSensorMovement / (double)_sensorCount);
 	_geometricGraph.setCoordinates(_coordinates);
 }
 
@@ -376,8 +375,12 @@ void Simulator::simulate()
 		system(directoryCreationCommand);
 	}	
 	_imageCount = 0;
-	_avgSensorMovement = 0.0;
 	_simulationIterationCount = 0;
+	_movement.resize(_coordinates.size());
+	for(int i = 0; i < (int)_movement.size(); i++)
+	{
+		_movement[i] = 0.0;
+	}
 	while(true)
 	{
 		// Calculate forces
@@ -397,7 +400,14 @@ void Simulator::simulate()
 		_simulationIterationCount++;
 	}
 	generateAndSaveVideo();
+	calculateHistogram();
 	_simulationCount++;
+}
+
+void Simulator::calculateHistogram()
+{
+	// Calculate and print the histogram
+	
 }
 
 void Simulator::setSensingRange(double sensingRange)
@@ -496,7 +506,15 @@ double Simulator::getNumberOfCriticalRegions()
 { return _geometricGraph.getNumberOfCriticalRegions(); }
 
 double Simulator::getAverageSensorMovement()
-{ return _avgSensorMovement; }
+{ 
+	double avgSensorMovement = 0.0;
+	for(int i = 0; i < (int)_movement.size(); i++)
+	{
+		avgSensorMovement += _movement[i];
+	}
+	avgSensorMovement /= ((double)_movement.size());
+	return avgSensorMovement;
+}
 
 int Simulator::getNumberOfIterations()
 { return _simulationIterationCount; }

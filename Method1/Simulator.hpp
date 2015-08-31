@@ -52,7 +52,7 @@ private:
 	double _horizontalVelocityThreshold;
 	double _verticalVelocityThereshold;
 	vector<Coordinate> _coordinates;
-	double _avgSensorMovement;
+	vector<double> _movement;
 	vector<double> _horizontalVelocities;
 	vector<double> _verticalVelocities;
 	GeometricGraph _geometricGraph;
@@ -84,6 +84,7 @@ public:
 	void randomizeSensors();
 	void setCoordinates(const vector<Coordinate>&);
 	void simulate();
+	void calculateHistogram();
 	bool isStable();
 
 
