@@ -154,13 +154,21 @@ def force1(sensor1, sensor2):
 	if distance <= 2*sensingRange:
 		# two sensors are intersecting therefore no force
 		return 0.0
-	FORCE_FACTOR = beltWidth * beltHeight / sensingRange / sensingRange
+	FORCE_FACTOR = beltWidth * beltHeight / sensingRange / sensingRange / 150
 	force = FORCE_FACTOR / distance / sensor1.get_distance_from_leaf() / sensor2.get_distance_from_leaf()
 	return force
 
 def force(sensor1, sensor2):
 	# Different force models are to be applied here
 	return force1(sensor1, sensor2)
+
+def apply_flatten_force(sensor1, sensor2):
+	Force = 0.04
+	# apply forces on all dominant points
+	distance = sensor_distance(sensor1, sensor2)
+	Force_x = Force * (sensor2.x - sensor1.x) / distance
+	Force_y = Force * (sensor2.y - sensor1.y) / distance
+	sensor1.body.apply_force((Force_x,Force_y),(0,0))
 
 class ChainGraph():
 	"""ChainGraph is the class holding data of the connected ChainGraph"""
@@ -303,6 +311,8 @@ class ChainGraph():
 		self.calculate_distances_from_leaves()
 
 	def flatten(self, root):
+		if root == None:
+			return
 		# here we want to flatten the tree based on the root
 		if self.current == None:
 			self.current = root
@@ -344,9 +354,23 @@ class ChainGraph():
 					self.add_chain_edge(child1, child2)
 					# Update the distance from leaves for all sensors
 					self.calculate_distances_from_leaves()
+					# reset forces on childs
+					sensors[child1].body.reset_forces()
+					sensors[child2].body.reset_forces()
 				else:
 					# The branches are not intersecting. Hence, we have to apply external force to bring them closer thereafter defining a partial order between them
 					# TODO: write branch joining code here 
+					for child1 in children:
+						# find the closest sibling of child1
+						Min = INFINITY
+						closest_sibling = None
+						for child2 in children:
+							if child1 is not child2:
+								distance = sensor_distance(sensors[child1], sensors[child2])
+								if distance < Min:
+									Min = distance
+									closest_sibling = child2
+						apply_flatten_force(sensors[child1], sensors[closest_sibling])
 					break
 
 	def draw_chain_graph(self):
@@ -367,7 +391,7 @@ class ChainGraph():
 
 	def barrier_covered(self):
 		# find the leftmost and rightmost sensors of chain graph and check if it spans the belt
-		if (len(self.graph.keys())*2*sensingRange) <= beltWidth:
+		if (len(self.graph.keys())*2*sensingRange + 2*delta) <= beltWidth:
 			return False
 		Min = INFINITY
 		Max = 0.0
@@ -376,7 +400,10 @@ class ChainGraph():
 				Min = sensors[key].x
 			if sensors[key].x > Max:
 				Max = sensors[key].x
-		return (((Max - Min) + 2*sensingRange) >= beltWidth)
+		# Some error tolerance
+		print "Yahan pe kuch print kyu nahi hua"
+		print ((Max - Min) + 2*sensingRange + 2*delta)
+		return (((Max - Min) + 2*sensingRange + 2*delta) >= beltWidth)
 
 	def calculate_dominant_point(self):
 		# check distance with all possible sensors and calculate the maximum force
@@ -409,6 +436,12 @@ class ChainGraph():
 		print " : ",
 		print self.dominant,
 		print self.dominant_neighbor
+
+		self.init_flatten_properties()
+
+	def reset_forces(self):
+		for key in self.graph.keys():
+			sensors[key].body.reset_forces()
 
 if DEBUG:	
 	print "Sensing Range = " + str(sensingRange) + " : " + str(type(sensingRange))
@@ -508,11 +541,36 @@ def init_screen():
 	draw_belt()
 
 def apply_drag():
-	drag_factor = 2.0
+	drag_factor = 2
 	# for all sensors apply air drag in the direction opposite to their velocities
 	for sensor in sensors:
-		air_drag = (-sensor.body.velocity[0]/drag_factor, -sensor.body.velocity[1]/drag_factor)
-		sensor.body.apply_impulse(air_drag, (0,0))
+		air_drag = ((-1*sensor.body.velocity[0]/drag_factor), (-1*sensor.body.velocity[1]/drag_factor))
+		# if sensor.id == 10:
+		# 	print air_drag
+		sensor.body.apply_impulse(((-1*sensor.body.velocity[0]/drag_factor), (-1*sensor.body.velocity[1]/drag_factor)), (0,0))
+		# if sensor.id == 10:
+		# 	print sensor.body.velocity
+		# 	print ((-1*sensor.body.velocity[0]/drag_factor), (-1*sensor.body.velocity[1]/drag_factor))
+		# 	print air_drag
+
+def stop_sensors():
+	flag = True
+	print "stopping sensors"
+	while flag:
+		for sensor in sensors:
+			reverse_velocity = (-sensor.body.velocity[0], -sensor.body.velocity[1])
+			if abs(reverse_velocity[0]) <= delta and abs(reverse_velocity[1]) <= delta:
+				flag = False
+			sensor.body.apply_impulse(reverse_velocity, (0,0))
+		space.step(1/100.0)
+		init_screen()
+		update_sensor_positions()
+		for chain_graph in chain_graphs.values():
+			chain_graph.draw_chain_graph()
+		pygame.display.flip()
+		pygame_clock.tick(50)
+		print "yaa"
+	print "Stop hoo gaye sab"
 
 def update_sensor_positions():
 	# update positions after applying forces
@@ -583,6 +641,7 @@ def apply_forces_phasel(left_sensor):
 def phasel():
 	global left_groove
 	left_sensor, left_chain_graph = get_left_sensor()
+	# left_sensor, left_chain_graph = get_right_sensor()
 	# Join some chain graph with the left boundary
 	running = True
 	while running:
@@ -603,6 +662,7 @@ def phasel():
 
 		# Check if rightmost sensor touching rightmost boundary
 		if (left_sensor.x - sensingRange) <= 0.0:
+			left_sensor.body.reset_forces()
 			break
 	# Create Groove joint in between right sensor and right boundary
 	print left_boundary
@@ -637,10 +697,11 @@ def phaser():
 			chain_graph.draw_chain_graph()
 		pygame.display.flip()
 		pygame_clock.tick(50)
-		time.sleep(0.5)
+		# time.sleep(0.5)
 
 		# Check if rightmost sensor touching rightmost boundary
 		if (right_sensor.x + sensingRange) >= beltWidth:
+			right_sensor.body.reset_forces()
 			break
 	# Create Groove joint in between right sensor and right boundary
 	right_groove = pymunk.GrooveJoint(right_boundary, right_sensor.body, (0, -(beltHeight/2)), (0, beltHeight/2), (sensingRange,0))
@@ -649,6 +710,7 @@ def phaser():
 	right_chain_graph.init_flatten_properties()
 
 def barrier_covered():
+	print "Yahan bhi aaya hai"
 	for chain_graph in chain_graphs.values():
 		if chain_graph.barrier_covered():
 			return True
@@ -671,6 +733,8 @@ def merge_chain_graphs(chain_graph1_id, chain_graph2_id):
 def dominant_points_meet():
 	# check if any two dominant points meet
 	for Id, chain_graph in chain_graphs.iteritems():
+		if chain_graph.dominant == None:
+			return False
 		if sensor_distance(sensors[chain_graph.dominant], sensors[chain_graph.dominant_neighbor]) <= 2*sensingRange:
 			# find the chain_graph in which dominant neighbor belongs
 			chain_graph_neighbor = None
@@ -685,19 +749,19 @@ def dominant_points_meet():
 
 def apply_forces():
 	# apply forces on all dominant points
+	if len(chain_graphs) == 1:
+		return
 	for chain_graph in chain_graphs.values():
 		if chain_graph.dominant == None:
 			print "chain graph = " + str(chain_graph.id)
 		Force = force(sensors[chain_graph.dominant], sensors[chain_graph.dominant_neighbor])
 		if Force > FORCE_THRESHOLD:
+			# print Force
 			Force = FORCE_THRESHOLD
 		distance = sensor_distance(sensors[chain_graph.dominant], sensors[chain_graph.dominant_neighbor])
 		Force_x = Force * (sensors[chain_graph.dominant_neighbor].x - sensors[chain_graph.dominant].x) / distance
 		Force_y = Force * (sensors[chain_graph.dominant_neighbor].y - sensors[chain_graph.dominant].y) / distance
 		sensors[chain_graph.dominant].body.apply_force((Force_x,Force_y),(0,0))
-	apply_drag()
-	space.step(1/100.0)
-	update_sensor_positions()
 
 def print_results():
 	# verify edges
@@ -719,11 +783,15 @@ def simulate():
 	init_simulation()
 
 	phasel()
+	print "l done"
 	phaser()
+	print "Yahan toh aaya hai!!"
 	while not barrier_covered():
 		# get the domianant points for each chain_graph
 		for chain_graph in chain_graphs.values():
-			chain_graph.calculate_dominant_point();
+			chain_graph.calculate_dominant_point()
+			chain_graph.reset_forces()
+		# time.sleep(10)
 		# keep simulating unless any two dominant points meet
 		running = True
 		while running:
@@ -739,6 +807,9 @@ def simulate():
 				# flatten and draw chain_graphs
 				chain_graph.flatten(chain_graph.dominant)
 				chain_graph.draw_chain_graph()
+			apply_drag()
+			update_sensor_positions()
+			space.step(1/100.0)
 			pygame.display.flip()
 			pygame_clock.tick(50)
 			# time.sleep(0.5)
@@ -751,7 +822,12 @@ def simulate():
 	print_results()
 
 def main():
+	# we make a console program which continuously takes input from the user
+	# Program will start with a setup screen where the user will place sensors by mouse clicks
+	# on pressing 1 will start the simulation. Simulation automatically stops after 1 min
+	# after simulation is done the user log inputs and outputs or reject them
 	simulate()
+	# time.sleep(100)
 
 if __name__ == '__main__':
 	main()
