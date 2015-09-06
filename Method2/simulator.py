@@ -50,6 +50,12 @@ space.gravity = (0.0, 0.0)
 sensors = []
 chain_graphs = dict()
 
+# Right Sensor and Left Sensor are special sensors therefore they have a global reference
+left_sensor = None
+right_sensor = None
+left_chain_graph = None
+right_chain_graph = None
+
 def get_screen_coordinates(x, y):
 	scale = screen_width / beltWidth
 	screen_x = int(x * scale) + padding
@@ -154,7 +160,7 @@ def force1(sensor1, sensor2):
 	if distance <= 2*sensingRange:
 		# two sensors are intersecting therefore no force
 		return 0.0
-	FORCE_FACTOR = beltWidth * beltHeight / sensingRange / sensingRange / 150
+	FORCE_FACTOR = beltWidth * beltHeight / sensingRange / sensingRange / 400
 	force = FORCE_FACTOR / distance / sensor1.get_distance_from_leaf() / sensor2.get_distance_from_leaf()
 	return force
 
@@ -163,12 +169,55 @@ def force(sensor1, sensor2):
 	return force1(sensor1, sensor2)
 
 def apply_flatten_force(sensor1, sensor2):
-	Force = 0.04
+	Force = 0.15
 	# apply forces on all dominant points
 	distance = sensor_distance(sensor1, sensor2)
 	Force_x = Force * (sensor2.x - sensor1.x) / distance
 	Force_y = Force * (sensor2.y - sensor1.y) / distance
 	sensor1.body.apply_force((Force_x,Force_y),(0,0))
+
+def flatten_children(children):
+	if len(children) < 2:
+		if DEBUG:
+			print "WTF??"
+		return
+	children = list(children)
+	# We are provided with a set of children which are to be flattened out
+	# We apply attractive forces amongst them
+	for child1 in children:
+		# find the closest sibling of child1
+		Min = INFINITY
+		closest_sibling = None
+		for child2 in children:
+			if child1 is not child2:
+				distance = sensor_distance(sensors[child1], sensors[child2])
+				if distance < Min:
+					Min = distance
+					closest_sibling = child2
+		apply_flatten_force(sensors[child1], sensors[closest_sibling])
+
+def joining_children(children):
+	if len(children) == 0:
+		if DEBUG:
+			print "Joining WTF??"
+		return
+	children = list(children)
+	# check if any childred are intersecting
+	flag = False
+	child1, child2 = None, None
+	for i in range(len(children)):
+		for j in range(i+1,len(children)):
+			if sensor_distance(sensors[children[i]],sensors[children[j]]) <= 2*sensingRange:
+				child1 = children[i]
+				child2 = children[j]
+				flag = True
+				break
+		if flag:
+			break
+	return child1, child2
+
+
+
 
 class ChainGraph():
 	"""ChainGraph is the class holding data of the connected ChainGraph"""
@@ -180,8 +229,64 @@ class ChainGraph():
 	def init_flatten_properties(self):
 		# tells if a chain link/ sensor node is marked while flattening.. already marked nodes are not to be flattened
 		self.marked = set()
+		# This is applicable only for left and right chain graphs
+		# Tells if a chain link / sensor node is present in the branch containing left sensor or right sensor
+		self.edge_marked = set()
 		# current is the currently unmarked node
 		self.current = None
+
+		if (self is left_chain_graph or self is right_chain_graph) and self != None and self.dominant != None:
+			# get the boundary sensor
+			boundary_sensor = None
+			if self is left_chain_graph:
+				boundary_sensor = left_sensor
+			elif self is right_chain_graph:
+				boundary_sensor = right_sensor
+			
+			# Pre edge mark the boundary sensor
+			self.edge_marked.add(boundary_sensor)
+			# Start traversing from dominant point until you reach a branching or reach boundary sensor
+			self.current = self.dominant
+			while True:
+				if self.current == boundary_sensor:
+					# reached the boundary sensor first therefore break
+					break
+				# Look for a node where unmarked children are more than 1 children
+				children = list(set(self.graph[self.current].keys()) - self.marked)
+				number_of_children = len(children)
+				# start with the current unmarked node
+				# if the current node has only one child(which is basically current's keys - marked set) then simply mark and jump to next node
+				if number_of_children == 1:
+					if children[0] == boundary_sensor:
+						# only child in the boundary sensor therefore search ends here
+						break
+					else:
+						self.marked.add(self.current)
+						self.current = children[0]
+				else:
+					# found a node with either 0 or more than 1 unmarked children, hence break
+					break
+			# We have marked some sensors till current node
+			# Now we mark edge sensors starting from boundary_sensor till we reach current node
+			edge_sensor = boundary_sensor.id
+			# if the boundary sensor has more than one sibling then we will have to flatten it separately
+			self.edge_flatten_flag = False
+			if len(self.graph[edge_sensor].keys()) > 1:
+				self.edge_flatten_flag = True
+				return
+			while True:
+				if edge_sensor == self.current:
+					break
+				# Look for a node where unmarked children are more than 1 children
+				children = list(set(self.graph[edge_sensor].keys()) - self.edge_marked)
+				number_of_children = len(children)
+				if number_of_children == 1:
+					# simply jump to next senor and update the edge_marked set
+					self.edge_marked.add(edge_sensor)
+					edge_sensor = children[0]
+				elif number_of_children >= 2:
+					# found a node with more than 1 edge unmarked children, hence break
+					break
 
 	def __init__(self, ID):
 		self.id = ID
@@ -189,6 +294,7 @@ class ChainGraph():
 		# no dominant point selected yet
 		self.dominant = None
 		self.dominant_neighbor = None
+		
 		
 		self.init_flatten_properties()
 
@@ -305,10 +411,136 @@ class ChainGraph():
 		dummy_graph = None
 		# Set things before the flattening begins
 		self.marked = set()
+		self.edge_marked = set()
 		self.current = None
 
 		# Calculate the distances from leaves after getting the dfs tree
 		self.calculate_distances_from_leaves()
+
+	# Remove edge from child1 and retain edge with child2
+	def join_children(self, root, child1, child2):
+		if sensors[child2] is left_sensor or sensors[child2] is right_sensor:
+			# delete the edge of left or right sensor with root
+			join_children(self, root, child2, child1)
+			return
+		# define a partial order between current, child1 and child2
+		self.remove_chain_edge(self.current, child1)
+		self.add_chain_edge(child1, child2)
+		# Update the distance from leaves for all sensors
+		self.calculate_distances_from_leaves()
+		# reset forces on childs
+		sensors[child1].body.reset_forces()
+		sensors[child2].body.reset_forces()
+
+	def join_children_based_on_distance(self, root, child1, child2):
+		# essential the child with edge having minimum distance from the leaf is to be retained
+		if sensors[child1].dist_from_leaf < sensors[child2].dist_from_leaf:
+			# swap children
+			child1, child2 = child2, child1
+		self.join_children(root, child1, child2)
+
+	def collapse_edge_chain(self):
+		if self is left_chain_graph:
+			boundary_sensor = left_sensor
+		if self is right_chain_graph:
+			boundary_sensor = right_sensor
+		siblings = self.graph[boundary_sensor.id].keys()
+		if len(siblings) <= 1:
+			# undesired edge collapsed
+			self.edge_flatten_flag = False
+			return
+		flatten_children(siblings)
+		child1, child2 = joining_children(siblings)
+		if child1 != None and child2 != None:
+			if child1 == self.current or child2 == self.current:
+				# We don't want to retain edge with self.current
+				if child2 == self.current:
+					# swap child1 and child2
+					child1, child2 = child2, child1
+				self.join_children(boundary_sensor.id, child1, child2)
+			else:
+				self.join_children_based_on_distance(boundary_sensor.id, child1, child2)
+	# this function is called when you want to flatten the left or right chain graph i.e. the chain graphs attached to left or right boundary of belt region
+	def flatten_edge(self, root):
+		if self.edge_flatten_flag == True:
+			self.collapse_edge_chain()
+		if root == None:
+			return
+		# Here we want current to always be some sensor with unmarked flattenable children
+		while True:
+			# Current sensor's siblings can belong to 3 categories
+			siblings = set(self.graph[self.current].keys())
+			# 1 - Marked Siblings
+			marked_siblings = siblings & self.marked
+			# 2 - Edge-Marked Siblings
+			edge_marked_siblings = siblings & self.edge_marked
+			# 3 - Unmarked Siblings
+			unmarked_siblings = siblings - marked_siblings - edge_marked_siblings
+
+			if len(unmarked_siblings) == 0:
+				# nothing to flatten. The chain graph is already flattened
+				return
+			elif len(unmarked_siblings) == 1 and len(edge_marked_siblings) == 0:
+				if self.id == 2:
+					print "previous ",
+					print self.current
+				# mark current and move to unmarked child
+				self.marked.add(self.current)
+				self.current = list(unmarked_siblings)[0]
+				if self.id == 2:
+					print "next ",
+					print self.current
+			else:
+				# valid flattenable position
+				break
+
+		# There is something to flatten
+		# There can be only two situation
+		if len(edge_marked_siblings) == 0:
+			# 1 - current sensor has only one marked sensor and rest unmarked sensors
+			# Therefore, go by standard desing and join the unmarked senors if available
+			flatten_children(unmarked_siblings)
+			child1, child2 = joining_children(unmarked_siblings)
+			if child1 != None and child2 != None:
+				self.join_children_based_on_distance(child1, child2)
+		else:
+			# 2 - current sensor has both marked and edge marked sensors as sibling along with 0 or more unmarked siblings
+			# Here again we have 2 possibilities
+			if len(marked_siblings) == 0:
+				# 2.1 - Doesn't have any marked sensor i.e. root node itself has branches
+				# Therefore, join unmarked and edge marked siblings
+				flatten_children((unmarked_siblings | edge_marked_siblings))
+				child1, child2 = joining_children((unmarked_siblings | edge_marked_siblings))
+				if child1 != None and child2 != None:
+					# check if any of them in edge_marked_siblings
+					if child1 in edge_marked_siblings or child2 in edge_marked_siblings:
+						if child2 in edge_marked_siblings:
+							# swap child1 and child2
+							child1, child2 = child2, child1
+						self.join_children(self.current, child1, child2)
+						# current -- unmarked -- child1
+					else:
+						# join using distance from leaf
+						self.join_children_based_on_distance(self.current, child1, child2)
+			else:
+				# 2.2 - Root node has both marked and edge marked 
+				# Therefore, move the unmarked towards marked sensor
+				flatten_children((marked_siblings | unmarked_siblings))
+				child1, child2 = joining_children((unmarked_siblings | edge_marked_siblings))
+				# TODO: join children
+				if child1 != None and child2 != None:
+					# check if any of them in edge_marked_siblings
+					if child1 in marked_siblings or child2 in marked_siblings:
+						if child2 in marked_siblings:
+							# swap child1 and child2
+							child1, child2 = child2, child1
+						self.join_children(self.current, child1, child2)
+						# marked(child1) -- unmarked -- current
+						# Therefore, make unmarked child as current
+						self.current = child2
+					else:
+						# join using distance from leaf
+						self.join_children_based_on_distance(self.current, child1, child2)
 
 	def flatten(self, root):
 		if root == None:
@@ -316,6 +548,11 @@ class ChainGraph():
 		# here we want to flatten the tree based on the root
 		if self.current == None:
 			self.current = root
+
+		if (self is left_chain_graph or self is right_chain_graph) and self.dominant != None:
+			self.flatten_edge(root)
+			return
+		
 
 		# mark the vertices as you travel in the tree
 		while True:
@@ -331,47 +568,12 @@ class ChainGraph():
 				self.current = children[0]
 			else:
 				# check if any childred are intersecting
-				flag = False
-				child1, child2 = None, None
-				for i in range(len(children)):
-					for j in range(i+1,len(children)):
-						if sensor_distance(sensors[children[i]],sensors[children[j]]) <= 2*sensingRange:
-							child1 = children[i]
-							child2 = children[j]
-							flag = True
-							break
-					if flag:
-						break
-				if flag:
-					# essential the child with edge having minimum distance from the leaf is to be retained
-					if sensors[child1].dist_from_leaf < sensors[child2].dist_from_leaf:
-						# swap children
-						temp = child1
-						child1 = child2
-						child2 = temp
-					# define a partial order between current, child1 and child2
-					self.remove_chain_edge(self.current, child1)
-					self.add_chain_edge(child1, child2)
-					# Update the distance from leaves for all sensors
-					self.calculate_distances_from_leaves()
-					# reset forces on childs
-					sensors[child1].body.reset_forces()
-					sensors[child2].body.reset_forces()
-				else:
-					# The branches are not intersecting. Hence, we have to apply external force to bring them closer thereafter defining a partial order between them
-					# TODO: write branch joining code here 
-					for child1 in children:
-						# find the closest sibling of child1
-						Min = INFINITY
-						closest_sibling = None
-						for child2 in children:
-							if child1 is not child2:
-								distance = sensor_distance(sensors[child1], sensors[child2])
-								if distance < Min:
-									Min = distance
-									closest_sibling = child2
-						apply_flatten_force(sensors[child1], sensors[closest_sibling])
-					break
+				flatten_children(children)
+				child1, child2 = joining_children(children)
+				if child1 != None and child2 != None:
+					# join children
+					self.join_children_based_on_distance(self.current, child1, child2)
+				break
 
 	def draw_chain_graph(self):
 		# traverse the graph and draw edges one by one
@@ -553,33 +755,14 @@ def apply_drag():
 		# 	print ((-1*sensor.body.velocity[0]/drag_factor), (-1*sensor.body.velocity[1]/drag_factor))
 		# 	print air_drag
 
-def stop_sensors():
-	flag = True
-	print "stopping sensors"
-	while flag:
-		for sensor in sensors:
-			reverse_velocity = (-sensor.body.velocity[0], -sensor.body.velocity[1])
-			if abs(reverse_velocity[0]) <= delta and abs(reverse_velocity[1]) <= delta:
-				flag = False
-			sensor.body.apply_impulse(reverse_velocity, (0,0))
-		space.step(1/100.0)
-		init_screen()
-		update_sensor_positions()
-		for chain_graph in chain_graphs.values():
-			chain_graph.draw_chain_graph()
-		pygame.display.flip()
-		pygame_clock.tick(50)
-		print "yaa"
-	print "Stop hoo gaye sab"
-
 def update_sensor_positions():
 	# update positions after applying forces
 	for sensor in sensors:
 		sensor.update_position(sensor.body.position)
 
 def get_left_sensor():
-	left_sensor = None
-	left_chain_graph = None
+	global left_sensor
+	global left_chain_graph
 	
 	# get the leftmost sensor and corresponding chain graph
 	Min = INFINITY
@@ -596,8 +779,8 @@ def get_left_sensor():
 	return left_sensor, left_chain_graph
 
 def get_right_sensor():
-	right_sensor = None
-	right_chain_graph = None
+	global right_sensor
+	global right_chain_graph
 	
 	# get the leftmost sensor and corresponding chain graph
 	Max = 0.0
@@ -717,8 +900,16 @@ def barrier_covered():
 	return False
 
 def merge_chain_graphs(chain_graph1_id, chain_graph2_id):
+	global left_chain_graph
+	global right_chain_graph
+	# chain graph 1 or 2 maybe left or right chain graphs. Hence, we need to update after merge
+
 	chain_graph1 = chain_graphs[chain_graph1_id]
 	chain_graph2 = chain_graphs[chain_graph2_id]
+	if chain_graph2 is left_chain_graph:
+		left_chain_graph = chain_graph1
+	elif chain_graph2 is right_chain_graph:
+		right_chain_graph = chain_graph1
 	# copy the chain graph2 in chain graph1
 	for sensor, neighbor_sensors in chain_graph2.graph.iteritems():
 		chain_graph1.graph[sensor] = neighbor_sensors
@@ -747,7 +938,10 @@ def dominant_points_meet():
 					return True
 	return False
 
+# denotes if some force greater than force Threshold
+force_flag = False
 def apply_forces():
+	global force_flag
 	# apply forces on all dominant points
 	if len(chain_graphs) == 1:
 		return
@@ -756,12 +950,24 @@ def apply_forces():
 			print "chain graph = " + str(chain_graph.id)
 		Force = force(sensors[chain_graph.dominant], sensors[chain_graph.dominant_neighbor])
 		if Force > FORCE_THRESHOLD:
+			force_flag = True
 			# print Force
 			Force = FORCE_THRESHOLD
 		distance = sensor_distance(sensors[chain_graph.dominant], sensors[chain_graph.dominant_neighbor])
 		Force_x = Force * (sensors[chain_graph.dominant_neighbor].x - sensors[chain_graph.dominant].x) / distance
 		Force_y = Force * (sensors[chain_graph.dominant_neighbor].y - sensors[chain_graph.dominant].y) / distance
 		sensors[chain_graph.dominant].body.apply_force((Force_x,Force_y),(0,0))
+
+counter = 0
+def stop_sensors():
+	global counter
+	global force_flag
+	if force_flag:
+		counter += 1
+		if counter%100 == 0:
+			force_flag = False
+			for chain_graph in chain_graphs.values():
+				chain_graph.reset_forces()
 
 def print_results():
 	# verify edges
@@ -770,13 +976,18 @@ def print_results():
 		chain_graph.verify_edges()
 
 	distance = 0.0
+	displacement = 0.0
 	print "Printing Results:"
 	for sensor in sensors:
 		sensor.print_results()
 		distance += sensor.distance
+		displacement += euclidean_distance(sensor.init_x, sensor.init_y, sensor.x, sensor.y)
 
-	distance /= numberOfSensors
-	print "Avg Distance : " + str(distance)
+	avg_distance = distance / numberOfSensors
+	avg_displacement = displacement / numberOfSensors
+	print "\n\nAvg Distance : " + str(avg_distance)
+	print "Avg Displacement : " + str(avg_displacement)
+
 
 def simulate():
 	read_sensor_input()
@@ -810,6 +1021,7 @@ def simulate():
 			apply_drag()
 			update_sensor_positions()
 			space.step(1/100.0)
+			stop_sensors()
 			pygame.display.flip()
 			pygame_clock.tick(50)
 			# time.sleep(0.5)
