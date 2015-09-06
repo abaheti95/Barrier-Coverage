@@ -133,8 +133,8 @@ class Sensor():
 		pygame_screen.blit(dist_from_leaf_label, p)
 
 	def get_distance_from_leaf(self):
-		if self.dist_from_leaf <= 1:
-			return 1
+		if self.dist_from_leaf == 0:
+			return 0.5
 		elif self.dist_from_leaf >= 3:
 			return 3
 		else:
@@ -160,8 +160,8 @@ def force1(sensor1, sensor2):
 	if distance <= 2*sensingRange:
 		# two sensors are intersecting therefore no force
 		return 0.0
-	FORCE_FACTOR = beltWidth * beltHeight / sensingRange / sensingRange / 400
-	force = FORCE_FACTOR / distance / sensor1.get_distance_from_leaf() / sensor2.get_distance_from_leaf()
+	FORCE_FACTOR = beltWidth * beltHeight * sensingRange * sensingRange / 5
+	force = FORCE_FACTOR / distance / (sensor1.get_distance_from_leaf() + sensor2.get_distance_from_leaf())
 	return force
 
 def force(sensor1, sensor2):
@@ -169,7 +169,7 @@ def force(sensor1, sensor2):
 	return force1(sensor1, sensor2)
 
 def apply_flatten_force(sensor1, sensor2):
-	Force = 0.15
+	Force = 0.10
 	# apply forces on all dominant points
 	distance = sensor_distance(sensor1, sensor2)
 	Force_x = Force * (sensor2.x - sensor1.x) / distance
@@ -502,7 +502,7 @@ class ChainGraph():
 			flatten_children(unmarked_siblings)
 			child1, child2 = joining_children(unmarked_siblings)
 			if child1 != None and child2 != None:
-				self.join_children_based_on_distance(child1, child2)
+				self.join_children_based_on_distance(self.current, child1, child2)
 		else:
 			# 2 - current sensor has both marked and edge marked sensors as sibling along with 0 or more unmarked siblings
 			# Here again we have 2 possibilities
@@ -526,8 +526,7 @@ class ChainGraph():
 				# 2.2 - Root node has both marked and edge marked 
 				# Therefore, move the unmarked towards marked sensor
 				flatten_children((marked_siblings | unmarked_siblings))
-				child1, child2 = joining_children((unmarked_siblings | edge_marked_siblings))
-				# TODO: join children
+				child1, child2 = joining_children((marked_siblings | unmarked_siblings))
 				if child1 != None and child2 != None:
 					# check if any of them in edge_marked_siblings
 					if child1 in marked_siblings or child2 in marked_siblings:
@@ -607,11 +606,7 @@ class ChainGraph():
 		print ((Max - Min) + 2*sensingRange + 2*delta)
 		return (((Max - Min) + 2*sensingRange + 2*delta) >= beltWidth)
 
-	def calculate_dominant_point(self):
-		# check distance with all possible sensors and calculate the maximum force
-		other_sensors = list(set(range(numberOfSensors)) - set(self.graph.keys()))
-		self.print_graph()
-		print other_sensors
+	def calculate_dominant_for_given_set(self,other_sensors):
 		# a dictionary which will store local maximal forces for each of the sensor and ther corresponding neighbors
 		local_forces = dict()
 		for key in self.graph.keys():
@@ -629,11 +624,36 @@ class ChainGraph():
 			local_forces[key] = (local_force, local_neighbor)
 		# find the sensor with maximum local force
 		global_force = 0.0
+		dominant = None
+		dominant_neighbor = None
 		for sensor, value in local_forces.iteritems():
 			if global_force < value[0]:
 				global_force = value[0]
-				self.dominant = sensor
-				self.dominant_neighbor = value[1]
+				dominant = sensor
+				dominant_neighbor = value[1]
+		return dominant, dominant_neighbor
+
+	def calculate_dominant_point(self):
+		# TODO: Include the cases for left and righ boundary chains
+		if self is left_chain_graph or self is right_chain_graph:
+			if self is left_chain_graph:
+				other_chain_graph = right_chain_graph
+			else:
+				other_chain_graph = left_chain_graph
+			# we calculate dominant point twice for this case
+			# once without taking other_chain_graph sensors into consideration and once taking them into consideration
+			other_sensors = list(set(range(numberOfSensors)) - set(self.graph.keys()))
+			dominant_w, dominant_neighbor_w = self.calculate_dominant_for_given_set(other_sensors)
+			other_sensors = list(set(other_sensors) - set(other_chain_graph.graph.keys()))
+			dominant_wo, dominant_neighbor_wo = self.calculate_dominant_for_given_set(other_sensors)
+			# if with and without other_chain_graph the dominaint points are differnet and the edge chain graphs are not expandable then keep without
+			if dominant_neighbor_w != dominant_neighbor_wo and dominant_wo != None and (((len(self.graph.keys()) + len(other_chain_graph.graph.keys())) * 2.0 * sensingRange) < beltWidth):
+				self.dominant, self.dominant_neighbor = dominant_wo, dominant_neighbor_wo
+			else:
+				self.dominant, self.dominant_neighbor = dominant_w, dominant_neighbor_w
+		else:
+			other_sensors = list(set(range(numberOfSensors)) - set(self.graph.keys()))
+			self.dominant, self.dominant_neighbor = self.calculate_dominant_for_given_set(other_sensors)
 		print self.id,
 		print " : ",
 		print self.dominant,
@@ -964,7 +984,7 @@ def stop_sensors():
 	global force_flag
 	if force_flag:
 		counter += 1
-		if counter%100 == 0:
+		if counter%80 == 0:
 			force_flag = False
 			for chain_graph in chain_graphs.values():
 				chain_graph.reset_forces()
