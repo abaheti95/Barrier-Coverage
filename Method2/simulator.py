@@ -8,53 +8,167 @@ import pymunk
 
 INFINITY = 10000000000
 FORCE_THRESHOLD = 1
-# Enable or disable DEBUG
-DEBUG = True
+VELOCITY_THRESHOLD = 1
+PHASER = False
 
-#Taking sensing range as input
-sensingRange = float(input("Enter the sensing range of the sensors : "))
-beltWidth = float(input("Enter the beltWidth : "))
-beltHeight = float(input("Enter the beltHeight: "))
-numberOfSensors = int(input("Enter the number of sensors: "))
+COUNTER_STEP = 80
+# Enable or disable DEBUG
+DEBUG = False
+DEBUG2 = False
 
 # Initializing pymunk and pygame
 # Small error quantity and small pointmass radius
 delta = 0.01
 
-pygame.init()
 padding = 10
 max_screen_width = 1180
 max_screen_height = 600
+
+sensingRange = None
+beltWidth = None
+beltHeight = None
+numberOfSensors = None
 screen_width = None
 screen_height = None
-# calculate screen width and heigh based on the belt width and height
-if (max_screen_width/max_screen_height) <= (beltWidth/beltHeight):
-	# width preference
-	screen_height = (max_screen_width * beltHeight / beltWidth);
-	screen_width = max_screen_width;
-else:
-	# height preference
-	screen_height = max_screen_height;
-	screen_width = (max_screen_height * beltWidth / beltHeight);
-
-pygame_screen = pygame.display.set_mode((max_screen_width + 2*padding + 100,max_screen_height + 2*padding + 100))
-pygame.display.set_caption("Barrier Coverage Simulation")
-pygame_clock = pygame.time.Clock()
-
-
-space = pymunk.Space()
-# gravity free environment
-space.gravity = (0.0, 0.0)
-
-# Global list of sensors and chain graphs
-sensors = []
-chain_graphs = dict()
-
-# Right Sensor and Left Sensor are special sensors therefore they have a global reference
+screen_width = None
+pygame_screen = None
+pygame_clock = None
+space = None
+sensors = None
+chain_graphs = None
 left_sensor = None
 right_sensor = None
 left_chain_graph = None
 right_chain_graph = None
+
+def init():
+	global sensingRange
+	global beltWidth
+	global beltHeight
+	global numberOfSensors
+	global screen_width
+	global screen_height
+	global screen_width
+	global pygame_screen
+	global pygame_clock
+	global space
+	global sensors
+	global chain_graphs
+	global left_sensor
+	global right_sensor
+	global left_chain_graph
+	global right_chain_graph
+	#Taking sensing range as input
+	sensingRange = float(input("Enter the sensing range of the sensors : "))
+	beltWidth = float(input("Enter the beltWidth : "))
+	beltHeight = float(input("Enter the beltHeight: "))
+	numberOfSensors = int(input("Enter the number of sensors: "))
+
+	# Initializing pymunk and pygame
+	# Small error quantity and small pointmass radius
+	delta = 0.01
+
+	pygame.init()
+	padding = 10
+	max_screen_width = 1180
+	max_screen_height = 600
+	screen_width = None
+	screen_height = None
+	# calculate screen width and heigh based on the belt width and height
+	# if (max_screen_width/max_screen_height) <= (beltWidth/beltHeight):
+	# 	# width preference
+	# 	screen_height = (max_screen_width * beltHeight / beltWidth);
+	# 	screen_width = max_screen_width;
+	# else:
+		# height preference
+	screen_height = max_screen_height;
+	screen_width = (max_screen_height * beltWidth / beltHeight);
+
+	pygame_screen = pygame.display.set_mode((max_screen_width + 2*padding + 100,max_screen_height + 2*padding + 100))
+	pygame.display.set_caption("Barrier Coverage Simulation")
+	pygame_clock = pygame.time.Clock()
+
+
+	space = pymunk.Space()
+	# gravity free environment
+	space.gravity = (0.0, 0.0)
+
+	# Global list of sensors and chain graphs
+	sensors = []
+	chain_graphs = dict()
+
+	# Right Sensor and Left Sensor are special sensors therefore they have a global reference
+	left_sensor = None
+	right_sensor = None
+	left_chain_graph = None
+	right_chain_graph = None
+
+	read_sensor_input()
+
+def init_param(SensingRange,BeltWidth,BeltHeight,NumberOfSensors,X,Y):
+	global sensingRange
+	global beltWidth
+	global beltHeight
+	global numberOfSensors
+	global screen_width
+	global screen_height
+	global screen_width
+	global pygame_screen
+	global pygame_clock
+	global space
+	global sensors
+	global chain_graphs
+	global left_sensor
+	global right_sensor
+	global left_chain_graph
+	global right_chain_graph
+	#Taking sensing range as input
+	sensingRange = SensingRange
+	beltWidth = BeltWidth
+	beltHeight = BeltHeight
+	numberOfSensors = NumberOfSensors
+
+	# Initializing pymunk and pygame
+	# Small error quantity and small pointmass radius
+	delta = 0.01
+
+	pygame.init()
+	padding = 10
+	max_screen_width = 1180
+	max_screen_height = 600
+	screen_width = None
+	screen_height = None
+	# calculate screen width and heigh based on the belt width and height
+	if (max_screen_width/max_screen_height) <= (beltWidth/beltHeight):
+		# width preference
+		screen_height = (max_screen_width * beltHeight / beltWidth);
+		screen_width = max_screen_width;
+	else:
+		# height preference
+		screen_height = max_screen_height;
+		screen_width = (max_screen_height * beltWidth / beltHeight);
+
+	pygame_screen = pygame.display.set_mode((max_screen_width + 2*padding + 100,max_screen_height + 2*padding + 100))
+	pygame.display.set_caption("Barrier Coverage Simulation")
+	pygame_clock = pygame.time.Clock()
+
+
+	space = pymunk.Space()
+	# gravity free environment
+	space.gravity = (0.0, 0.0)
+
+	# Global list of sensors and chain graphs
+	sensors = []
+	chain_graphs = dict()
+
+	# Right Sensor and Left Sensor are special sensors therefore they have a global reference
+	left_sensor = None
+	right_sensor = None
+	left_chain_graph = None
+	right_chain_graph = None
+
+	read_sensor_input_param(X,Y)
+
 
 def get_screen_coordinates(x, y):
 	scale = screen_width / beltWidth
@@ -67,6 +181,9 @@ def euclidean_distance(x1, y1, x2, y2):
 	change_y = y2 - y1
 	distance_square = change_x*change_x + change_y*change_y
 	return math.sqrt(distance_square)
+
+def vector_magnitude(x, y):
+	return math.sqrt(x*x + y*y)
 
 class Sensor():
 	"""Sensor is a class holding data regarding individual sensor"""
@@ -108,27 +225,30 @@ class Sensor():
 	def print_sensor(self):
 		print "Id : " + str(self.id),
 		print "x : " + str(self.x) + " y : " + str(self.y)
+		print "Body ref : ",
+		print self.body 
 
 	def draw_sensor(self):		
 		scale = screen_width / beltWidth
 		p = self.get_screen_coordinates()
 		pygame.draw.circle(pygame_screen, THECOLORS["red"], p, int(sensingRange * scale), 1)
-		coordinate_text = "%d(%.1f,%.1f)" % (self.id,self.x, self.y)
-		coordinate_font = pygame.font.SysFont("comicsansms", 15)
-		coordinate_label = coordinate_font.render(coordinate_text, 1, THECOLORS["black"])
-		p = list(p)
-		p[0] -= 30
-		p[1] -= 25
-		p = tuple(p)
-		pygame_screen.blit(coordinate_label, p)
+		if DEBUG:
+			coordinate_text = "%d(%.1f,%.1f)" % (self.id,self.x, self.y)
+			coordinate_font = pygame.font.SysFont("comicsansms", 15)
+			coordinate_label = coordinate_font.render(coordinate_text, 1, THECOLORS["black"])
+			p = list(p)
+			p[0] -= 30
+			p[1] -= 25
+			p = tuple(p)
+			pygame_screen.blit(coordinate_label, p)
 		if self.dist_from_leaf == None:
 			print str(self.id)
 		dist_from_leaf_text = "%d" % (self.dist_from_leaf)
-		dist_from_leaf_font = pygame.font.SysFont("comicsansms", 15)
+		dist_from_leaf_font = pygame.font.SysFont("comicsansms", 12)
 		dist_from_leaf_label = dist_from_leaf_font.render(dist_from_leaf_text, 1, THECOLORS["black"])
 		p = list(p)
-		p[0] += 15
-		p[1] += 25
+		p[0] += -3
+		p[1] += 7
 		p = tuple(p)
 		pygame_screen.blit(dist_from_leaf_label, p)
 
@@ -159,21 +279,31 @@ def force1(sensor1, sensor2):
 	distance = sensor_distance(sensor1, sensor2)
 	if distance <= 2*sensingRange:
 		# two sensors are intersecting therefore no force
-		return 0.0
+		return INFINITY
 	FORCE_FACTOR = beltWidth * beltHeight * sensingRange * sensingRange / 5
 	force = FORCE_FACTOR / distance / (sensor1.get_distance_from_leaf() + sensor2.get_distance_from_leaf())
 	return force
 
+def force2(sensor1, sensor2):
+	distance = sensor_distance(sensor1, sensor2)
+	if distance <= 2*sensingRange:
+		# two sensors are intersecting therefore no force
+		return INFINITY
+	FORCE_FACTOR = beltWidth * beltHeight * sensingRange * sensingRange / 5
+	force = FORCE_FACTOR / distance
+	return force
+
 def force(sensor1, sensor2):
 	# Different force models are to be applied here
-	return force1(sensor1, sensor2)
+	return force2(sensor1, sensor2)
 
 def apply_flatten_force(sensor1, sensor2):
 	Force = 0.10
 	# apply forces on all dominant points
 	distance = sensor_distance(sensor1, sensor2)
-	Force_x = Force * (sensor2.x - sensor1.x) / distance
-	Force_y = Force * (sensor2.y - sensor1.y) / distance
+	Max_distance_factor = beltWidth/30.0
+	Force_x = Force * (sensor2.x - sensor1.x) * distance / Max_distance_factor
+	Force_y = Force * (sensor2.y - sensor1.y) * distance / Max_distance_factor
 	sensor1.body.apply_force((Force_x,Force_y),(0,0))
 
 def flatten_children(children):
@@ -350,9 +480,9 @@ class ChainGraph():
 
 		visited = set()
 		chain_graph_sensors_set = set(self.graph.keys())
-		# mark the leafs first
+		# mark the leafs first except the left and rightmost sensors
 		for sensor in self.graph.keys():
-			if len(self.graph[sensor].keys()) == 1:
+			if len(self.graph[sensor].keys()) == 1 and not (sensors[sensor] is left_sensor or ((sensors[sensor] is right_sensor) and PHASER == False)):
 				sensors[sensor].dist_from_leaf = 0
 				visited.add(sensor)
 			else:
@@ -419,6 +549,7 @@ class ChainGraph():
 
 	# Remove edge from child1 and retain edge with child2
 	def join_children(self, root, child1, child2):
+		global DEBUG2
 		if sensors[child2] is left_sensor or sensors[child2] is right_sensor:
 			# delete the edge of left or right sensor with root
 			join_children(self, root, child2, child1)
@@ -427,6 +558,9 @@ class ChainGraph():
 		self.remove_chain_edge(self.current, child1)
 		self.add_chain_edge(child1, child2)
 		# Update the distance from leaves for all sensors
+		"""if root == 5 and (child1 == 8 or child2 == 6):
+			DEBUG2 = True
+			print (root, child1, child2)"""
 		self.calculate_distances_from_leaves()
 		# reset forces on childs
 		sensors[child1].body.reset_forces()
@@ -602,14 +736,19 @@ class ChainGraph():
 			if sensors[key].x > Max:
 				Max = sensors[key].x
 		# Some error tolerance
-		print "Yahan pe kuch print kyu nahi hua"
 		print ((Max - Min) + 2*sensingRange + 2*delta)
 		return (((Max - Min) + 2*sensingRange + 2*delta) >= beltWidth)
 
 	def calculate_dominant_for_given_set(self,other_sensors):
+		print "CALALALALALALLALALALLA"
 		# a dictionary which will store local maximal forces for each of the sensor and ther corresponding neighbors
 		local_forces = dict()
 		for key in self.graph.keys():
+			if (sensors[key] is left_sensor or sensors[key] is right_sensor) and len(self.graph.keys()) > 1:
+				# If more than one other sensors, then left or right sensors should not be the candidates for dominant points
+				print (key,sensors[key],left_sensor,right_sensor)
+				print "Yahan toh aaya hai!! laisdjfasknfl;sakdjfoiasjfe;li"
+				continue
 			local_forces[key] = None
 			# Maximize the local force on a sensor
 			local_force = 0.0
@@ -638,11 +777,18 @@ class ChainGraph():
 		if self is left_chain_graph or self is right_chain_graph:
 			if self is left_chain_graph:
 				other_chain_graph = right_chain_graph
+				other_sensor = right_sensor
 			else:
 				other_chain_graph = left_chain_graph
+				other_sensor = left_sensor
+			more_than_one_sensors = False
+			if len(other_chain_graph.graph.keys()) > 1:
+				more_than_one_sensors = True
 			# we calculate dominant point twice for this case
 			# once without taking other_chain_graph sensors into consideration and once taking them into consideration
 			other_sensors = list(set(range(numberOfSensors)) - set(self.graph.keys()))
+			if more_than_one_sensors:
+				other_sensors.remove(other_sensor.id)
 			dominant_w, dominant_neighbor_w = self.calculate_dominant_for_given_set(other_sensors)
 			other_sensors = list(set(other_sensors) - set(other_chain_graph.graph.keys()))
 			dominant_wo, dominant_neighbor_wo = self.calculate_dominant_for_given_set(other_sensors)
@@ -735,6 +881,22 @@ def read_sensor_input():
 	# create sensors from sorted coordinates
 	for i in range(numberOfSensors):
 		sensor = Sensor(ID = i, x =  sensor_coordinates[i][0], y =  sensor_coordinates[i][1])
+		sensor.print_sensor()
+		sensors.append(sensor)
+
+	create_chain_graphs()
+
+def read_sensor_input_param(X,Y):
+	sensor_coordinates = []
+	for i in range(numberOfSensors):
+		x = X[i]
+		y = Y[i]
+		sensor_coordinates.append((x,y))
+	sensor_coordinates.sort(key = lambda tup: tup[0]) # in place sorting
+	# create sensors from sorted coordinates
+	for i in range(numberOfSensors):
+		sensor = Sensor(ID = i, x =  sensor_coordinates[i][0], y =  sensor_coordinates[i][1])
+		sensor.print_sensor()
 		sensors.append(sensor)
 
 	create_chain_graphs()
@@ -802,18 +964,21 @@ def get_right_sensor():
 	global right_sensor
 	global right_chain_graph
 	
-	# get the leftmost sensor and corresponding chain graph
+	# get the rightmost sensor and corresponding chain graph
 	Max = 0.0
-	for sensor in sensors:
-		# get max
-		if sensor.x > Max:
-			Max = sensor.x
-			right_sensor = sensor
-	# get chain graph which contains the leftmost sensor
 	for chain_graph in chain_graphs.values():
-		if chain_graph.graph.get(right_sensor.id) != None:
-			right_chain_graph = chain_graph
-			break
+		if chain_graph is left_chain_graph:
+			# if the chain_graph is left chain_graph then check if its extendable or not
+			if (len(chain_graph.graph.keys()) * sensingRange * 2.0) < beltWidth:
+				# if not extendable then simple ignore sensors in this chain graph
+				continue
+		for sensor in chain_graph.graph.keys():
+			# get max
+			if sensors[sensor].x > Max:
+				Max = sensors[sensor].x
+				right_sensor = sensors[sensor]
+				right_chain_graph = chain_graph
+
 	return right_sensor, right_chain_graph
 	
 left_boundary = None
@@ -844,6 +1009,8 @@ def apply_forces_phasel(left_sensor):
 def phasel():
 	global left_groove
 	left_sensor, left_chain_graph = get_left_sensor()
+	print "Left sensor = ",
+	print left_sensor
 	# left_sensor, left_chain_graph = get_right_sensor()
 	# Join some chain graph with the left boundary
 	running = True
@@ -873,6 +1040,7 @@ def phasel():
 	space.add(left_groove)
 	# re-initialize left chain graph for flattening
 	left_chain_graph.init_flatten_properties()
+	left_chain_graph.calculate_distances_from_leaves()
 
 def apply_forces_phaser(right_sensor):
 	# apply impulse on left_sensor towards left
@@ -883,7 +1051,11 @@ def apply_forces_phaser(right_sensor):
 
 def phaser():
 	global right_groove
+	global PHASER
 	right_sensor, right_chain_graph = get_right_sensor()
+	PHASER = True
+	print "Right sensor = ",
+	print right_sensor
 	# Join some chain graph with the right boundary
 	running = True
 	while running:
@@ -910,7 +1082,9 @@ def phaser():
 	right_groove = pymunk.GrooveJoint(right_boundary, right_sensor.body, (0, -(beltHeight/2)), (0, beltHeight/2), (sensingRange,0))
 	space.add(right_groove)
 	# re-initialize right chain graph for flattening
+	PHASER = False
 	right_chain_graph.init_flatten_properties()
+	right_chain_graph.calculate_distances_from_leaves()
 
 def barrier_covered():
 	print "Yahan bhi aaya hai"
@@ -926,9 +1100,15 @@ def merge_chain_graphs(chain_graph1_id, chain_graph2_id):
 
 	chain_graph1 = chain_graphs[chain_graph1_id]
 	chain_graph2 = chain_graphs[chain_graph2_id]
+	if chain_graph1 is left_chain_graph:
+		print "Holy shit"
+		print chain_graph2_id
+		print chain_graphs.keys()
 	if chain_graph2 is left_chain_graph:
+		print "Fuck"
 		left_chain_graph = chain_graph1
 	elif chain_graph2 is right_chain_graph:
+		print "Fuck"
 		right_chain_graph = chain_graph1
 	# copy the chain graph2 in chain graph1
 	for sensor, neighbor_sensors in chain_graph2.graph.iteritems():
@@ -937,9 +1117,12 @@ def merge_chain_graphs(chain_graph1_id, chain_graph2_id):
 	chain_graph1.add_chain_edge(chain_graph1.dominant, chain_graph1.dominant_neighbor)
 	chain_graph1.calculate_distances_from_leaves()
 
+	if chain_graph1 is left_chain_graph and chain_graph1 is right_chain_graph:
+		print "satisfied at last! "
 	# remove chain_graph2 from global dictionary
 	chain_graph2 = None
 	del chain_graphs[chain_graph2_id]
+
 
 def dominant_points_meet():
 	# check if any two dominant points meet
@@ -981,11 +1164,15 @@ def apply_forces():
 counter = 0
 def stop_sensors():
 	global counter
-	global force_flag
-	if force_flag:
+	velocity_flag = False
+	for sensor in sensors:
+		velocity = sensor.body.velocity
+		if vector_magnitude(*velocity) > VELOCITY_THRESHOLD:
+			velocity_flag = True
+			# print sensor.id,vector_magnitude(*velocity),velocity
+	if velocity_flag:
 		counter += 1
-		if counter%80 == 0:
-			force_flag = False
+		if counter%COUNTER_STEP == 0:
 			for chain_graph in chain_graphs.values():
 				chain_graph.reset_forces()
 
@@ -995,28 +1182,57 @@ def print_results():
 	for chain_graph in chain_graphs.values():
 		chain_graph.verify_edges()
 
+	number_of_sensors_moved = 0
+	max_distance = 0.0
+	min_distance = INFINITY
+	max_displacement = 0.0
+	min_displacement = INFINITY
 	distance = 0.0
 	displacement = 0.0
 	print "Printing Results:"
 	for sensor in sensors:
 		sensor.print_results()
-		distance += sensor.distance
-		displacement += euclidean_distance(sensor.init_x, sensor.init_y, sensor.x, sensor.y)
+		current_distance = sensor.distance
+		current_displacement = euclidean_distance(sensor.init_x, sensor.init_y, sensor.x, sensor.y)
+		distance += current_distance
+		displacement += current_displacement
+		if current_distance > delta:
+			number_of_sensors_moved += 1
+		max_distance = max(current_distance, max_distance)
+		max_displacement = max(current_displacement, max_displacement)
+		min_distance = min(current_distance, min_distance)
+		min_displacement = min(current_displacement, min_displacement)
 
 	avg_distance = distance / numberOfSensors
 	avg_displacement = displacement / numberOfSensors
-	print "\n\nAvg Distance : " + str(avg_distance)
+	print "\n\nNumber of sensors Moved : " + str(number_of_sensors_moved)
+	print "Max Distance : " + str(max_distance)
+	print "Max Displacement : " + str(max_displacement)
+	print "Min Distance : " + str(min_distance)
+	print "Min Displacement : " + str(min_displacement)
+	print "Avg Distance : " + str(avg_distance)
 	print "Avg Displacement : " + str(avg_displacement)
+
+	return number_of_sensors_moved,max_distance,min_distance,max_displacement,min_displacement,avg_distance,avg_displacement
 
 
 def simulate():
-	read_sensor_input()
 	init_simulation()
 
+
+	
+	init_screen()
+	for chain_graph in chain_graphs.values():
+		chain_graph.calculate_distances_from_leaves()
+		chain_graph.draw_chain_graph()
+
+	pygame.display.flip()
+	
 	phasel()
+
 	print "l done"
 	phaser()
-	print "Yahan toh aaya hai!!"
+	print "r done"
 	while not barrier_covered():
 		# get the domianant points for each chain_graph
 		for chain_graph in chain_graphs.values():
@@ -1051,14 +1267,25 @@ def simulate():
 			if flag:
 				break
 
-	print_results()
+	print "final Done"
+	init_screen()
+	print chain_graphs
+	update_sensor_positions()
+	for chain_graph in chain_graphs.values():
+		chain_graph.calculate_distances_from_leaves()
+		chain_graph.draw_chain_graph()
+
+	pygame.display.flip()
 
 def main():
+	init()
 	# we make a console program which continuously takes input from the user
 	# Program will start with a setup screen where the user will place sensors by mouse clicks
 	# on pressing 1 will start the simulation. Simulation automatically stops after 1 min
 	# after simulation is done the user log inputs and outputs or reject them
 	simulate()
+
+	print_results()
 	# time.sleep(100)
 
 if __name__ == '__main__':

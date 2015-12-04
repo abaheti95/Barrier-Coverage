@@ -26,14 +26,14 @@ max_screen_height = 600
 screen_width = None
 screen_height = None
 # calculate screen width and heigh based on the belt width and height
-if (max_screen_width/max_screen_height) <= (beltWidth/beltHeight):
-	# width preference
-	screen_height = (max_screen_width * beltHeight / beltWidth);
-	screen_width = max_screen_width;
-else:
-	# height preference
-	screen_height = max_screen_height;
-	screen_width = (max_screen_height * beltWidth / beltHeight);
+# if (max_screen_width/max_screen_height) <= (beltWidth/beltHeight):
+# 	# width preference
+# 	screen_height = (max_screen_width * beltHeight / beltWidth);
+# 	screen_width = max_screen_width;
+# else:
+# 	# height preference
+screen_height = max_screen_height;
+screen_width = (max_screen_height * beltWidth / beltHeight);
 
 pygame_screen = pygame.display.set_mode((max_screen_width + 2*padding + 100,max_screen_height + 2*padding + 100))
 pygame.display.set_caption("Barrier Coverage Simulation")
