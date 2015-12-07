@@ -326,6 +326,9 @@ def flatten_children(children):
 					closest_sibling = child2
 		apply_flatten_force(sensors[child1], sensors[closest_sibling])
 
+def check_intersecting(sensor1, sensor2):
+	return (sensor_distance(sensor1,sensor2) <= 2*sensingRange)
+
 def joining_children(children):
 	if len(children) == 0:
 		if DEBUG:
@@ -337,7 +340,7 @@ def joining_children(children):
 	child1, child2 = None, None
 	for i in range(len(children)):
 		for j in range(i+1,len(children)):
-			if sensor_distance(sensors[children[i]],sensors[children[j]]) <= 2*sensingRange:
+			if check_intersecting(sensors[children[i]],sensors[children[j]]):
 				child1 = children[i]
 				child2 = children[j]
 				flag = True
@@ -357,6 +360,29 @@ class ChainGraph():
 	# child dictionary is of the form
 	# sensor_id : pymunk_joint_ref
 	def init_flatten_properties(self):
+		self.current = None
+		if self.dominant != None:
+			if (self is left_chain_graph or self is right_chain_graph) and self != None:
+				# Edge graph so initialize path from dominant to left or right sensor
+				boundary_sensor = None
+				if self is left_chain_graph:
+					boundary_sensor = left_sensor
+				elif self is right_chain_graph:
+					boundary_sensor = right_sensor
+				self.path = self.get_path(self.dominant, boundary_sensor.id)
+				print "\n\n\nBoundary path"
+				print self.dominant
+				print boundary_sensor.id
+				print self.path
+				print "\n\n\n"
+			else:
+				self.path = self.get_longest_path(self.dominant)
+				print "\n\n\nPath"
+				print self.path
+				print "\n\n\n"
+			self.path.reverse()
+
+	"""def init_flatten_properties(self):
 		# tells if a chain link/ sensor node is marked while flattening.. already marked nodes are not to be flattened
 		self.marked = set()
 		# This is applicable only for left and right chain graphs
@@ -416,7 +442,7 @@ class ChainGraph():
 					edge_sensor = children[0]
 				elif number_of_children >= 2:
 					# found a node with more than 1 edge unmarked children, hence break
-					break
+					break"""
 
 	def __init__(self, ID):
 		self.id = ID
@@ -424,9 +450,52 @@ class ChainGraph():
 		# no dominant point selected yet
 		self.dominant = None
 		self.dominant_neighbor = None
-		
+		self.path = None
 		
 		self.init_flatten_properties()
+
+	visited = set()
+	def get_path(self, sensor1, sensor2):
+		global visited
+		visited = set()
+		return self.dfs_path(sensor1, sensor2)
+
+	def dfs_path(self, current, sensor2):
+		global visited
+		visited.add(current)
+		if current == sensor2:
+			return [sensor2]
+		neighbors = self.graph[current]
+		unvisited_vertices = list(set(neighbors) - visited)
+		for vertex in unvisited_vertices:
+			path = self.dfs_path(vertex, sensor2)
+			if path != None:
+				path.append(current)
+				return path
+		return None
+
+	def get_longest_path(self, current):
+		global visited
+		visited = set()
+		return self.dfs_longest_path(current)
+
+	def dfs_longest_path(self, current):
+		global visited
+		visited.add(current)
+
+		neighbors = self.graph[current]
+		unvisited_vertices = list(set(neighbors) - visited)
+		if not unvisited_vertices:
+			# leaf vertex
+			return [current]
+
+		longest_path = []
+		for vertex in unvisited_vertices:
+			path = self.dfs_longest_path(vertex)
+			if len(path) > len(longest_path):
+				longest_path = path
+		longest_path.append(current)
+		return longest_path
 
 	def verify_edges(self):
 		flag = False
@@ -595,7 +664,7 @@ class ChainGraph():
 			else:
 				self.join_children_based_on_distance(boundary_sensor.id, child1, child2)
 	# this function is called when you want to flatten the left or right chain graph i.e. the chain graphs attached to left or right boundary of belt region
-	def flatten_edge(self, root):
+	"""def flatten_edge(self, root):
 		if self.edge_flatten_flag == True:
 			self.collapse_edge_chain()
 		if root == None:
@@ -706,7 +775,61 @@ class ChainGraph():
 				if child1 != None and child2 != None:
 					# join children
 					self.join_children_based_on_distance(self.current, child1, child2)
+				break"""
+
+	def flatten(self, root):
+		if root == None:
+			return
+		# We want to collapse all the other sensors not present in the path on it. We start at the root i.e. dominant point
+		if self.current == None:
+			self.current = root
+
+		while True:
+			if len(self.path) == len(self.graph.keys()):
+				# everything flattened
+				return
+			# get he neighbor verices not present in the path
+			neighbors = self.graph[self.current].keys()
+			neighbors_in_path = list(set(neighbors) & set(self.path))
+			neighbors_not_in_path = list(set(neighbors) - set(neighbors_in_path))
+
+			if len(neighbors_not_in_path) == 0:
+				# Nothing to do at this index. Change current and move ahead
+				current_index = self.path.index(self.current)
+				self.current = self.path[current_index + 1]
+				continue
+			else:
+				# flatten here
+				for sensor in neighbors_not_in_path:
+					# we will put an attractive force towards the sensor in a path closest to it
+					# find closest neighbor present in the path
+					Min_distance = INFINITY
+					partner_sensor = None
+					for other_sensor in neighbors_in_path:
+						distance = sensor_distance(sensors[sensor], sensors[other_sensor])
+						if Min_distance > distance:
+							Min_distance = distance
+							partner_sensor = other_sensor
+					# Apply attractive force and check if intersecting
+
+					apply_flatten_force(sensors[sensor], sensors[partner_sensor])
+					if check_intersecting(sensors[sensor], sensors[partner_sensor]):
+						# remove edge between current and partner_sensor and add sensor in between
+						self.join_children(self.current, partner_sensor, sensor)
+						# if partner sensor comes before current sensor then we have to change current's position
+						current_index = self.path.index(self.current)
+						partner_index = self.path.index(partner_sensor)
+						if current_index > partner_index:
+							self.path.insert(current_index,sensor)
+							# update current
+							self.current = sensor
+						else:
+							self.path.insert(partner_index,sensor)
+						return
 				break
+
+
+
 
 	def draw_chain_graph(self):
 		# traverse the graph and draw edges one by one
@@ -792,7 +915,7 @@ class ChainGraph():
 			dominant_w, dominant_neighbor_w = self.calculate_dominant_for_given_set(other_sensors)
 			other_sensors = list(set(other_sensors) - set(other_chain_graph.graph.keys()))
 			dominant_wo, dominant_neighbor_wo = self.calculate_dominant_for_given_set(other_sensors)
-			# if with and without other_chain_graph the dominaint points are differnet and the edge chain graphs are not expandable then keep without
+			# if with and without other_chain_graph the dominant points are differnet and the edge chain graphs are not expandable then keep without
 			if dominant_neighbor_w != dominant_neighbor_wo and dominant_wo != None and (((len(self.graph.keys()) + len(other_chain_graph.graph.keys())) * 2.0 * sensingRange) < beltWidth):
 				self.dominant, self.dominant_neighbor = dominant_wo, dominant_neighbor_wo
 			else:
@@ -1010,9 +1133,13 @@ def phasel():
 	global left_groove
 	left_sensor, left_chain_graph = get_left_sensor()
 	print "Left sensor = ",
-	print left_sensor
+	print left_sensor.id
+
 	# left_sensor, left_chain_graph = get_right_sensor()
 	# Join some chain graph with the left boundary
+	# First make it ready to flatten
+	left_chain_graph.path = left_chain_graph.get_longest_path(left_sensor.id)
+	left_chain_graph.path.reverse()
 	running = True
 	while running:
 		for event in pygame.event.get():
@@ -1056,6 +1183,9 @@ def phaser():
 	PHASER = True
 	print "Right sensor = ",
 	print right_sensor
+
+	right_chain_graph.path = right_chain_graph.get_longest_path(right_sensor.id)
+	right_chain_graph.path.reverse()
 	# Join some chain graph with the right boundary
 	running = True
 	while running:
@@ -1217,6 +1347,10 @@ def print_results():
 
 
 def simulate():
+	global left_chain_graph
+	global right_chain_graph
+	global left_sensor
+	global right_sensor
 	init_simulation()
 
 
@@ -1271,6 +1405,8 @@ def simulate():
 	init_screen()
 	print chain_graphs
 	update_sensor_positions()
+	left_chain_graph = right_chain_graph = None
+	left_sensor = right_sensor = None
 	for chain_graph in chain_graphs.values():
 		chain_graph.calculate_distances_from_leaves()
 		chain_graph.draw_chain_graph()

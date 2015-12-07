@@ -1,5 +1,6 @@
 import simulator
 import random
+import time
 import numpy as np
 
 # The mass simulations will work in 2 steps
@@ -18,6 +19,12 @@ def generate_input():
 	global y
 	# divide number of sensors and belt region in 3 parts
 	# left sensors
+	x = []
+	y = []
+	current_time = time.time()
+	fraction_time = current_time - int(current_time)
+	nano_seconds = int(fraction_time * 1000000000)
+	random.seed(nano_seconds)
 	for i in range(0,int(numberOfSensors/3)):
 		x.append(random.uniform(beltWidth/numberOfSensors * i,beltWidth/numberOfSensors * (i+1))) 
 		y.append(random.uniform(0.2,2.8))
@@ -39,11 +46,18 @@ def generate_random_input():
 	global y
 	# divide number of sensors and belt region in 3 parts
 	# left sensors
+	x = []
+	y = []
+	current_time = time.time()
+	fraction_time = current_time - int(current_time)
+	nano_seconds = int(fraction_time * 1000000000)
+	random.seed(nano_seconds)
 	for i in range(numberOfSensors):
 		x.append(random.uniform(0.0,beltWidth)) 
 		y.append(random.uniform(0.0,beltHeight))
 
 def main():
+
 	global beltWidth
 	global numberOfSensors
 	# run 10 phases each time increasing the multiplier by 1
