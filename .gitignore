@@ -2,6 +2,13 @@
 !*.cpp
 !*.hpp
 !makefile
-.o
-.txt
-.avi
+*.o
+Method1/Simulations_Log.txt
+Method2/output.txt
+Method2/results.txt
+*.avi
+*.pyc
+*.pdf
+*.png
+*.jpg
+Method1/simulations

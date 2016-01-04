@@ -10,7 +10,7 @@ import numpy as np
 sensingRange = 0.5
 beltWidth = 10.0
 beltHeight = 8.0
-numberOfSensors = 16
+numberOfSensors = 11
 x = []
 y = []
 
@@ -80,8 +80,7 @@ def main():
 	for i in range(number_of_simulations):
 		generate_random_input()
 		simulator.init_param(sensingRange,beltWidth,beltHeight,numberOfSensors,x,y)
-		simulator.simulate()
-		nm, max_dist,min_dist,max_disp,min_disp,avg_dist,avg_disp = simulator.print_results()
+		nm, max_dist,min_dist,max_disp,min_disp,avg_dist,avg_disp = simulator.simulate()
 		number_of_sensors_moved.append(nm)
 		max_distance.append(max_dist)
 		max_displacement.append(max_disp)
