@@ -71,12 +71,22 @@ def main():
 	min_displacement = []
 	avg_distance = []
 	avg_displacement = []
+
+	maintenance_number_of_sensors_moved = []
+	maintenance_max_distance = []
+	maintenance_min_distance = []
+	maintenance_max_displacement = []
+	maintenance_min_displacement = []
+	maintenance_avg_distance = []
+	maintenance_avg_displacement = []
 	
 	multiplier = 5
-	number_of_simulations = 10
+	number_of_simulations = 5
 
 	beltWidth = initial_beltWidth * multiplier
 	numberOfSensors = initial_numberOfSensors * multiplier
+	# no_of_sensors_to_delete = (initial_numberOfSensors - 10) * 3
+	no_of_sensors_to_delete = 7
 	for i in range(number_of_simulations):
 		generate_random_input()
 		simulator.init_param(sensingRange,beltWidth,beltHeight,numberOfSensors,x,y)
@@ -88,6 +98,27 @@ def main():
 		min_displacement.append(min_disp)
 		avg_distance.append(avg_dist)
 		avg_displacement.append(avg_disp)
+
+		# fetch final locations after first simulation
+		sensing_range,belt_width,belt_height,number_of_sensors,X,Y,barrier = simulator.fetch_final_locations()
+		# Take a small random sample of sensors on the barrier
+		barrier.sort()
+		sample = random.sample(range(len(barrier)), no_of_sensors_to_delete)
+		# Delete some of the sensors on the barrier
+		for i in sorted(sample, reverse=True):
+			idx = barrier[i]
+			del X[idx]
+			del Y[idx]
+
+		simulator.init_param(sensingRange,beltWidth,beltHeight,numberOfSensors - no_of_sensors_to_delete,X,Y)
+		nm, max_dist,min_dist,max_disp,min_disp,avg_dist,avg_disp = simulator.simulate()
+		maintenance_number_of_sensors_moved.append(nm)
+		maintenance_max_distance.append(max_dist)
+		maintenance_max_displacement.append(max_disp)
+		maintenance_min_distance.append(min_dist)
+		maintenance_min_displacement.append(min_disp)
+		maintenance_avg_distance.append(avg_dist)
+		maintenance_avg_displacement.append(avg_disp)
 
 
 	print "number of sensors = " + str(numberOfSensors)
@@ -101,6 +132,13 @@ def main():
 	print min_displacement
 	print avg_distance
 	print avg_displacement
+	print maintenance_number_of_sensors_moved
+	print maintenance_max_distance
+	print maintenance_min_distance
+	print maintenance_max_displacement
+	print maintenance_min_displacement
+	print maintenance_avg_distance
+	print maintenance_avg_displacement
 	
 	nm = np.array(number_of_sensors_moved)
 	max_dist = np.array(max_distance)
@@ -109,6 +147,13 @@ def main():
 	min_disp = np.array(min_displacement)
 	avg_dist = np.array(avg_distance)
 	avg_disp = np.array(avg_displacement)
+	maintenance_nm = np.array(maintenance_number_of_sensors_moved)
+	maintenance_max_dist = np.array(maintenance_max_distance)
+	maintenance_min_dist = np.array(maintenance_min_distance)
+	maintenance_max_disp = np.array(maintenance_max_displacement)
+	maintenance_min_disp = np.array(maintenance_min_displacement)
+	maintenance_avg_dist = np.array(maintenance_avg_distance)
+	maintenance_avg_disp = np.array(maintenance_avg_displacement)
 
 	print np.mean(nm)
 	print np.mean(max_dist)
@@ -125,6 +170,22 @@ def main():
 	print np.std(min_disp)
 	print np.std(avg_dist)
 	print np.std(avg_disp)
+
+	print np.mean(maintenance_nm)
+	print np.mean(maintenance_max_dist)
+	print np.mean(maintenance_min_dist)
+	print np.mean(maintenance_max_disp)
+	print np.mean(maintenance_min_disp)
+	print np.mean(maintenance_avg_dist)
+	print np.mean(maintenance_avg_disp)	
+
+	print np.std(maintenance_nm)
+	print np.std(maintenance_max_dist)
+	print np.std(maintenance_min_dist)
+	print np.std(maintenance_max_disp)
+	print np.std(maintenance_min_disp)
+	print np.std(maintenance_avg_dist)
+	print np.std(maintenance_avg_disp)
 
 if __name__ == '__main__':
 	main()

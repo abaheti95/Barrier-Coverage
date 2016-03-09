@@ -10,8 +10,12 @@ INFINITY = 10000000000
 FORCE_THRESHOLD = 1
 VELOCITY_THRESHOLD = 1
 PHASER = False
+# Slow settings
+# CLOCK_TICK = 150
+# SPACE_STEP = 200.0
+# Fast settings
 CLOCK_TICK = 500
-SPACE_STEP = 20.0
+SPACE_STEP = 30.0
 
 COUNTER_STEP = 80
 # Enable or disable DEBUG
@@ -229,10 +233,10 @@ class Sensor():
 		print "Body ref : ",
 		print self.body 
 
-	def draw_sensor(self):		
+	def draw_sensor(self, color="red"):
 		scale = screen_width / beltWidth
 		p = self.get_screen_coordinates()
-		pygame.draw.circle(pygame_screen, THECOLORS["red"], p, int(sensingRange * scale), 1)
+		pygame.draw.circle(pygame_screen, THECOLORS[color], p, int(sensingRange * scale), 1)
 		if DEBUG:
 			coordinate_text = "%d(%.1f,%.1f)" % (self.id,self.x, self.y)
 			coordinate_font = pygame.font.SysFont("comicsansms", 15)
@@ -249,6 +253,7 @@ class Sensor():
 			dist_from_leaf_text = "%d" % (self.dist_from_leaf)
 		else:
 			dist_from_leaf_text = "x"
+		"""
 		dist_from_leaf_font = pygame.font.SysFont("comicsansms", 12)
 		dist_from_leaf_label = dist_from_leaf_font.render(dist_from_leaf_text, 1, THECOLORS["black"])
 		p = list(p)
@@ -256,6 +261,7 @@ class Sensor():
 		p[1] += 7
 		p = tuple(p)
 		pygame_screen.blit(dist_from_leaf_label, p)
+		"""
 
 	def get_distance_from_leaf(self):
 		if self.dist_from_leaf == 0:
@@ -298,9 +304,19 @@ def force2(sensor1, sensor2):
 	force = FORCE_FACTOR / distance
 	return force
 
+def force3(sensor1, sensor2):
+	distance = sensor_distance(sensor1, sensor2)
+	if distance <= 2*sensingRange:
+		# two sensors are intersecting therefore no force
+		return INFINITY
+	FORCE_FACTOR = beltWidth * beltHeight * sensingRange * sensingRange
+	force = distance / FORCE_FACTOR
+	return force
+
 def force(sensor1, sensor2):
 	# Different force models are to be applied here
 	return force2(sensor1, sensor2)
+	# return force3(sensor1, sensor2)
 
 def apply_flatten_force(sensor1, sensor2):
 	Force = 0.10
@@ -848,7 +864,12 @@ class ChainGraph():
 				pygame.draw.lines(pygame_screen, THECOLORS["green"], False, [p1,p2])
 		# draw all the sensors of the chain graph
 		for key in self.graph.keys():
-			sensors[key].draw_sensor()
+			if self.dominant == key:
+				sensors[key].draw_sensor("green")
+			elif self.path is not None and key in self.path:
+				sensors[key].draw_sensor("blue")
+			else:
+				sensors[key].draw_sensor()
 
 	def print_graph(self):
 		print "Chain Graph : " + str(self.id)
@@ -1322,19 +1343,45 @@ def stop_sensors():
 			for chain_graph in chain_graphs.values():
 				chain_graph.reset_forces()
 
+def save_locations(barrier):
+	# We save all the final locations of sensors in a text file
+	f = open('locations.txt', 'w')
+
+	# First write the barrier dimensions and sensing range
+	f.write(str(beltWidth) + "\n")
+	f.write(str(beltHeight) + "\n")
+	f.write(str(sensingRange) + "\n")
+
+	# Write the number of sensors
+	f.write(str(numberOfSensors) + "\n")
+	# write sensor_id, x and y coordinates of all the sensors
+	for sensor in sensors:
+		f.write(str(sensor.id) + "\n")
+		f.write(str(sensor.x) + "\n")
+		f.write(str(sensor.y) + "\n")
+	# Mention the ids of the sensors present on the barrier
+	f.write(str(barrier) + "\n")
+
+def fetch_final_locations():
+	barrier = right_chain_graph.get_path(left_sensor.id, right_sensor.id)
+	X = [sensor.x for sensor in sensors]
+	Y = [sensor.y for sensor in sensors]
+	return sensingRange, beltWidth, beltHeight, numberOfSensors, X, Y, barrier
+
 def print_results():
 	# verify edges
 	print "List of sensor links which are violating the conditions :"
 	for chain_graph in chain_graphs.values():
 		chain_graph.verify_edges()
 
-	# TODO: Include only those sensors which are actually contributing to the barrier
+	# Include only those sensors which are actually contributing to the barrier
 	# Extract the path from left sensor to right sensor and clear displacement of all other sensors
 	barrier = right_chain_graph.get_path(left_sensor.id, right_sensor.id)
-	for sensor in sensors:
-		if sensor.id not in barrier:
-			sensor.x = sensor.init_x
-			sensor.y = sensor.init_y
+	save_locations(barrier)
+	# for sensor in sensors:
+	# 	if sensor.id not in barrier:
+	# 		sensor.x = sensor.init_x
+	# 		sensor.y = sensor.init_y
 	print barrier
 	print len(barrier)
 
