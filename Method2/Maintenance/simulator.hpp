@@ -2,6 +2,7 @@
 #define SIMULATOR_HPP
 
 #include "Coordinate.hpp"
+#include "Force.hpp"
 #include "Sensor.hpp"
 #include "Event.hpp"
 #include <cstdio>

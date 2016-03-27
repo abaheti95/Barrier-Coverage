@@ -3,9 +3,17 @@
 
 using namespace std;
 enum Type {
-	SENSOR_FAILURE,
-	FAILURE_DETECTED
+	SENSOR_FAILURE,				// Some sensor fails
+	FAILURE_DETECTED,			// Some sensor detects a failure within its communication range
+	BRANCH_CONNECT_TO_DST,		// Tell the branch sensor to connect to the nearest sensor on the barrier
+	BARRIER_CONNECT_TO_DST		// Tell the barrier sensor to connect to the nearest sensor on the barrier
+
 };
+
+enum Direction {
+	LEFT,
+	RIGHT
+}
 
 struct Event {
 	// This is an event information bundled up in a class
@@ -13,6 +21,8 @@ struct Event {
 	int failed_node;			// In case of Node Failure Event, tells which node has failed
 	int failed_index;			// Index of id of failed node in the barrier array
 	int id;						// ID of the concerned sensor node
+	int dst_id;					// ID of the destination sensor. The sensor to which the current sensor has to connect.
+	Direction direction;		// Tells which side of the current sensor is broken
 };
 
 
