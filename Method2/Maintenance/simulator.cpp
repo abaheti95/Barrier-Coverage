@@ -1,7 +1,9 @@
 #include "simulator.hpp"
 
-#define MAX_SENSORS 100
-#define INFINITY_DOUBLE 100000000.0
+using namespace std;
+
+const int MAX_SENSORS = 100;
+const double INFINITY_DOUBLE = 100000000.0;
 
 #define VMAX (2.0 * sensing_range)
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
@@ -23,15 +25,25 @@ int within_range[MAX_SENSORS];	// List of sensor IDs that are within the communi
 vector< vector< int > > sensor_graph;	// Complete Sensor Graph
 
 // Event Priority Queue
+typedef pair<int, Event> P;
 struct Order {
 	bool operator()(P const& a, P const& b) const {
 		return a.first < b.first;
 	}
 };
-typedef pair<int, Event> P;
 priority_queue< P, vector<P>, Order> events;
 
 const Force null_force(0.0,0.0);
+
+
+
+/****************** Simulation display code *****************/
+const int display_width = 1000;
+const int display_height = 800;
+const int window_width = 1050;
+const int window_height = 850;
+
+/****************** End of display code *********************/
 
 void read_input_data() {
 	// The data is assumed to be coming from stdin
@@ -69,13 +81,14 @@ void read_input_data() {
 	}
 	// Read the Sensor Graph
 	for(int i = 0; i < n_sensors; i++) {
-		sensor_graph.append(new vector<int>())
+		vector<int> row;
 		int n, id;
 		scanf("%d", &n);
 		for(int j = 0; j < n; j++) {
 			scanf("%d", &id);
-			sensor_graph[i].append(id)
+			row.push_back(id);
 		}
+		sensor_graph.push_back(row);
 	}
 }
 
@@ -84,7 +97,7 @@ void initialize_data() {
 
 	// Copy the locations into Sensor nodes
 	for(int i = 0; i < n_sensors; i++) {
-		sensors[i].id = id;
+		sensors[i].id = i;
 		sensors[i].init_x = sensors[i].x = sensor_loc[i].x;
 		sensors[i].init_y = sensors[i].y = sensor_loc[i].y;
 	}
@@ -97,7 +110,7 @@ void initialize_data() {
 		current_node.on_barrier = true;
 		current_node.barrier_index = i;
 		// Left Sensors
-		for(int j = 1; <= K; j++) {
+		for(int j = 1; j <= K; j++) {
 			// Check if the desired sensor within index range
 			if((i - j) >= 0) {
 				current_node.left_nodes.push_back(barrier[i - j]);
@@ -106,7 +119,7 @@ void initialize_data() {
 			}
 		}
 		// Right Sensors
-		for(j = 1; <= K; j++) {
+		for(int j = 1; j <= K; j++) {
 			// Check if the desired sensor within index range
 			if((i + j) < barrier_len) {
 				current_node.right_nodes.push_back(barrier[i + j]);
@@ -133,7 +146,7 @@ void initialize_data() {
 
 void fail_sensors(int n) {
 	// Number of sensors to be removed is taken as input
-	start_index = rand() % (barrier_len - n);
+	int start_index = rand() % (barrier_len - n);
 	for(int i = start_index; i < start_index + n; i++) {
 		sensors[barrier[i]].has_failed = true;
 		// Create and add event in the queue
@@ -151,13 +164,13 @@ void initialize(int n) {
 	fail_sensors(n);
 }
 
-inline double distance(x1, y1, x2, y2) {
-	diff_x = x2 - x1;
-	diff_y = y2 - y1;
+inline double distance(double x1, double y1, double x2, double y2) {
+	double diff_x = x2 - x1;
+	double diff_y = y2 - y1;
 	return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
-inline double distance(Sensor& s1, Sensor& s2) {
+inline double sensor_distance(Sensor& s1, Sensor& s2) {
 	return distance(s1.x, s1.y, s2.x, s2.y);
 }
 
@@ -246,11 +259,11 @@ void search_sensors_within_communication_range(int index) {
 		if(i == index) {
 			continue;
 		}
+		Sensor& current = sensors[i];
 		// Ignore the failed sensors in computation
 		if(current.has_failed) {
 			continue;
 		}
-		Sensor& current = sensors[i];
 		if(distance(sensor.x, sensor.y, current.x, current.y) <= communication_range) {
 			within_range[k++] = i;
 		}
@@ -258,7 +271,7 @@ void search_sensors_within_communication_range(int index) {
 	within_range[k] = -1;
 }
 
-void handle_sensor_failure(timestamp, Event& e) {
+void handle_sensor_failure(int timestamp, Event& e) {
 	// Get the ID of the failed node and trigger the nodes adjacent to it
 	search_sensors_within_communication_range(e.failed_node);
 	for(int i = 0; i < n_sensors; i++) {
@@ -271,7 +284,7 @@ void handle_sensor_failure(timestamp, Event& e) {
 		failure_detected.id = within_range[i];
 		failure_detected.failed_node = e.failed_node;
 		failure_detected.failed_index = e.failed_index;
-		events.push(make_pair(timestamp + 1, failure_detected))
+		events.push(make_pair(timestamp + 1, failure_detected));
 	}
 }
 
@@ -281,7 +294,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 		Sibling_Type stype = sensor.is_adjacent(e.failed_node);
 		if(stype == NO_SIBLING) {
 			// Don't care
-			return
+			return;
 		} else if(stype == BRANCH_SIBLING) {
 			// Search for nearest sensor within communication range which is on barrier
 			int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
@@ -298,7 +311,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 				follow_dst.type = BRANCH_CONNECT_TO_DST;
 				follow_dst.id = e.id;
 				follow_dst.dst_id = dst_sensor_id;
-				events.push(make_pair(timestamp + 1, follow_dst))
+				events.push(make_pair(timestamp + 1, follow_dst));
 			}
 		} else if(stype == LEFT_SIBLING) {
 			// Search in the left side for a barrier sensor
@@ -395,8 +408,8 @@ Force calculate_branch_forces(Sensor& sensor) {
 	Force f;
 	for(int i = 0; i < (int)sensor.branches.size(); i++) {
 		Sensor& branch = sensors[sensor.branches[i]];
-		f.x += sensor_force(branch.x - sensor.x)
-		f.y += sensor_force(branch.y - sensor.y)
+		f.x += sensor_force(branch.x - sensor.x);
+		f.y += sensor_force(branch.y - sensor.y);
 	}
 	return f;
 }
@@ -437,7 +450,7 @@ void apply_chain_force(Sensor& sensor) {
 }
 
 bool check_connected(Sensor& sensor, Sensor& dst_sensor) {
-	return (distance(sensor, dst_sensor) <= (2*sensing_range));
+	return (distance(sensor.x, sensor.y, dst_sensor.x, dst_sensor.y) <= (2*sensing_range));
 }
 
 void handle_branch_connect(int timestamp, Event& e) {
@@ -469,7 +482,7 @@ void handle_branch_connect(int timestamp, Event& e) {
 		Event follow_dst;
 		follow_dst.type = BRANCH_CONNECT_TO_DST;
 		follow_dst.id = e.id;
-		follow_dst.dst_id = dst_sensor_id;
+		follow_dst.dst_id = e.dst_id;
 		events.push(make_pair(timestamp + 1, follow_dst));
 	}
 }
@@ -506,22 +519,23 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			Event follow_dst;
 			follow_dst.type = BRANCH_CONNECT_TO_DST;
 			follow_dst.id = e.id;
-			follow_dst.dst_id = dst_sensor_id;
+			follow_dst.dst_id = e.dst_id;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	} else {
 		// go to the next_hop node location
 		Sensor& dst_sensor = sensors[sensor.next_hop_node];
-		if(distance(sensor, dst_sensor) <= VMAX) {
-			sensor.distance += distance(sensor, dst_sensor);
+		if(sensor_distance(sensor, dst_sensor) <= VMAX) {
+			sensor.distance += sensor_distance(sensor, dst_sensor);
 			sensor.x = dst_sensor.x;
 			sensor.y = dst_sensor.y;
 			// Reached next hop location
 			// Search for any sensor in proximity, if found update the destination sensor
+			int dst_sensor_id;
 			if(e.direction == LEFT) {
-				int dst_sensor_id = nearest_left_barrier_sensor_within_communication_range(e.id);
+				dst_sensor_id = nearest_left_barrier_sensor_within_communication_range(e.id);
 			} else if(e.direction == RIGHT) {
-				int dst_sensor_id = nearest_right_barrier_sensor_within_communication_range(e.id);
+				dst_sensor_id = nearest_right_barrier_sensor_within_communication_range(e.id);
 			}
 			if(dst_sensor_id != -1) {
 				// We have a destination sensor now
@@ -581,7 +595,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			Event follow_dst;
 			follow_dst.type = BRANCH_CONNECT_TO_DST;
 			follow_dst.id = e.id;
-			follow_dst.dst_id = dst_sensor_id;
+			follow_dst.dst_id = e.dst_id;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	}
@@ -613,7 +627,7 @@ void maintain() {
 }
 void delete_sensor_graph() {
 	for(int i = 0; i < n_sensors; i++) {
-		delete sensor_graph[i];
+		sensor_graph[i].clear();
 	}
 }
 
@@ -623,6 +637,9 @@ void delete_data() {
 
 int main()
 {
-	srand(time(NULL))
+	srand(time(NULL));
+
+	// Initializing the display window
+
 	return 0;
 }

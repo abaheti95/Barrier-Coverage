@@ -6,8 +6,6 @@
 
 using namespace std;
 
-double distance(const Coordinate&, const Coordinate&);
-
 struct Coordinate
 {
 	double x;
@@ -18,6 +16,8 @@ struct Coordinate
 	~Coordinate() {}
 	friend double coordinateDistance(const Coordinate&, const Coordinate&);
 };
+
+double distance(const Coordinate&, const Coordinate&);
 
 struct XCoordinateComparator
 {

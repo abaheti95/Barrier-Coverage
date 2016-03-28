@@ -13,7 +13,7 @@ enum Type {
 enum Direction {
 	LEFT,
 	RIGHT
-}
+};
 
 struct Event {
 	// This is an event information bundled up in a class

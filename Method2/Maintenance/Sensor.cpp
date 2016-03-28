@@ -1,14 +1,14 @@
 #include "Sensor.hpp"
-Sensor::Sensor() {
+Sensor::Sensor(double x, double y) {
 	this->id = -1;
-	this->init_x = 0.0;
-	this->init_y = 0.0;
-	this->x = 0.0;
-	this->y = 0.0;
-	this->left_nodes = new vector<int>();
-	this->right_nodes = new vector<int>();
+	this->init_x = x;
+	this->init_y = y;
+	this->x = x;
+	this->y = y;
+	// this->left_nodes = new vector<int>();
+	// this->right_nodes = new vector<int>();
 	this->has_branches = false;
-	this->branches = new vector<int>();
+	// this->branches = new vector<int>();
 	this->on_barrier = false;
 	this->barrier_index = -1;
 	this->has_failed = false;
@@ -16,9 +16,9 @@ Sensor::Sensor() {
 }
 
 Sensor::~Sensor() {
-	delete this->left_nodes;
-	delete this->right_nodes;
-	delete this->branches;
+	left_nodes.clear();
+	right_nodes.clear();
+	branches.clear();
 }
 
 bool Sensor::is_left_sibling(int id) {

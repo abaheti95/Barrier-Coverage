@@ -2,13 +2,13 @@
 #define SENSOR_HPP
 
 // K is the number of next hop nodes that a sensor remembers
-#define K 3
-#define MAX_BRANCHES 10
+const int K = 3;
+const int MAX_BRANCHES = 10;
 
 #include <cmath>
 #include <cstdlib>
-#include <map>
-#include "Coordinate.hpp"
+#include <vector>
+// #include "Coordinate.hpp"
 #include "Force.hpp"
 
 using namespace std;
@@ -30,7 +30,7 @@ struct Sensor {
 	// Siblings and adjacent nodes' information
 	vector<int> left_nodes;			// Stores the IDs of the nodes to the left of current
 	vector<int> right_nodes;		// Stores the IDs of the nodes to the right of current
-	vector<int> braches;			// Map of IDs and Coordinates of braches of current
+	vector<int> branches;			// Map of IDs and Coordinates of braches of current
 	// Self Status and Information
 	bool on_barrier;		// True or false depending on whether the sensor is on the barrier or not
 	int barrier_index;		// Index of this sensor in the barrier array
@@ -48,17 +48,11 @@ struct Sensor {
 
 	Sensor(double = 0.0, double = 0.0);
 	Sensor(const Sensor&);
-	~Sensor() {}
+	~Sensor();
 	bool is_left_sibling(int id);
 	bool is_right_sibling(int id);
 	bool is_branch(int id);
 	Sibling_Type is_adjacent(int id);
-};
-
-struct XCoordinateComparator {
-	bool operator()(const Coordinate &left, const Coordinate &right) {
-		return left.x < right.x;
-	}
 };
 
 #endif

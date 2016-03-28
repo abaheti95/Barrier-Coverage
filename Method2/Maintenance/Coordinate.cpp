@@ -14,13 +14,14 @@ double coordinateDistance(const Coordinate& first, const Coordinate& second)
 	double diffY = first.y - second.y;
 	return sqrt(diffX * diffX + diffY * diffY);
 }
-double distance(const Coordinate& first, const Coordinate& second) {
-	return euclidean_distance(first, second);
-}
 
 double euclidean_distance(const Coordinate& first, const Coordinate& second)
 {
 	double diffX = first.x - second.x;
 	double diffY = first.y - second.y;
 	return sqrt(diffX * diffX + diffY * diffY);
+}
+
+double distance(const Coordinate& first, const Coordinate& second) {
+	return euclidean_distance(first, second);
 }

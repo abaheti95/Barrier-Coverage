@@ -8,11 +8,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <pair>
+#include <utility>
 #include <vector>
 #include <algorithm>
-#include <priority_queue>
-
+#include <queue>
+#include <graphics.h>
 
 
 #endif
