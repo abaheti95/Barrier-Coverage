@@ -10,7 +10,7 @@ const double INFINITY_DOUBLE = 100000000.0;
 #define CHAIN_FORCE_OFFSET (sensing_range / 5)
 
 // Global Simulation Variables
-double belt_lenght;
+double belt_length;
 double belt_width;
 double sensing_range;
 double communication_range;
@@ -28,7 +28,7 @@ vector< vector< int > > sensor_graph;	// Complete Sensor Graph
 typedef pair<int, Event> P;
 struct Order {
 	bool operator()(P const& a, P const& b) const {
-		return a.first < b.first;
+		return a.first > b.first;
 	}
 };
 priority_queue< P, vector<P>, Order> events;
@@ -38,16 +38,30 @@ const Force null_force(0.0,0.0);
 
 
 /****************** Simulation display code *****************/
-const int display_width = 1000;
-const int display_height = 800;
-const int window_width = 1050;
-const int window_height = 850;
+int display_width = 1000;
+int display_height = 800;
+double window_width = 1.8f;
+double window_height = 1.0f;
 
+int num_segments = 60;
+GLFWwindow* window;
+
+FTPixmapFont* font;
 /****************** End of display code *********************/
+
+const bool DEBUG = true;
+const double MULTIPLICATION_FACTOR = 3.0;
 
 void read_input_data() {
 	// The data is assumed to be coming from stdin
 	// Thus simple scanf will work
+
+	// Format of the input data is as follows
+	// belt_length belt_width, sensing_range, n_sensors
+	// n lines of locations of sensors as x_coordinate y_coordinate
+	// Length of the barrier
+	// Array of indices telling the sensors which are present on the barrier
+	// Read the Sensor graph
 
 	// NULL all the data
 	for(int i = 0; i < MAX_SENSORS; i++) {
@@ -56,19 +70,17 @@ void read_input_data() {
 		on_barrier[i] = false;
 
 		sensors[i].x = sensors[i].y = sensors[i].init_x = sensors[i].init_y = 0.0;
-		for(int j = 0; j < K; j++) {
-			sensors[i].left_nodes[j] = -1;
-			sensors[i].right_nodes[j] = -1;
-		}
-		for(int j = 0; j < MAX_BRANCHES; j++) {
-			sensors[i].branches[j] = 0;
-		}
+		
+		sensors[i].left_nodes.clear();
+		sensors[i].right_nodes.clear();
+		sensors[i].branches.clear();
 		sensors[i].on_barrier = sensors[i].has_branches = false;
 		sensors[i].barrier_index = -1;
 	}
 	
 	// First read the global simulation variables
-	scanf("%lf %lf %lf %d", &belt_lenght, &belt_width, &sensing_range, &n_sensors);
+	scanf("%lf %lf %lf %d", &belt_length, &belt_width, &sensing_range, &n_sensors);
+	communication_range = MULTIPLICATION_FACTOR * sensing_range;
 	// Read the locations of all the sensors
 	for(int i = 0; i < n_sensors; i++) {
 		scanf("%lf %lf", &sensor_loc[i].x, &sensor_loc[i].y);
@@ -134,7 +146,8 @@ void initialize_data() {
 		Sensor& current_node = sensors[i];
 		int k = 0;
 		for(int j = 0; j < (int)sensor_graph[i].size(); j++) {
-			if(sensor_graph[i][j] != current_node.left_nodes[0] && sensor_graph[i][j] != current_node.right_nodes[0]) {
+			if(!current_node.left_nodes.empty() && sensor_graph[i][j] != current_node.left_nodes[0] 
+				&& !current_node.right_nodes.empty() && sensor_graph[i][j] != current_node.right_nodes[0]) {
 				current_node.branches.push_back(sensor_graph[i][j]);
 			}
 		}
@@ -156,6 +169,54 @@ void fail_sensors(int n) {
 		e.failed_index = i;
 		events.push(make_pair(0, e));
 	}
+}
+
+void initialize_display() {
+
+	/* Initialize the library */
+	if (!glfwInit()){
+		return;
+	}
+
+	window = glfwCreateWindow(display_width, display_height, "Simulation", NULL, NULL);
+	if (!window) {
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	glfwMakeContextCurrent(window);
+	
+	// Calculate window_width and window height based on about values
+	double display_ratio = (double) display_width / (double) display_height;
+	double belt_ratio = belt_length / belt_width;
+	if(belt_ratio > display_ratio) {
+		// length is dominant
+		window_width = 1.8f;
+		window_height = (int)((double)window_width / belt_ratio);
+	} else {
+		// width is dominant
+		window_height = 1.0;
+		window_width = (int)((double)window_height * belt_ratio);
+	}
+
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	glTranslatef(-1.0f, -1.0f, 0.0f);
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+
+	printf("Belt Dimensions %lf x %lf\n", belt_length, belt_width);
+	printf("Window dimensions %lf x %lf\n", window_width, window_height);
+
+	// Initialize font
+	/*const char* fontfile = 0;
+	// font = new FTPixmapFont((const char*)fontfile);
+	font = new FTGLPixmapFont((const char*)"/home/user/Arial.ttf");
+	if(font->Error()) {
+		fprintf(stderr, "Failed to open font");
+		exit(1);
+	}
+	font->FaceSize(18);*/
 }
 
 void initialize(int n) {
@@ -274,7 +335,10 @@ void search_sensors_within_communication_range(int index) {
 void handle_sensor_failure(int timestamp, Event& e) {
 	// Get the ID of the failed node and trigger the nodes adjacent to it
 	search_sensors_within_communication_range(e.failed_node);
+	printf("communication range = %lf\n", communication_range);
+	printf("Failed node: \n");
 	for(int i = 0; i < n_sensors; i++) {
+		printf("%d\n", within_range[i]);
 		if(within_range[i] == -1) {
 			break;
 		}
@@ -290,90 +354,90 @@ void handle_sensor_failure(int timestamp, Event& e) {
 
 void handle_failure_detection(int timestamp, Event& e) {
 	// Check if current sensor is a sensor adjacent to failed sensor
-		Sensor& sensor = sensors[e.id];
-		Sibling_Type stype = sensor.is_adjacent(e.failed_node);
-		if(stype == NO_SIBLING) {
-			// Don't care
-			return;
-		} else if(stype == BRANCH_SIBLING) {
-			// Search for nearest sensor within communication range which is on barrier
-			int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
-			if(dst_sensor_id == -1) {
-				// No barrier sensor present within the communication range
-				// TODO: Waiting for someone to wake me up
-			} else {
-				// We have a destination sensor
-				// Start approaching that sensor
+	Sensor& sensor = sensors[e.id];
+	Sibling_Type stype = sensor.is_adjacent(e.failed_node);
+	if(stype == NO_SIBLING) {
+		// Don't care
+	} else if(stype == BRANCH_SIBLING) {
+		// Search for nearest sensor within communication range which is on barrier
+		int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
+		if(dst_sensor_id == -1) {
+			// No barrier sensor present within the communication range
+			// TODO: Waiting for someone to wake me up
+		} else {
+			// We have a destination sensor
+			// Start approaching that sensor
 
-				Event follow_dst;
-				sensor.dst_node = dst_sensor_id;
-				sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
-				follow_dst.type = BRANCH_CONNECT_TO_DST;
-				follow_dst.id = e.id;
-				follow_dst.dst_id = dst_sensor_id;
-				events.push(make_pair(timestamp + 1, follow_dst));
-			}
-		} else if(stype == LEFT_SIBLING) {
-			// Search in the left side for a barrier sensor
-			int dst_sensor_id = nearest_left_barrier_sensor_within_communication_range(e.id);
-			if(dst_sensor_id == -1) {
-				// Gap on the left side is huge
-				// Make destination as the first left node and delete that element from the list of left nodes
-				sensor.dst_node = -1;
-				sensor.next_hop_node = sensor.left_nodes[0];
-				sensor.left_nodes.erase(sensor.left_nodes.begin());
-				sensor.next_hop_barrier_index = sensors[sensor.next_hop_node].barrier_index;
-				Event next_hop;
-				next_hop.type = BARRIER_CONNECT_TO_DST;
-				next_hop.direction = LEFT;
-				next_hop.id = e.id;
-				next_hop.dst_id = sensor.dst_node;
-				events.push(make_pair(timestamp + 1, next_hop));
-			} else {
-				// We have a destination sensor on the left
-				// Hence we will put destination as that sensor
-				sensor.dst_node = dst_sensor_id;
-				sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
-				Event next_hop;
-				next_hop.type = BARRIER_CONNECT_TO_DST;
-				next_hop.direction = LEFT;
-				next_hop.id = e.id;
-				next_hop.dst_id = sensor.dst_node;
-				events.push(make_pair(timestamp + 1, next_hop));
-			}
-		} else if(stype == RIGHT_SIBLING) {
-			// Search in the right side for a barrier sensor
-			int dst_sensor_id = nearest_right_barrier_sensor_within_communication_range(e.id);
-			if(dst_sensor_id == -1) {
-				// Gap on the right side is huge
-				// Make destination as the first right node and delete that element from the list of right nodes
-				sensor.dst_node = -1;
-				sensor.next_hop_node = sensor.right_nodes[0];
-				sensor.right_nodes.erase(sensor.right_nodes.begin());
-				sensor.next_hop_barrier_index = sensors[sensor.next_hop_node].barrier_index;
-				Event next_hop;
-				next_hop.type = BARRIER_CONNECT_TO_DST;
-				next_hop.direction = RIGHT;
-				next_hop.id = e.id;
-				next_hop.dst_id = sensor.dst_node;
-				events.push(make_pair(timestamp + 1, next_hop));
-			} else {
-				// We have a destination sensor on the right
-				// Hence we will put destination as that sensor
-				sensor.dst_node = dst_sensor_id;
-				sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
-				Event next_hop;
-				next_hop.type = BARRIER_CONNECT_TO_DST;
-				next_hop.direction = RIGHT;
-				next_hop.id = e.id;
-				next_hop.dst_id = sensor.dst_node;
-				events.push(make_pair(timestamp + 1, next_hop));
-			}
-		} else { // NO_SIBLING
-			// In case of no sibling we don't create a new event.
-			// When the adjacent sensor has finally connected with the new sensor, it will update the left/right nodes of this sensor
-			// TODO: Decide whether to change this
+			Event follow_dst;
+			sensor.dst_node = dst_sensor_id;
+			sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
+			follow_dst.type = BRANCH_CONNECT_TO_DST;
+			follow_dst.id = e.id;
+			follow_dst.dst_id = dst_sensor_id;
+			events.push(make_pair(timestamp + 1, follow_dst));
 		}
+	} else if(stype == LEFT_SIBLING) {
+		// Search in the left side for a barrier sensor
+		int dst_sensor_id = nearest_left_barrier_sensor_within_communication_range(e.id);
+		if(dst_sensor_id == -1) {
+			// Gap on the left side is huge
+			// Make destination as the first left node and delete that element from the list of left nodes
+			sensor.dst_node = -1;
+			sensor.next_hop_node = sensor.left_nodes[0];
+			sensor.left_nodes.erase(sensor.left_nodes.begin());
+			sensor.next_hop_barrier_index = sensors[sensor.next_hop_node].barrier_index;
+			Event next_hop;
+			next_hop.type = BARRIER_CONNECT_TO_DST;
+			next_hop.direction = LEFT;
+			next_hop.id = e.id;
+			next_hop.dst_id = sensor.dst_node;
+			events.push(make_pair(timestamp + 1, next_hop));
+		} else {
+			// We have a destination sensor on the left
+			// Hence we will put destination as that sensor
+			sensor.dst_node = dst_sensor_id;
+			sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
+			Event next_hop;
+			next_hop.type = BARRIER_CONNECT_TO_DST;
+			next_hop.direction = LEFT;
+			next_hop.id = e.id;
+			next_hop.dst_id = sensor.dst_node;
+			events.push(make_pair(timestamp + 1, next_hop));
+		}
+	} else if(stype == RIGHT_SIBLING) {
+		// Search in the right side for a barrier sensor
+		int dst_sensor_id = nearest_right_barrier_sensor_within_communication_range(e.id);
+		if(dst_sensor_id == -1) {
+			// Gap on the right side is huge
+			// Make destination as the first right node and delete that element from the list of right nodes
+			sensor.dst_node = -1;
+			sensor.next_hop_node = sensor.right_nodes[0];
+			sensor.right_nodes.erase(sensor.right_nodes.begin());
+			sensor.next_hop_barrier_index = sensors[sensor.next_hop_node].barrier_index;
+			Event next_hop;
+			next_hop.type = BARRIER_CONNECT_TO_DST;
+			next_hop.direction = RIGHT;
+			next_hop.id = e.id;
+			next_hop.dst_id = sensor.dst_node;
+			events.push(make_pair(timestamp + 1, next_hop));
+		} else {
+			// We have a destination sensor on the right
+			// Hence we will put destination as that sensor
+			sensor.dst_node = dst_sensor_id;
+			sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
+			Event next_hop;
+			next_hop.type = BARRIER_CONNECT_TO_DST;
+			next_hop.direction = RIGHT;
+			next_hop.id = e.id;
+			next_hop.dst_id = sensor.dst_node;
+			events.push(make_pair(timestamp + 1, next_hop));
+		}
+	} else { // NO_SIBLING
+		// In case of no sibling we don't create a new event.
+		// When the adjacent sensor has finally connected with the new sensor, it will update the left/right nodes of this sensor
+		// TODO: Decide whether to change this
+	}
+	sensor.remove_sibling(e.failed_node);
 }
 
 double sensor_force(double x) {
@@ -430,7 +494,6 @@ Force calculate_left_right_forces(Sensor& sensor) {
 
 void apply_chain_force(Sensor& sensor) {
 	// Force acted upon the sensor based on the chain connections
-	//TODO: Start from here
 	Force f;
 	if(sensor.dst_node != -1) {
 		// This sensor is trying to connect to some other sensor
@@ -614,6 +677,159 @@ void process_event(int timestamp, Event& e) {
 	}
 }
 
+
+void line(double x1, double y1, double x2, double y2) {
+	x1 -= 0.9f;
+	y1 -= 0.9f;
+	x2 -= 0.9f;
+	y2 -= 0.9f;
+	glBegin(GL_LINES);								// Drawing Using Triangles
+		glVertex3f(x1, y1 , 0.0f);
+		glVertex3f(x2, y2, 0.0f);
+	glEnd();
+}
+
+void circle(double cx, double cy, double radius) {
+	cx -= 0.9f;
+	cy -= 0.9f;
+	glBegin(GL_LINE_LOOP);
+	for (int ii = 0; ii < num_segments; ii++)   {
+		float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle 
+		float x = radius * cosf(theta);//calculate the x component 
+		float y = radius * sinf(theta);//calculate the y component 
+		glVertex2f(x + cx, y + cy);//output vertex 
+	}
+	glEnd();
+}
+
+void draw_sensors() {
+	float drawing_sensing_range = (float)((double)window_width * sensing_range / belt_length);
+	char sensor_id[10];
+	for(int i = 0; i < n_sensors; i++) {
+		Sensor& current_sensor = sensors[i];
+		if(current_sensor.has_failed) {
+			continue;
+		}
+		float x = (float)((double)window_width * current_sensor.x / belt_length);
+		float y = (float)((double)window_height * current_sensor.y / belt_width);
+		// line(x,y, x+0.1f, y+0.1f);
+		sprintf(sensor_id, "%d", current_sensor.id);
+		// Print sensor ID here
+		// glRasterPos2f(x , y - (font->Ascender()));
+		// font->Render(sensor_id);
+		if(current_sensor.on_barrier) {
+			// BLUE
+			glColor3f(0.0f, 0.0f, 1.0f);
+		} else {
+			// RED
+			glColor3f(1.0f, 0.0f, 0.0f);
+		}
+		circle(x, y, drawing_sensing_range);
+	}
+}
+
+void draw_link(int id1, int id2) {
+	Sensor& sensor1 = sensors[id1];
+	Sensor& sensor2 = sensors[id2];
+
+	float x1 = (float)((double)window_width * sensor1.x / belt_length);
+	float y1 = (float)((double)window_height * sensor1.y / belt_width);
+	float x2 = (float)((double)window_width * sensor2.x / belt_length);
+	float y2 = (float)((double)window_height * sensor2.y / belt_width);
+	
+	// GREEN
+	glColor3f(0.0f, 1.0f, 0.0f);
+	line(x1,y1,x2,y2);
+}
+
+void draw_links() {
+	for(int i = 0; i < n_sensors; i++) {
+		Sensor& current_sensor = sensors[i];
+		if(current_sensor.has_failed) {
+			continue;
+		}
+		// Draw Left Link
+		if(!current_sensor.left_nodes.empty()) {
+			draw_link(i, current_sensor.left_nodes[0]);
+		}
+		// Draw Right Link
+		if(!current_sensor.right_nodes.empty()) {
+			draw_link(i, current_sensor.right_nodes[0]);
+		}
+		// Draw Branches
+		for(int j = 0; j < (int)current_sensor.branches.size(); j++) {
+			draw_link(i, current_sensor.branches[i]);
+		}
+	}
+}
+
+void draw_sensors_and_links() {
+	draw_sensors();
+	draw_links();
+}
+
+void draw_belt() {
+	// WHITE
+	glColor3f(1.0f, 1.0f, 1.0f);
+	line(0, 0, 0, window_height);
+	glColor3f(1.0f, 0.0f, 0.0f);
+	line(0, 0, window_width, 0);
+	glColor3f(0.0f, 1.0f, 0.0f);
+	line(window_width, 0, window_width, window_height);
+	glColor3f(0.0f, 0.0f, 1.0f);
+	line(0, window_height, window_width, window_height);
+
+	glColor3f(1.0f, 1.0f, 0.0f);
+	line(0, 0, -0.5, 0);
+}
+
+void refresh_display() {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
+	glLoadIdentity();									// Reset The Current Modelview Matrix
+}
+
+void draw_current_state() {
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	
+
+	refresh_display();
+	printf("!!!!!!!!!!!!!!!!!Drawing current state!!!!!!!!!!!!!!!!!!!!!\n");
+	draw_belt();
+	draw_sensors_and_links();
+	
+	glfwSwapBuffers(window);
+	glfwPollEvents();
+}
+
+void print_sensor_locs() {
+	printf("All Sensor Locations:\n");
+	for(int i = 0; i < n_sensors; i++) {
+		Sensor& current_sensor = sensors[i];
+		if(current_sensor.has_failed) {
+			printf("**");
+		}
+		printf("%3d: %5.3lf, %5.3lf\n", current_sensor.id, current_sensor.x, current_sensor.y);
+		printf("left:");
+		for(int j = 0; j < (int)current_sensor.left_nodes.size(); j++) {
+			printf(" %d", current_sensor.left_nodes[j]);
+		}
+		printf(" right:");
+		for(int j = 0; j < (int)current_sensor.right_nodes.size(); j++) {
+			printf(" %d", current_sensor.right_nodes[j]);
+		}
+		printf(" branches:");
+		for(int j = 0; j < (int)current_sensor.branches.size(); j++) {
+			printf(" %d", current_sensor.branches[j]);
+		}
+		if(current_sensor.dst_node != -1) {
+			printf("\nDestination Node: %d", current_sensor.dst_node);
+		}
+		printf("\n");
+	}
+	printf("\n\n");
+}
+
 void maintain() {
 	while(!events.empty()) {
 		// pull out one entry
@@ -623,8 +839,19 @@ void maintain() {
 		events.pop();
 		// Event Processing
 		process_event(timestamp, e);
+		if(DEBUG) {
+			printf("Current Size of the queue: %d\n", (int)events.size());
+			printf("timestamp: %d\n", timestamp);
+			e.print();
+			print_sensor_locs();
+		}
+		printf("refreshing display\n");
+		draw_current_state();
+		printf("Refreshing done!!\n");
+		sleep(1);
 	}
 }
+
 void delete_sensor_graph() {
 	for(int i = 0; i < n_sensors; i++) {
 		sensor_graph[i].clear();
@@ -635,11 +862,24 @@ void delete_data() {
 	delete_sensor_graph();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-	srand(time(NULL));
+	// srand(time(NULL));
 
 	// Initializing the display window
+	initialize(3);
+	if(DEBUG) {
+		printf("Initializing Display now\n");
+	}
+	
+	initialize_display();
 
+	if(DEBUG) {
+		printf("Initializing Done\n");
+	}
+	maintain();
+
+	delete_data();
+	
 	return 0;
 }

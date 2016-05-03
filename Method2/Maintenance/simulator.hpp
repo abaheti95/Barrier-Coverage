@@ -7,12 +7,15 @@
 #include "Event.hpp"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
+#include <unistd.h>
 #include <utility>
 #include <vector>
 #include <algorithm>
 #include <queue>
-#include <graphics.h>
+#include <GLFW/glfw3.h>
+#include <FTGL/ftgl.h>
 
 
 #endif

@@ -5,20 +5,25 @@ Sensor::Sensor(double x, double y) {
 	this->init_y = y;
 	this->x = x;
 	this->y = y;
-	// this->left_nodes = new vector<int>();
-	// this->right_nodes = new vector<int>();
+	this->left_nodes = vector<int>();
+	this->right_nodes = vector<int>();
 	this->has_branches = false;
-	// this->branches = new vector<int>();
+	this->branches = vector<int>();
 	this->on_barrier = false;
 	this->barrier_index = -1;
 	this->has_failed = false;
 	this->distance = 0.0;
+	this->dst_node = -1;
+	this->dst_barrier_index = -1;
 }
 
 Sensor::~Sensor() {
 	left_nodes.clear();
 	right_nodes.clear();
 	branches.clear();
+	// delete left_nodes;
+	// delete right_nodes;
+	// delete branches;
 }
 
 bool Sensor::is_left_sibling(int id) {
@@ -56,3 +61,8 @@ Sibling_Type Sensor::is_adjacent(int id) {
 	return NO_SIBLING;
 }
 
+void Sensor::remove_sibling(int id) {
+	left_nodes.erase(std::remove(left_nodes.begin(), left_nodes.end(), id), left_nodes.end());
+	right_nodes.erase(std::remove(right_nodes.begin(), right_nodes.end(), id), right_nodes.end());
+	branches.erase(std::remove(branches.begin(), branches.end(), id), branches.end());
+}

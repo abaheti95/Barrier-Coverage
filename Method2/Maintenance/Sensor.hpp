@@ -8,6 +8,7 @@ const int MAX_BRANCHES = 10;
 #include <cmath>
 #include <cstdlib>
 #include <vector>
+#include <algorithm>
 // #include "Coordinate.hpp"
 #include "Force.hpp"
 
@@ -27,6 +28,9 @@ struct Sensor {
 	double init_y;			// Initial y coordinate
 	double x;				// Current x coordinate. Changes Dynamically
 	double y;				// Current y coordinate. Changes Dynamically
+	// Logical Information
+	bool is_left_sensor;	// Tells whether current sensor is right sensor or not
+	bool is_right_sensor;	// Tells whether current sensor is left sensor or not
 	// Siblings and adjacent nodes' information
 	vector<int> left_nodes;			// Stores the IDs of the nodes to the left of current
 	vector<int> right_nodes;		// Stores the IDs of the nodes to the right of current
@@ -53,6 +57,7 @@ struct Sensor {
 	bool is_right_sibling(int id);
 	bool is_branch(int id);
 	Sibling_Type is_adjacent(int id);
+	void remove_sibling(int id);
 };
 
 #endif

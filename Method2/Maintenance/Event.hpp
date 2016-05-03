@@ -1,18 +1,21 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 
+#include <cstdio>
+
 using namespace std;
 enum Type {
 	SENSOR_FAILURE,				// Some sensor fails
 	FAILURE_DETECTED,			// Some sensor detects a failure within its communication range
 	BRANCH_CONNECT_TO_DST,		// Tell the branch sensor to connect to the nearest sensor on the barrier
-	BARRIER_CONNECT_TO_DST		// Tell the barrier sensor to connect to the nearest sensor on the barrier
-
+	BARRIER_CONNECT_TO_DST,		// Tell the barrier sensor to connect to the nearest sensor on the barrier
+	NO_TYPE
 };
 
 enum Direction {
 	LEFT,
-	RIGHT
+	RIGHT,
+	NO_DIRECTION
 };
 
 struct Event {
@@ -23,6 +26,11 @@ struct Event {
 	int id;						// ID of the concerned sensor node
 	int dst_id;					// ID of the destination sensor. The sensor to which the current sensor has to connect.
 	Direction direction;		// Tells which side of the current sensor is broken
+
+	Event();					// Constructor
+	Event(const Event&);		// Copy Constructor
+	~Event() {}					// Destructor
+	void print();
 };
 
 

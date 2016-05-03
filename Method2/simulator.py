@@ -1368,6 +1368,34 @@ def fetch_final_locations():
 	Y = [sensor.y for sensor in sensors]
 	return sensingRange, beltWidth, beltHeight, numberOfSensors, X, Y, barrier
 
+def save_final_configuration():
+
+	# belt_length belt_width, sensing_range, n_sensors
+	# n lines of locations of sensors as x_coordinate y_coordinate
+	# Length of the barrier
+	# Array of indices telling the sensors which are present on the barrier
+	# Read the Sensor graph
+	sensingRange, beltWidth, beltHeight, numberOfSensors, X, Y, barrier	= fetch_final_locations()
+	f = open("configuration.txt",'w')
+	f.write(str(beltWidth) + "\n")
+	f.write(str(beltHeight) + "\n")
+	f.write(str(sensingRange) + "\n")
+	f.write(str(numberOfSensors) + "\n")
+	for i in range(numberOfSensors):
+		f.write(str(X[i]) + "\n")
+		f.write(str(Y[i]) + "\n")
+	f.write(str(len(barrier)) + "\n")
+	for idx in barrier:
+		f.write(str(idx) + "\n")
+	for sensor in sensors:
+		siblings = None
+		for chain_graph in chain_graphs.values():
+			if sensor.id in chain_graph.graph:
+				siblings = chain_graph.graph[sensor.id]
+		f.write(str(len(siblings)) + "\n")
+		for sibling in siblings:
+			f.write(str(sibling) + "\n")
+
 def print_results():
 	# verify edges
 	print "List of sensor links which are violating the conditions :"
@@ -1418,6 +1446,8 @@ def print_results():
 	print "Min Displacement : " + str(min_displacement)
 	print "Avg Distance : " + str(avg_distance)
 	print "Avg Displacement : " + str(avg_displacement)
+
+	save_final_configuration()
 
 	return number_of_sensors_moved,max_distance,min_distance,max_displacement,min_displacement,avg_distance,avg_displacement
 
