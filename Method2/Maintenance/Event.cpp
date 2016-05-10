@@ -5,6 +5,7 @@ Event::Event() {
 	failed_node = -1;
 	failed_index = -1;
 	id = -1;
+	branch_id = -1;
 	dst_id = -1;
 	direction = NO_DIRECTION;
 }
@@ -15,6 +16,7 @@ Event::Event(const Event& e) {
 	this->failed_index = e.failed_index;
 	this->id = e.id;
 	this->dst_id = e.dst_id;
+	this->branch_id = e.branch_id;
 	this->direction = e.direction;
 }
 
@@ -34,6 +36,9 @@ void Event::print() {
 			break;
 		case CHAIN_MAINTENANCE:
 			printf("Event: Chain Maintenance\n");
+			break;
+		case FLATTEN_CONNECT_TO_DST:
+			printf("Event: Flatten Branch Connecting to Destination\n");
 			break;
 		case NO_TYPE:
 			printf("Event: No type\n");

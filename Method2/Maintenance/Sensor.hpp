@@ -59,6 +59,7 @@ struct Sensor {
 	bool is_branch(int id);
 	Sibling_Type is_adjacent(int id);
 	void remove_sibling(int id);
+	void remove_branch(int id);
 };
 
 #endif

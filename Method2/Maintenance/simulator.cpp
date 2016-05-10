@@ -8,6 +8,7 @@ const double INFINITY_DOUBLE = 100000000.0;
 const double DELTA = 0.005;		// Permissible error
 const double MULTIPLICATION_FACTOR = 3.0;
 #define VMAX (2.0 * sensing_range)
+#define FLATTEN_FORCE_MAGNITUDE (VMAX / 2)
 // Force parameters
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
 #define CHAIN_FORCE_OFFSET (sensing_range / 5)
@@ -753,7 +754,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			}
 			if(dst_sensor_id != -1) {
 				// We have a destination sensor now
-				
+
 				// Also we will update the dst_sensor's dst_id
 				sensors[dst_sensor_id].dst_node = sensor.id;
 				// Try to connect to that
@@ -848,6 +849,45 @@ void handle_barrier_connect(int timestamp, Event& e) {
 	}
 }
 
+void activate_flattening_sensors(Sensor& sensor, int timestamp) {
+	for(int i = 0; i < (int)sensor.branches.size(); i++) {
+		Sensor& branch = sensors[sensor.branches[i]];
+		double distance = INFINITY_DOUBLE;
+		Direction direction = NO_DIRECTION;
+		int dst_sensor = -1;
+		if(!sensor.left_nodes.empty()) {
+			Sensor& left = sensors[sensor.left_nodes[0]];
+			if(!left.has_failed) {
+				distance = sensor_distance(branch, left);
+				dst_sensor = left.id;
+				direction = LEFT;
+			}
+		}
+		if(!sensor.right_nodes.empty()) {
+			// Check if the right node is closer or not
+			Sensor& right = sensors[sensor.right_nodes[0]];
+			if(!right.has_failed) {
+				if(distance > sensor_distance(branch, right)) {
+					dst_sensor = right.id;
+					direction = RIGHT;
+				}
+			}
+		}
+		if(dst_sensor != -1) {
+			// Create a flatten connect event
+			branch.dst_node = dst_sensor;
+			Event flatten_branch;
+			flatten_branch.type = FLATTEN_CONNECT_TO_DST;
+			flatten_branch.id = branch.id;
+			flatten_branch.branch_id = sensor.id;
+			flatten_branch.direction = direction;
+			printf("HOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\n");
+			printf("%d %d\n%d %d\n\n\n\n", sensor.id, branch.id, flatten_branch.branch_id, flatten_branch.id);
+			events.push(make_pair(timestamp + 1, flatten_branch));
+		}
+	}
+}
+
 void handle_chain_maintenance(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	apply_chain_force(sensor);
@@ -879,6 +919,94 @@ void handle_chain_maintenance(int timestamp, Event& e) {
 		printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
 		events.push(make_pair(timestamp + 1, chain_maintenance));
 	}
+	// Since the current sensor has entered Chain Maintenance state, there is a scope for flattening
+	// See if current sensor has any branches or not
+	// If yes try to apply flattening logic on the branch sensors
+	if(sensor.branches.size() > 0) {
+		activate_flattening_sensors(sensor, timestamp);
+	}
+}
+
+void handle_flatten_connect(int timestamp, Event& e) {
+	Sensor& sensor = sensors[e.id];
+	bool flag = false;
+	if(sensor.dst_node != -1) {
+		Sensor& dst_sensor = sensors[sensor.dst_node];
+		// Check if already connect to the destination
+		if(check_connected(sensor, dst_sensor)) {
+			flag = true;
+		}
+		// Try to connect to the destination sensor
+		apply_chain_force(sensor);
+		Force f((dst_sensor.x - sensor.x), (dst_sensor.y - sensor.y), FLATTEN_FORCE_MAGNITUDE);
+		f += sensor.chain_force;
+		sensor.chain_force = null_force;
+		// Normalize f if magnitude greater than VMAX
+		if(f.magnitude() > VMAX) {
+			f = f / f.magnitude() * VMAX;
+		}
+		sensor.x += f.x;
+		sensor.y += f.y;
+		if(check_connected(sensor, dst_sensor)) {
+			flag = true;
+		}
+
+		// Check if the connection establishment is possible or not
+		if(flag) {
+			// Establish connection
+			Sensor& original_sensor = sensors[e.branch_id];
+			// Delete branch link from original sensor and current branch sensor
+			printf("Removing Branch %d -> %d\n", e.branch_id, sensor.id);
+			original_sensor.remove_branch(sensor.id);
+			sensor.remove_branch(original_sensor.id);
+			// Add connection to the destination sensor
+			// current branch sensor will come in between destination sensor and original sensor
+			if(e.direction == LEFT) {
+				// destination sensor is the left sibling of the original sensor
+				Sensor& branch = sensor;
+				// copy the left nodes of the destination sensor to branch sensor
+				branch.left_nodes = vector<int>(dst_sensor.left_nodes.begin(), dst_sensor.left_nodes.end());
+				// copy the right nodes original sensor to right nodes of branch sensor
+				branch.right_nodes = vector<int>(original_sensor.right_nodes.begin(), original_sensor.right_nodes.end());
+				// current branch sensor will become the right node of destination sensor
+				dst_sensor.right_nodes.insert(dst_sensor.right_nodes.begin(), branch.id);
+				// similarly destination node will become the left node of branch sensor
+				branch.left_nodes.insert(branch.left_nodes.begin(), dst_sensor.id);
+				// Current branch sensor will become the left node of the original sensor
+				original_sensor.left_nodes.insert(original_sensor.left_nodes.begin(), branch.id);
+				// similarty original sensor will become the right node of the branch sensor
+				branch.right_nodes.insert(branch.right_nodes.begin(), original_sensor.id);
+				// Now branch has become a barrier sensor
+				branch.on_barrier = true;
+
+			} else if (e.direction == RIGHT) {
+				// destination sensor is the right sibling of the original sensor
+				Sensor& branch = sensor;
+				// copy the right nodes of the destination sensor to branch sensor
+				branch.right_nodes = vector<int>(dst_sensor.right_nodes.begin(), dst_sensor.right_nodes.end());
+				// copy the left nodes original sensor to left nodes of branch sensor
+				branch.left_nodes = vector<int>(original_sensor.left_nodes.begin(), original_sensor.left_nodes.end());
+				// current branch sensor will become the left node of destination sensor
+				dst_sensor.left_nodes.insert(dst_sensor.left_nodes.begin(), branch.id);
+				// similarly destination node will become the right node of branch sensor
+				branch.right_nodes.insert(branch.right_nodes.begin(), dst_sensor.id);
+				// Current branch sensor will become the right node of the original sensor
+				original_sensor.right_nodes.insert(original_sensor.right_nodes.begin(), branch.id);
+				// similarty original sensor will become the left node of the branch sensor
+				branch.left_nodes.insert(branch.left_nodes.begin(), original_sensor.id);
+				// Now branch has become a barrier sensor
+				branch.on_barrier = true;
+			} else {
+				// This should not happen
+				printf("Error: Flatten event direction is NONE\n");
+				exit(1);
+			}
+
+		} else {
+			// Create the same event again
+			events.push(make_pair(timestamp + 1, e));
+		}
+	}
 }
 
 void process_event(int timestamp, Event& e) {
@@ -893,6 +1021,8 @@ void process_event(int timestamp, Event& e) {
 		handle_barrier_connect(timestamp, e);
 	} else if(e.type == CHAIN_MAINTENANCE) {
 		handle_chain_maintenance(timestamp, e);
+	} else if(e.type == FLATTEN_CONNECT_TO_DST) {
+		handle_flatten_connect(timestamp, e);
 	}
 }
 

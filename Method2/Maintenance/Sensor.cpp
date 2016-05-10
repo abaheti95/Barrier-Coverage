@@ -73,3 +73,6 @@ void Sensor::remove_sibling(int id) {
 	branches.erase(std::remove(branches.begin(), branches.end(), id), branches.end());
 }
 
+void Sensor::remove_branch(int id) {
+	branches.erase(std::remove(branches.begin(), branches.end(), id), branches.end());	
+}
