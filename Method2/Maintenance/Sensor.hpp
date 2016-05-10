@@ -2,7 +2,7 @@
 #define SENSOR_HPP
 
 // K is the number of next hop nodes that a sensor remembers
-const int K = 3;
+const int K = 4;
 const int MAX_BRANCHES = 10;
 
 #include <cmath>
@@ -49,6 +49,7 @@ struct Sensor {
 	// Force Information
 	Force sensor_force;		// Force applied due to the destination sensor
 	Force chain_force;		// Force applied due to the chain connections
+	int timestamp;			// Tells the timestamp of the sensor wrt chain force maintenance
 
 	Sensor(double = 0.0, double = 0.0);
 	Sensor(const Sensor&);

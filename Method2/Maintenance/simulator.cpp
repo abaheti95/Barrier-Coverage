@@ -5,16 +5,25 @@ using namespace std;
 const int MAX_SENSORS = 100;
 const double INFINITY_DOUBLE = 100000000.0;
 
+const double DELTA = 0.005;		// Permissible error
+const double MULTIPLICATION_FACTOR = 3.0;
 #define VMAX (2.0 * sensing_range)
+// Force parameters
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
 #define CHAIN_FORCE_OFFSET (sensing_range / 5)
+// #define CHAIN_FORCE_OFFSET 0.0
+const double STEEPNESS = 3.0;
+double sensor_force_factor;
+double chain_force_factor;
 
 // Global Simulation Variables
+int iterations;					// Tells the number of iterations requried to complete the simulation
 double belt_length;
 double belt_width;
 double sensing_range;
 double communication_range;
 int n_sensors;					// Total number of sensors used in the simulation
+const int n_failures = 5;
 Coordinate sensor_loc[MAX_SENSORS];
 int barrier_len;				// Number of sensors present in the barrier
 int barrier[MAX_SENSORS];		// List of sensor IDs present in the barrier
@@ -28,12 +37,13 @@ vector< vector< int > > sensor_graph;	// Complete Sensor Graph
 typedef pair<int, Event> P;
 struct Order {
 	bool operator()(P const& a, P const& b) const {
+		if(a.first == b.first) {
+			return a.second.id > b.second.id;
+		}
 		return a.first > b.first;
 	}
 };
 priority_queue< P, vector<P>, Order> events;
-
-const Force null_force(0.0,0.0);
 
 
 
@@ -50,7 +60,6 @@ FTPixmapFont* font;
 /****************** End of display code *********************/
 
 const bool DEBUG = true;
-const double MULTIPLICATION_FACTOR = 3.0;
 
 void read_input_data() {
 	// The data is assumed to be coming from stdin
@@ -81,6 +90,9 @@ void read_input_data() {
 	// First read the global simulation variables
 	scanf("%lf %lf %lf %d", &belt_length, &belt_width, &sensing_range, &n_sensors);
 	communication_range = MULTIPLICATION_FACTOR * sensing_range;
+	// Calculate the force factors beforehand
+	sensor_force_factor = (VMAX - SENSOR_FORCE_OFFSET) / pow(communication_range, 2.0);
+	chain_force_factor = (VMAX - CHAIN_FORCE_OFFSET) / pow((communication_range - 2*sensing_range), STEEPNESS);
 	// Read the locations of all the sensors
 	for(int i = 0; i < n_sensors; i++) {
 		scanf("%lf %lf", &sensor_loc[i].x, &sensor_loc[i].y);
@@ -92,16 +104,21 @@ void read_input_data() {
 		on_barrier[barrier[i]] = true;
 	}
 	// Read the Sensor Graph
+	printf("Printing Graph:\n");
 	for(int i = 0; i < n_sensors; i++) {
 		vector<int> row;
 		int n, id;
 		scanf("%d", &n);
+		printf("%3d: ", i);
 		for(int j = 0; j < n; j++) {
 			scanf("%d", &id);
+			printf("%3d ", id);
 			row.push_back(id);
 		}
+		printf("\n");
 		sensor_graph.push_back(row);
 	}
+	// sleep(100);
 }
 
 void initialize_data() {
@@ -125,7 +142,7 @@ void initialize_data() {
 		for(int j = 1; j <= K; j++) {
 			// Check if the desired sensor within index range
 			if((i - j) >= 0) {
-				current_node.left_nodes.push_back(barrier[i - j]);
+				current_node.right_nodes.push_back(barrier[i - j]);
 			} else {
 				break;
 			}
@@ -134,10 +151,16 @@ void initialize_data() {
 		for(int j = 1; j <= K; j++) {
 			// Check if the desired sensor within index range
 			if((i + j) < barrier_len) {
-				current_node.right_nodes.push_back(barrier[i + j]);
+				current_node.left_nodes.push_back(barrier[i + j]);
 			} else {
 				break;
 			}
+		}
+		// Mark left and right sensors
+		if(i == 0) {
+			current_node.is_right_sensor = true;
+		} else if(i == (barrier_len - 1)) {
+			current_node.is_left_sensor = true;
 		}
 	}
 
@@ -146,10 +169,11 @@ void initialize_data() {
 		Sensor& current_node = sensors[i];
 		int k = 0;
 		for(int j = 0; j < (int)sensor_graph[i].size(); j++) {
-			if(!current_node.left_nodes.empty() && sensor_graph[i][j] != current_node.left_nodes[0] 
-				&& !current_node.right_nodes.empty() && sensor_graph[i][j] != current_node.right_nodes[0]) {
-				current_node.branches.push_back(sensor_graph[i][j]);
+			if((!current_node.left_nodes.empty() && sensor_graph[i][j] == current_node.left_nodes[0]) 
+				|| (!current_node.right_nodes.empty() && sensor_graph[i][j] == current_node.right_nodes[0])) {
+				continue;
 			}
+			current_node.branches.push_back(sensor_graph[i][j]);
 		}
 		if(k > 0) {
 			current_node.has_branches = true;
@@ -256,7 +280,7 @@ int nearest_barrier_sensor_within_communication_range(int index) {
 	return dst_id;
 }
 
-int nearest_left_barrier_sensor_within_communication_range(int index) {
+int nearest_right_barrier_sensor_within_communication_range(int index) {
 	Sensor& sensor = sensors[index];
 	double min = INFINITY_DOUBLE;
 	int dst_id = -1;
@@ -274,10 +298,13 @@ int nearest_left_barrier_sensor_within_communication_range(int index) {
 			}
 		}
 	}
+	if(dst_id == 0) {
+		printf("Fucker found %d\n", index);
+	}
 	return dst_id;
 }
 
-int nearest_right_barrier_sensor_within_communication_range(int index) {
+int nearest_left_barrier_sensor_within_communication_range(int index) {
 	Sensor& sensor = sensors[index];
 	double min = INFINITY_DOUBLE;
 	int dst_id = -1;
@@ -437,43 +464,57 @@ void handle_failure_detection(int timestamp, Event& e) {
 		// When the adjacent sensor has finally connected with the new sensor, it will update the left/right nodes of this sensor
 		// TODO: Decide whether to change this
 	}
-	sensor.remove_sibling(e.failed_node);
+	// sensor.remove_sibling(e.failed_node);
 }
 
+// Some Theoretical Hypothesis
+// sensor_force <=> a * x^2 + SENSOR_FORCE_OFFSET
+// sensor_force = VMAX at x = R_c
+// Therefore, a = (VMAX - SENSOR_FORCE_OFFSET) / R_c^2
+// chain_force <=> b * (x - 2*R_s)^3 + CHAIN_FORCE_OFFSET
+// chain_force > sensor_force at x = R_c
+// Therefore b > (VMAX - CHAIN_FORCE_OFFSET) / (R_c - 2*R_s)^3
+
 double sensor_force(double x) {
-	if(x < 0) {
-		return -1.0 * sensor_force(-x);
-	}
-	x -= 2*sensing_range;
-	if(x <= 0) {
-		return 0.0;
-	}
-	return (x*x/(10.0 * sensing_range) + SENSOR_FORCE_OFFSET);
+	x = abs(x);
+	// return (x*x/(10.0 * sensing_range) + SENSOR_FORCE_OFFSET);
+	return sensor_force_factor * x*x + SENSOR_FORCE_OFFSET;
 }
 
 double chain_force(double x) {
-	if(x < 0) {
-		return -1.0 * chain_force(-x);
-	}
-	x -= 2*sensing_range;
-	if(x <= 0) {
+	x = abs(x);
+	if(x <= 2*sensing_range) {
 		return 0.0;
 	}
-	return (x*x*x/(16.0 * sensing_range) + CHAIN_FORCE_OFFSET);
+	// return (x*x*x/(16.0 * sensing_range) + CHAIN_FORCE_OFFSET);
+	double estimate_chain_force = chain_force_factor * pow(x - 2*sensing_range, STEEPNESS) + CHAIN_FORCE_OFFSET;
+	if (estimate_chain_force > (x - 2*sensing_range)) {
+		printf("YOYOYOYOYOYOYOYOYOYOYOYOYYO\n");
+		return (x - 2*sensing_range);
+	}
+	return estimate_chain_force;
 }
 
 void apply_sensor_force(Sensor& sensor, Sensor& dst_sensor) {
 	// Apply force towards the destination sensor
-	sensor.sensor_force.x = sensor_force(dst_sensor.x - sensor.x);
-	sensor.sensor_force.y = sensor_force(dst_sensor.y - sensor.y);
+	double sensor_force_magnitude = sensor_force(sensor_distance(sensor, dst_sensor));
+	Force f((dst_sensor.x - sensor.x), (dst_sensor.y - sensor.y), sensor_force_magnitude);
+	sensor.sensor_force = f;
 }
 
 Force calculate_branch_forces(Sensor& sensor) {
 	Force f;
 	for(int i = 0; i < (int)sensor.branches.size(); i++) {
 		Sensor& branch = sensors[sensor.branches[i]];
-		f.x += sensor_force(branch.x - sensor.x);
-		f.y += sensor_force(branch.y - sensor.y);
+		if(branch.has_failed) {
+			continue;
+		}
+		double distance = sensor_distance(sensor, branch);
+		if(distance > 2*sensing_range) {
+			double chain_force_magnitude = chain_force(distance);
+			Force f1((branch.x - sensor.x), (branch.y - sensor.y), chain_force_magnitude);
+			f += f1;
+		}
 	}
 	return f;
 }
@@ -482,17 +523,61 @@ Force calculate_left_right_forces(Sensor& sensor) {
 	Force f;
 	if(sensor.left_nodes.size() > 0) {
 		Sensor& left = sensors[sensor.left_nodes[0]];
-		f.x += sensor_force(left.x - sensor.x);
-		f.y += sensor_force(left.y - sensor.y);
-	} else if(sensor.right_nodes.size() > 0) {
+		if(left.has_failed) {
+			printf("LEFT:: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF\n");
+			sensor.remove_sibling(left.id);
+		} else {
+			double distance = sensor_distance(sensor, left);
+			if(distance > 2*sensing_range) {
+				double chain_force_magnitude = chain_force(distance);
+				Force f1((left.x - sensor.x), (left.y - sensor.y), chain_force_magnitude);
+				f += f1;
+			}
+		}
+	}
+	if(sensor.right_nodes.size() > 0) {
 		Sensor& right = sensors[sensor.right_nodes[0]];
-		f.x += sensor_force(right.x - sensor.x);
-		f.y += sensor_force(right.y - sensor.y);
+		if(right.has_failed) {
+			printf("RIGHT:: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF\n");
+			sensor.remove_sibling(right.id);
+		} else {
+			double distance = sensor_distance(sensor, right);
+			if(distance > 2*sensing_range) {
+				double chain_force_magnitude = chain_force(distance);
+				Force f1((right.x - sensor.x), (right.y - sensor.y), chain_force_magnitude);
+				f += f1;
+			}
+		}
 	}
 	return f;
 }
 
+vector<int> broken_chain_sensors(Sensor& sensor) {
+	// Return the list of siblings which are violating the chain link connection condition
+	vector<int> broken_siblings;
+	if(sensor.left_nodes.size() > 0) {
+		Sensor& left = sensors[sensor.left_nodes[0]];
+		if(!left.has_failed && (sensor_distance(sensor, left) > (2*sensing_range + DELTA))) {
+			broken_siblings.push_back(left.id);
+		}
+	}
+	if(sensor.right_nodes.size() > 0) {
+		Sensor& right = sensors[sensor.right_nodes[0]];
+		if(!right.has_failed && (sensor_distance(sensor, right) > (2*sensing_range + DELTA))) {
+			broken_siblings.push_back(right.id);
+		}
+	}
+	for(int i = 0; i < (int)sensor.branches.size(); i++) {
+		Sensor& branch = sensors[sensor.branches[i]];
+		if(!branch.has_failed && (sensor_distance(sensor, branch) > (2*sensing_range + DELTA))) {
+			broken_siblings.push_back(branch.id);
+		}
+	}
+	return broken_siblings;
+}
+
 void apply_chain_force(Sensor& sensor) {
+	// We need to find all the neighboring sensors who are applying force on current sensor due to chain links
 	// Force acted upon the sensor based on the chain connections
 	Force f;
 	if(sensor.dst_node != -1) {
@@ -509,7 +594,9 @@ void apply_chain_force(Sensor& sensor) {
 		f += calculate_left_right_forces(sensor);
 		f += calculate_branch_forces(sensor);
 	}
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~CHAIN FORCE: %lf\n", f.magnitude());
 	sensor.chain_force = f;
+	return;
 }
 
 bool check_connected(Sensor& sensor, Sensor& dst_sensor) {
@@ -528,10 +615,22 @@ void handle_branch_connect(int timestamp, Event& e) {
 	if(total_force.magnitude() > VMAX) {
 		total_force = total_force / total_force.magnitude() * VMAX;
 	}
-	// Move in the direction of force
-	sensor.distance += total_force.magnitude();
-	sensor.x += total_force.x;
-	sensor.y += total_force.y;
+	// Move in the direction of force only if its not voilating the belt conditions
+	if((sensor.x + total_force.x) < 0 || (sensor.x + total_force.x) > belt_length ||
+		(sensor.y + total_force.y) < 0 || (sensor.y + total_force.y) > belt_width) {
+		// Don't move
+	} else {
+		if((sensor.is_left_sensor && (sensor.x + total_force.x - sensing_range) > 0) ||
+			(sensor.is_right_sensor && (sensor.x + total_force.x + sensing_range) < belt_length)) {
+			// Move in y direction only
+			sensor.distance += total_force.y;
+			sensor.y += total_force.y;
+		} else {		
+			sensor.distance += total_force.magnitude();
+			sensor.x += total_force.x;
+			sensor.y += total_force.y;
+		}
+	}
 	sensor.sensor_force = null_force;
 	sensor.chain_force = null_force;
 	// Check if the two sensors are connected or not. If yes then create a new connection and make this sensor inactive
@@ -554,41 +653,93 @@ void handle_branch_connect(int timestamp, Event& e) {
 void handle_barrier_connect(int timestamp, Event& e) {
 	// Check if current sensor has a destination sensor or not?
 	Sensor& sensor = sensors[e.id];
+	printf("There is some destination!!!!!!!!!!!!!!!!!!!!!! %d %d\n",e.id, sensor.dst_node);
+
+	apply_chain_force(sensor);
 	if(sensor.dst_node != -1) {
 		// There is some destination node to reach to
-		Sensor& dst_sensor = sensors[e.dst_id];
+		Sensor& dst_sensor = sensors[sensor.dst_node];
+		// Check if destination is already connected?
+		if(sensor.is_adjacent(sensor.dst_node) != NO_SIBLING) {
+			printf("ALREADY CONNECTD %d %d\n", sensor.id, e.dst_id);
+			return;
+		}
 		// Apply Sensor Force
 		apply_sensor_force(sensor, dst_sensor);
 		// Apply Chain Force
-		apply_chain_force(sensor);
 		Force total_force = sensor.chain_force + sensor.sensor_force;
 		if(total_force.magnitude() > VMAX) {
 			total_force = total_force / total_force.magnitude() * VMAX;
 		}
 		// Move in the direction of force
-		sensor.distance += total_force.magnitude();
-		sensor.x += total_force.x;
-		sensor.y += total_force.y;
-		sensor.sensor_force = null_force;
+		if((sensor.x + total_force.x) < 0 || (sensor.x + total_force.x) > belt_length ||
+			(sensor.y + total_force.y) < 0 || (sensor.y + total_force.y) > belt_width) {
+			// Don't move
+		} else {
+			if((sensor.is_left_sensor && (sensor.x + total_force.x - sensing_range) > 0) ||
+				(sensor.is_right_sensor && (sensor.x + total_force.x + sensing_range) < belt_length)) {
+				// Move in y direction only
+				sensor.distance += total_force.y;
+				sensor.y += total_force.y;
+			} else {		
+				sensor.distance += total_force.magnitude();
+				sensor.x += total_force.x;
+				sensor.y += total_force.y;
+			}
+		}
 		sensor.chain_force = null_force;
 		// Check if the two sensors are connected or not. If yes then create a new connection and make this sensor inactive
 		if(check_connected(sensor, dst_sensor)) {
 			// Create a connection between the two
-			sensor.branches.push_back(dst_sensor.id);
-			dst_sensor.branches.push_back(sensor.id);
+			dst_sensor.dst_node = sensor.id;
+			if(e.direction == LEFT) {
+				sensor.left_nodes.insert(sensor.left_nodes.begin(), dst_sensor.id);
+				dst_sensor.right_nodes.insert(dst_sensor.right_nodes.begin(), sensor.id);
+			} else if(e.direction == RIGHT) {
+				sensor.right_nodes.insert(sensor.right_nodes.begin(), dst_sensor.id);
+				dst_sensor.left_nodes.insert(dst_sensor.left_nodes.begin(), sensor.id);
+			}
+			printf("SUCESSS MAXXXX!\n");
 			// No need to create another event
 		} else {
 			// Add another BRANCH_CONNECT_TO_DST event in the priority queue
 			Event follow_dst;
-			follow_dst.type = BRANCH_CONNECT_TO_DST;
+			follow_dst.type = BARRIER_CONNECT_TO_DST;
 			follow_dst.id = e.id;
 			follow_dst.dst_id = e.dst_id;
+			follow_dst.direction = e.direction;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	} else {
 		// go to the next_hop node location
 		Sensor& dst_sensor = sensors[sensor.next_hop_node];
-		if(sensor_distance(sensor, dst_sensor) <= VMAX) {
+		printf("BLOODY BASTARD$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %d %d\n", sensor.id, sensor.next_hop_node);
+		if((sensor.is_left_sensor && (dst_sensor.x - sensing_range) > 0) ||
+			(sensor.is_right_sensor && (dst_sensor.x + sensing_range) < belt_length)) {
+			// Move in y direction only
+			// Also apply the chain forces in y direction
+			if(abs(sensor.y + sensor.chain_force.y - dst_sensor.y) <= VMAX) {
+				// Move to dst_sensor.y position
+				sensor.distance += abs(sensor.y - dst_sensor.y);
+				sensor.y = dst_sensor.y;
+			} else {
+				// Move with VMAX + sensor.chain_force.y towards dst_sensor.y direction
+				float saved_y_location = sensor.y;
+				if(dst_sensor.y > sensor.y) {
+					sensor.y += VMAX + sensor.chain_force.y;
+				} else {
+					sensor.y -= VMAX + sensor.chain_force.y;
+				}
+				sensor.distance += abs(sensor.y - saved_y_location);
+			}
+			Event next_hop;
+			next_hop.type = BARRIER_CONNECT_TO_DST;
+			next_hop.direction = e.direction;
+			next_hop.id = e.id;
+			next_hop.dst_id = sensor.dst_node;
+			events.push(make_pair(timestamp + 1, next_hop));
+		} else if(sensor_distance(sensor, dst_sensor) <= VMAX) {
+			//TODO: handle chain_force in this section	
 			sensor.distance += sensor_distance(sensor, dst_sensor);
 			sensor.x = dst_sensor.x;
 			sensor.y = dst_sensor.y;
@@ -602,6 +753,9 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			}
 			if(dst_sensor_id != -1) {
 				// We have a destination sensor now
+				
+				// Also we will update the dst_sensor's dst_id
+				sensors[dst_sensor_id].dst_node = sensor.id;
 				// Try to connect to that
 				// Unset next hop node
 				sensor.next_hop_node = -1;
@@ -633,6 +787,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 					if(sensor.right_nodes.size() == 0) {
 						// No nodes to add
 						// TODO: handle this: Stuck in the middle of nowhere!!
+						printf("HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK\n");
 					} else {
 						// Remove the first right node and set the next hop
 						sensor.next_hop_node = sensor.right_nodes[0];
@@ -651,16 +806,78 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			// Move with VMAX speed towards next hop location
 			Force f(dst_sensor.x - sensor.x, dst_sensor.y - sensor.y);
 			f = f / f.magnitude() * VMAX;
-			sensor.distance += VMAX;
-			sensor.x += f.x;
-			sensor.y += f.y;
+			f += sensor.chain_force;
+
+			// Move in the direction of force
+			printf("Peace hai yahan hi sahi x %lf fx%lf belt_length %lf \n",sensor.x, f.x, belt_length);
+			if((sensor.x + f.x) < 0 || (sensor.x + f.x) > belt_length ||
+				(sensor.y + f.y) < 0 || (sensor.y + f.y) > belt_width) {
+				// Don't move
+			} else {
+				if((sensor.is_left_sensor && (sensor.x + f.x - sensing_range) > 0) ||
+					(sensor.is_right_sensor && (sensor.x + f.x + sensing_range) < belt_length)) {
+					// Move in y direction only
+					sensor.distance += f.y;
+					sensor.y += f.y;
+				} else {		
+					sensor.distance += VMAX;
+					sensor.x += f.x;
+					sensor.y += f.y;
+				}
+			}
 			// Create another self-triggered event to keep this alive
 			Event follow_dst;
-			follow_dst.type = BRANCH_CONNECT_TO_DST;
+			follow_dst.type = BARRIER_CONNECT_TO_DST;
 			follow_dst.id = e.id;
-			follow_dst.dst_id = e.dst_id;
+			follow_dst.dst_id = -1;
+			follow_dst.direction = e.direction;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
+	}
+	// Trigger Chain Maintenace Events for the affected sensors
+	sensor.sensor_force = null_force;
+	vector<int> broken_siblings = broken_chain_sensors(sensor);
+	printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	for(int i = 0; i < (int)broken_siblings.size(); i++) {
+		// Create Chain Maintenance Event
+		Event chain_maintenance;
+		chain_maintenance.type = CHAIN_MAINTENANCE;
+		chain_maintenance.id = broken_siblings[i];
+		printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		events.push(make_pair(timestamp, chain_maintenance));
+	}
+}
+
+void handle_chain_maintenance(int timestamp, Event& e) {
+	Sensor& sensor = sensors[e.id];
+	apply_chain_force(sensor);
+	printf("##################Before: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	if(sensor.chain_force.magnitude() > VMAX) {
+		sensor.chain_force = sensor.chain_force / sensor.chain_force.magnitude() * VMAX;
+	}
+	printf("###################After: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	// Check if boundary sensor
+	if((sensor.is_left_sensor && (sensor.x + sensor.chain_force.x - sensing_range) > 0) ||
+		(sensor.is_right_sensor && (sensor.x + sensor.chain_force.x + sensing_range) < belt_length)) {
+		// Move in y direction only
+		sensor.distance += sensor.chain_force.y;
+		sensor.y += sensor.chain_force.y;
+	} else {
+		sensor.distance += sensor.chain_force.magnitude();
+		sensor.x += sensor.chain_force.x;
+		sensor.y += sensor.chain_force.y;
+	}
+	// Trigger Chain Maintenace Events for the affected sensors
+	sensor.sensor_force = null_force;
+	vector<int> broken_siblings = broken_chain_sensors(sensor);
+	printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	for(int i = 0; i < (int)broken_siblings.size(); i++) {
+		// Create Chain Maintenance Event
+		Event chain_maintenance;
+		chain_maintenance.type = CHAIN_MAINTENANCE;
+		chain_maintenance.id = broken_siblings[i];
+		printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		events.push(make_pair(timestamp + 1, chain_maintenance));
 	}
 }
 
@@ -674,6 +891,8 @@ void process_event(int timestamp, Event& e) {
 		handle_branch_connect(timestamp, e);
 	} else if(e.type == BARRIER_CONNECT_TO_DST) {
 		handle_barrier_connect(timestamp, e);
+	} else if(e.type == CHAIN_MAINTENANCE) {
+		handle_chain_maintenance(timestamp, e);
 	}
 }
 
@@ -701,36 +920,41 @@ void circle(double cx, double cy, double radius) {
 	}
 	glEnd();
 }
-
-void draw_sensors() {
+void draw_sensor(Sensor& sensor, float r, float g, float b) {
+	// char sensor_id[10];
+	float x = (float)((double)window_width * sensor.x / belt_length);
+	float y = (float)((double)window_height * sensor.y / belt_width);
+	// line(x,y, x+0.1f, y+0.1f);
+	// sprintf(sensor_id, "%d", sensor.id);
+	// Print sensor ID here
+	// glRasterPos2f(x , y - (font->Ascender()));
+	// font->Render(sensor_id);
+	glColor3f(r, g, b);
 	float drawing_sensing_range = (float)((double)window_width * sensing_range / belt_length);
-	char sensor_id[10];
+	circle(x, y, drawing_sensing_range);
+}
+void draw_sensors() {
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current_sensor = sensors[i];
 		if(current_sensor.has_failed) {
 			continue;
 		}
-		float x = (float)((double)window_width * current_sensor.x / belt_length);
-		float y = (float)((double)window_height * current_sensor.y / belt_width);
-		// line(x,y, x+0.1f, y+0.1f);
-		sprintf(sensor_id, "%d", current_sensor.id);
-		// Print sensor ID here
-		// glRasterPos2f(x , y - (font->Ascender()));
-		// font->Render(sensor_id);
 		if(current_sensor.on_barrier) {
 			// BLUE
-			glColor3f(0.0f, 0.0f, 1.0f);
+			draw_sensor(current_sensor, 0.0f, 0.0f, 1.0f);
 		} else {
 			// RED
-			glColor3f(1.0f, 0.0f, 0.0f);
+			draw_sensor(current_sensor, 1.0f, 0.0f, 0.0f);
 		}
-		circle(x, y, drawing_sensing_range);
 	}
 }
 
 void draw_link(int id1, int id2) {
 	Sensor& sensor1 = sensors[id1];
 	Sensor& sensor2 = sensors[id2];
+	if(sensor2.has_failed) {
+		return;
+	}
 
 	float x1 = (float)((double)window_width * sensor1.x / belt_length);
 	float y1 = (float)((double)window_height * sensor1.y / belt_width);
@@ -758,7 +982,7 @@ void draw_links() {
 		}
 		// Draw Branches
 		for(int j = 0; j < (int)current_sensor.branches.size(); j++) {
-			draw_link(i, current_sensor.branches[i]);
+			draw_link(i, current_sensor.branches[j]);
 		}
 	}
 }
@@ -806,6 +1030,11 @@ void print_sensor_locs() {
 	printf("All Sensor Locations:\n");
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current_sensor = sensors[i];
+		if(current_sensor.is_left_sensor) {
+			printf("Left Sensor:\n");
+		} else if(current_sensor.is_right_sensor) {
+			printf("Right Sensor:\n");
+		}
 		if(current_sensor.has_failed) {
 			printf("**");
 		}
@@ -831,6 +1060,7 @@ void print_sensor_locs() {
 }
 
 void maintain() {
+	iterations = 0;
 	while(!events.empty()) {
 		// pull out one entry
 		P p = events.top();
@@ -838,6 +1068,16 @@ void maintain() {
 		Event e = p.second;
 		events.pop();
 		// Event Processing
+		// If the chain maintenance for current sensor is already handled for this timestamp then simply continue
+		if(e.type == CHAIN_MAINTENANCE) {
+			Sensor& sensor = sensors[e.id];
+			if(sensor.timestamp != timestamp) {
+				sensor.timestamp = timestamp;
+			}
+			else {
+				continue;
+			}
+		}
 		process_event(timestamp, e);
 		if(DEBUG) {
 			printf("Current Size of the queue: %d\n", (int)events.size());
@@ -847,8 +1087,11 @@ void maintain() {
 		}
 		printf("refreshing display\n");
 		draw_current_state();
+		
 		printf("Refreshing done!!\n");
-		sleep(1);
+		// usleep(1);
+		usleep(100000);
+		iterations++;
 	}
 }
 
@@ -862,12 +1105,40 @@ void delete_data() {
 	delete_sensor_graph();
 }
 
+void print_results() {
+	printf("\n\n\n\n\nPRINTING FINAL RESULTS:\n");
+	printf("Belt Dimensions: %lf * %lf\n", belt_length, belt_width);
+	printf("Number of Sensors: %d\n", n_sensors);
+	printf("Number of Failures: %d\n", n_failures);
+	printf("Failed Sensors: ");
+	for(int i = 0; i < n_sensors; i++) {
+		if(sensors[i].has_failed) {
+			printf("%3d ", i);
+		}
+	}
+	printf("\n");
+	printf("Sensing Range: %lf\n", sensing_range);
+	printf("Communication Range: %lf\n", communication_range);
+	printf("Sensor final locations and distances:\n");
+	double avg_distance = 0.0;
+	for(int i = 0; i < n_sensors; i++) {
+		if(sensors[i].has_failed) {
+			continue;
+		}
+		Sensor& sensor = sensors[i];
+		printf("%3d: %5.3lf %5.3lf: %5.3lf\n", sensor.id, sensor.x, sensor.y, sensor.distance);
+		avg_distance += sensor.distance;
+	}
+	avg_distance /= (double)(n_sensors - n_failures);
+	printf("Average Distance Moved: %lf\n", avg_distance);
+}
+
 int main(int argc, char *argv[])
 {
 	// srand(time(NULL));
 
 	// Initializing the display window
-	initialize(3);
+	initialize(n_failures);
 	if(DEBUG) {
 		printf("Initializing Display now\n");
 	}
@@ -878,7 +1149,7 @@ int main(int argc, char *argv[])
 		printf("Initializing Done\n");
 	}
 	maintain();
-
+	print_results();
 	delete_data();
 	
 	return 0;

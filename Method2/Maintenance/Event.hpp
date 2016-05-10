@@ -9,6 +9,7 @@ enum Type {
 	FAILURE_DETECTED,			// Some sensor detects a failure within its communication range
 	BRANCH_CONNECT_TO_DST,		// Tell the branch sensor to connect to the nearest sensor on the barrier
 	BARRIER_CONNECT_TO_DST,		// Tell the barrier sensor to connect to the nearest sensor on the barrier
+	CHAIN_MAINTENANCE,			// Tells the sensor to maintain the chain state
 	NO_TYPE
 };
 

@@ -1,5 +1,15 @@
 #include "Force.hpp"
 
+Force::Force(double x, double y, double magnitude) {
+	// x and y specify the direction and magnitude specifies the desired magnitude of the force in that direction
+	this->x = x;
+	this->y = y;
+	double current_mag = this->magnitude();
+	double scale = magnitude / current_mag;
+	this->x *= scale;
+	this->y *= scale;
+}
+
 Force::Force(const Force& f) {
 	x = f.x;
 	y = f.y;

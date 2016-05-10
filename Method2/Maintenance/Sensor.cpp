@@ -15,6 +15,12 @@ Sensor::Sensor(double x, double y) {
 	this->distance = 0.0;
 	this->dst_node = -1;
 	this->dst_barrier_index = -1;
+
+	this->is_left_sensor = false;
+	this->is_right_sensor = false;
+	this->sensor_force = null_force;
+	this->chain_force = null_force;
+	this->timestamp = 0;
 }
 
 Sensor::~Sensor() {
@@ -66,3 +72,4 @@ void Sensor::remove_sibling(int id) {
 	right_nodes.erase(std::remove(right_nodes.begin(), right_nodes.end(), id), right_nodes.end());
 	branches.erase(std::remove(branches.begin(), branches.end(), id), branches.end());
 }
+

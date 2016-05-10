@@ -32,6 +32,9 @@ void Event::print() {
 		case BARRIER_CONNECT_TO_DST:
 			printf("Event: Barrier Connecting to Destination\n");
 			break;
+		case CHAIN_MAINTENANCE:
+			printf("Event: Chain Maintenance\n");
+			break;
 		case NO_TYPE:
 			printf("Event: No type\n");
 			break;

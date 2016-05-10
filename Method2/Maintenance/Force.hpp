@@ -8,6 +8,7 @@ struct Force {
 	double y;				// Force in y-direction
 
 	Force(double x = 0.0, double y = 0.0): x(x), y(y) {}
+	Force(double x, double y, double magnitude);
 	Force(const Force&);
 	~Force() {}
 	double magnitude();		// Calculates and returns the magnitude of the force
@@ -19,4 +20,5 @@ struct Force {
 	friend Force operator*(const Force& f, const double d);
 };
 
+const Force null_force(0.0,0.0);
 #endif
