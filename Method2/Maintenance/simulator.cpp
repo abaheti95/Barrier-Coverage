@@ -22,6 +22,7 @@ int event_counter = 1;			// Global event counter
 int iterations;					// Tells the number of iterations requried to complete the simulation
 int max_timestamp = 0;			// Tells the last seen timestamp in the priority queue
 const int timestamp_jump = 5;	// next timestamp could be randomly assigned between 1-timestamp_jump
+const int MAX_ITERATIONS = 5000;
 double belt_length;
 double belt_width;
 double sensing_range;
@@ -258,7 +259,6 @@ void initialize_display() {
 }
 
 void initialize(int n) {
-	read_input_data();
 	initialize_data();
 	fail_sensors(n);
 }
@@ -557,7 +557,7 @@ Force calculate_left_right_forces(Sensor& sensor) {
 	Force f1 = null_force;
 	if(sensor.left_nodes.size() > 0) {
 		Sensor& left = sensors[sensor.left_nodes[0]];
-		if(left.has_failed) {
+		if(left.has_failed && sensor.dst_node == -1 && sensor.next_hop_node == -1) {
 			sensor.remove_sibling(left.id);
 		} else {
 			double distance = sensor_distance(sensor, left);
@@ -571,7 +571,7 @@ Force calculate_left_right_forces(Sensor& sensor) {
 	Force f2 = null_force;
 	if(sensor.right_nodes.size() > 0) {
 		Sensor& right = sensors[sensor.right_nodes[0]];
-		if(right.has_failed) {
+		if(right.has_failed && sensor.dst_node == -1 && sensor.next_hop_node == -1) {
 			sensor.remove_sibling(right.id);
 		} else {
 			double distance = sensor_distance(sensor, right);
@@ -605,19 +605,19 @@ vector<int> broken_chain_sensors(Sensor& sensor) {
 	vector<int> broken_siblings;
 	if(sensor.left_nodes.size() > 0) {
 		Sensor& left = sensors[sensor.left_nodes[0]];
-		if(!left.has_failed && (sensor_distance(sensor, left) > (2*sensing_range + DELTA))) {
+		if(!left.has_failed && (sensor_distance(sensor, left) > (2.0*sensing_range + DELTA))) {
 			broken_siblings.push_back(left.id);
 		}
 	}
 	if(sensor.right_nodes.size() > 0) {
 		Sensor& right = sensors[sensor.right_nodes[0]];
-		if(!right.has_failed && (sensor_distance(sensor, right) > (2*sensing_range + DELTA))) {
+		if(!right.has_failed && (sensor_distance(sensor, right) > (2.0*sensing_range + DELTA))) {
 			broken_siblings.push_back(right.id);
 		}
 	}
 	for(int i = 0; i < (int)sensor.branches.size(); i++) {
 		Sensor& branch = sensors[sensor.branches[i]];
-		if(!branch.has_failed && (sensor_distance(sensor, branch) > (2*sensing_range + DELTA))) {
+		if(!branch.has_failed && (sensor_distance(sensor, branch) > (2.0*sensing_range + DELTA))) {
 			broken_siblings.push_back(branch.id);
 		}
 	}
@@ -679,6 +679,122 @@ void handle_search_branch(int timestamp, Event& e) {
 	}
 }
 
+double find_k_for_violation(Sensor& current_sensor, Sensor& target_sensor, Force& force) {
+	double x1 = current_sensor.x;
+	double y1 = current_sensor.y;
+	double x2 = target_sensor.x;
+	double y2 = target_sensor.y;
+	double fx = force.x;
+	double fy = force.y;
+	double Rc = communication_range;
+
+	double a = fx*fx + fy*fy;
+	double b = 2.0*(fx*(x1 - x2) + fy*(y1 - y2));
+	double c = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) - Rc*Rc;
+
+	double discriminant = sqrt(b*b - 4.0*a*c);
+	if(DEBUG) {
+		printf("current sensor: %3d target sensor: %3d distance between them: %lf\n", current_sensor.id, target_sensor.id, sensor_distance(current_sensor, target_sensor));
+		force.print();
+		printf("a = %lf, b = %lf, c = %lf, D = %lf\n", a, b, c, discriminant);
+	}
+	// double k1 = (-1.0 * b - discriminant)/(2.0*a);
+	double k2 = (-1.0 * b + discriminant)/(2.0*a);
+	if(DEBUG) {
+		printf("K2 = %lf\n", k2);
+	}
+	return k2;
+}
+
+void move_within_permissible_range(Sensor& sensor, Force total_force) {
+	// When the sensor is moved by the magnitude of total_force some of the links might violate the communication range condition
+	// We want to avoid such scenarios and make all the movements such that no communication range is ever violated
+
+	// We first save the initial location of the sensor
+	double init_x = sensor.x;
+	double init_y = sensor.y;
+	// We first normalize the total force if it is beyond VMAX magnitude
+	if(total_force.magnitude() > VMAX) {
+		total_force = total_force / total_force.magnitude() * VMAX;
+	}
+	// Now we move the sensor by total force and later check for any communication range violations among the siblings
+	// Checking for left and right sibling violation
+	bool violation = false;
+	double k = INFINITY_DOUBLE;
+	if(!sensor.left_nodes.empty()) {
+		Sensor& left = sensors[sensor.left_nodes[0]];
+		sensor.x = init_x + total_force.x;
+		sensor.y = init_y + total_force.y;
+		if(!left.has_failed && sensor_distance(sensor, left) > communication_range) {
+			// Left sensor is violating
+			violation = true;
+			sensor.x = init_x;
+			sensor.y = init_y;
+			double k_left = find_k_for_violation(sensor, left, total_force);
+			k = min(k, k_left);
+		}
+	}
+	if(!sensor.right_nodes.empty()) {
+		Sensor& right = sensors[sensor.right_nodes[0]];
+		sensor.x = init_x + total_force.x;
+		sensor.y = init_y + total_force.y;
+		if(!right.has_failed && sensor_distance(sensor, right) > communication_range) {
+			// Right sensor is violating
+			violation = true;
+			sensor.x = init_x;
+			sensor.y = init_y;
+			double k_right = find_k_for_violation(sensor, right, total_force);
+			k = min(k, k_right);
+		}
+	}
+	for(int i = 0; i < (int)sensor.branches.size(); i++) {
+		Sensor& branch = sensors[sensor.branches[i]];
+		sensor.x = init_x + total_force.x;
+		sensor.y = init_y + total_force.y;
+		if(!branch.has_failed && sensor_distance(sensor, branch) > communication_range) {
+			// Branch sensor is violating
+			violation = true;
+			sensor.x = init_x;
+			sensor.y = init_y;
+			double k_branch = find_k_for_violation(sensor, branch, total_force);
+			k = min(k, k_branch);
+		}
+	}
+	// handle violation 
+	if(violation) {
+		if(k == INFINITY_DOUBLE) {
+			printf("FUCK IM DEAD (((((((((((0)))))))))))))))))))))))))))))))))))))))))))))0\n");
+			k = 1.0;
+		}
+		total_force.x = k*total_force.x;
+		total_force.y = k*total_force.y;
+	}
+	sensor.x = init_x;
+	sensor.y = init_y;
+	// handle specially left and right sensor movement conditions
+	if((sensor.x + total_force.x) < 0 || (sensor.x + total_force.x) > belt_length ||
+		(sensor.y + total_force.y) < 0 || (sensor.y + total_force.y) > belt_width) {
+		// Don't move
+		// TODO: Check what is maximum permissible translation that can be made
+	} else {
+		if((sensor.is_left_sensor && (sensor.x + total_force.x - sensing_range) > 0) ||
+			(sensor.is_right_sensor && (sensor.x + total_force.x + sensing_range) < belt_length)) {
+			// If there is scope for minute movement in x direction then make it
+			if(sensor.is_left_sensor && (sensor.x - sensing_range) < 0) {
+				total_force.x = sensing_range - sensor.x;
+			} else if(sensor.is_right_sensor && (sensor.x + sensing_range) > belt_length) {
+				total_force.x = belt_length - sensing_range - sensor.x;
+			} else {
+				total_force.x = 0.0;
+			}
+		}
+		// Make the final movement
+		sensor.distance += total_force.magnitude();
+		sensor.x += total_force.x;
+		sensor.y += total_force.y;
+	}
+}
+
 void handle_branch_connect(int timestamp, Event& e) {
 	// This is a branch type sensor and it has to connect to its destination
 	Sensor& sensor = sensors[e.id];
@@ -688,25 +804,7 @@ void handle_branch_connect(int timestamp, Event& e) {
 	// Apply Chain Force
 	apply_chain_force(sensor);
 	Force total_force = sensor.chain_force + sensor.sensor_force;
-	if(total_force.magnitude() > VMAX) {
-		total_force = total_force / total_force.magnitude() * VMAX;
-	}
-	// Move in the direction of force only if its not voilating the belt conditions
-	if((sensor.x + total_force.x) < 0 || (sensor.x + total_force.x) > belt_length ||
-		(sensor.y + total_force.y) < 0 || (sensor.y + total_force.y) > belt_width) {
-		// Don't move
-	} else {
-		if((sensor.is_left_sensor && (sensor.x + total_force.x - sensing_range) > 0) ||
-			(sensor.is_right_sensor && (sensor.x + total_force.x + sensing_range) < belt_length)) {
-			// Move in y direction only
-			sensor.distance += total_force.y;
-			sensor.y += total_force.y;
-		} else {		
-			sensor.distance += total_force.magnitude();
-			sensor.x += total_force.x;
-			sensor.y += total_force.y;
-		}
-	}
+	move_within_permissible_range(sensor, total_force);
 	sensor.sensor_force = null_force;
 	sensor.chain_force = null_force;
 	// Check if the two sensors are connected or not. If yes then create a new connection and make this sensor inactive
@@ -767,26 +865,9 @@ void handle_barrier_connect(int timestamp, Event& e) {
 		apply_sensor_force(sensor, dst_sensor);
 		// Apply Chain Force
 		Force total_force = sensor.chain_force + sensor.sensor_force;
-		if(total_force.magnitude() > VMAX) {
-			total_force = total_force / total_force.magnitude() * VMAX;
-		}
-		// Move in the direction of force
-		if((sensor.x + total_force.x) < 0 || (sensor.x + total_force.x) > belt_length ||
-			(sensor.y + total_force.y) < 0 || (sensor.y + total_force.y) > belt_width) {
-			// Don't move
-		} else {
-			if((sensor.is_left_sensor && (sensor.x + total_force.x - sensing_range) > 0) ||
-				(sensor.is_right_sensor && (sensor.x + total_force.x + sensing_range) < belt_length)) {
-				// Move in y direction only
-				sensor.distance += total_force.y;
-				sensor.y += total_force.y;
-			} else {		
-				sensor.distance += total_force.magnitude();
-				sensor.x += total_force.x;
-				sensor.y += total_force.y;
-			}
-		}
+		move_within_permissible_range(sensor, total_force);
 		sensor.chain_force = null_force;
+		sensor.sensor_force = null_force;
 		// Check if the two sensors are connected or not. If yes then create a new connection and make this sensor inactive
 		if(check_connected(sensor, dst_sensor)) {
 			// Create a connection between the two
@@ -843,132 +924,68 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		} else {
 			// go to the next_hop node location
-			Sensor& dst_sensor = sensors[sensor.next_hop_node];
+			Sensor& next_hop_sensor = sensors[sensor.next_hop_node];
 			if(DEBUG) {
 				printf("BLOODY BASTARD$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %d %d\n", sensor.id, sensor.next_hop_node);
 			}
-			if((sensor.is_left_sensor && (dst_sensor.x - sensing_range) > 0) ||
-				(sensor.is_right_sensor && (dst_sensor.x + sensing_range) < belt_length)) {
-				// Move in y direction only
-				// Also apply the chain forces in y direction
-				if(abs(sensor.y + sensor.chain_force.y - dst_sensor.y) <= VMAX) {
-					// Move to dst_sensor.y position
-					sensor.distance += abs(sensor.y - dst_sensor.y);
-					sensor.y = dst_sensor.y;
-				} else {
-					// Move with VMAX + sensor.chain_force.y towards dst_sensor.y direction
-					float saved_y_location = sensor.y;
-					if(dst_sensor.y > sensor.y) {
-						sensor.y += VMAX + sensor.chain_force.y;
+			// Generate maximum possible force towards next hop node
+			Force next_hop_force;
+			next_hop_force.x = next_hop_sensor.x - sensor.x;
+			next_hop_force.y = next_hop_sensor.y - sensor.y;
+			double init_x = sensor.x;
+			double init_y = sensor.y;
+			// Check whether by only applying next_hop_force can we reach the next_hop_location
+			move_within_permissible_range(sensor, next_hop_force);
+			if(sensor_distance(sensor, next_hop_sensor) <= DELTA) {
+				// Current sensor has reached the next hop and therefore update the next hop location
+				if(e.direction == LEFT) {
+					if(sensor.left_nodes.size() == 0) {
+						// No nodes to add
+				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+						// Therefore don't change the next hop node
+						// Try to reach there again and again
 					} else {
-						sensor.y -= VMAX + sensor.chain_force.y;
+						// Remove first left node and set the next hop
+						sensor.next_hop_node = sensor.left_nodes[0];
+						sensor.left_nodes.erase(sensor.left_nodes.begin());
+						sensor.next_hop_barrier_index = sensors[sensor.dst_node].barrier_index;
 					}
-					sensor.distance += abs(sensor.y - saved_y_location);
+				} else if(e.direction == RIGHT) {
+					if(sensor.right_nodes.size() == 0) {
+						// No nodes to add
+				printf("#####################################################################\n");
+						// Therefore don't change the next hop node
+						// Try to reach there again and again
+					} else {
+						// Remove the first right node and set the next hop
+						sensor.next_hop_node = sensor.right_nodes[0];
+						sensor.right_nodes.erase(sensor.right_nodes.begin());
+						sensor.next_hop_barrier_index = sensors[sensor.dst_node].barrier_index;
+					}
 				}
 				Event next_hop;
 				next_hop.type = BARRIER_CONNECT_TO_DST;
 				next_hop.direction = e.direction;
 				next_hop.id = e.id;
-				next_hop.dst_id = sensor.dst_node;
+				next_hop.dst_id = -1;
 				next_hop.event_number = event_counter++;
 				events.push(make_pair(random_timestamp(timestamp), next_hop));
-			} else if(sensor_distance(sensor, dst_sensor) <= VMAX) {
-				//TODO: handle chain_force in this section	
-				sensor.distance += sensor_distance(sensor, dst_sensor);
-				sensor.x = dst_sensor.x;
-				sensor.y = dst_sensor.y;
-				// Reached next hop location
-				// Search for any sensor in proximity, if found update the destination sensor
-				int dst_sensor_id;
-				if(e.direction == LEFT) {
-					dst_sensor_id = nearest_left_barrier_sensor_within_communication_range(e.id);
-				} else if(e.direction == RIGHT) {
-					dst_sensor_id = nearest_right_barrier_sensor_within_communication_range(e.id);
-				}
-				if(dst_sensor_id != -1) {
-					// We have a destination sensor now
-
-					// Also we will update the dst_sensor's dst_id
-					sensors[dst_sensor_id].dst_node = sensor.id;
-					// Try to connect to that
-					// Unset next hop node
-					sensor.next_hop_node = -1;
-					sensor.next_hop_barrier_index = -1;
-					// Set destination node information
-					sensor.dst_node = dst_sensor_id;
-					sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
-
-					Event next_hop;
-					next_hop.type = BARRIER_CONNECT_TO_DST;
-					next_hop.direction = e.direction;
-					next_hop.id = e.id;
-					next_hop.dst_id = sensor.dst_node;
-					next_hop.event_number = event_counter++;
-					events.push(make_pair(random_timestamp(timestamp), next_hop));
-				} else {
-					// Else update the next hop location and create a new event
-					sensor.dst_node = -1;
-					if(e.direction == LEFT) {
-						if(sensor.left_nodes.size() == 0) {
-							// No nodes to add
-							// Therefore don't change the next hop node
-							// Try to reach there again and again
-						} else {
-							// Remove first left node and set the next hop
-							sensor.next_hop_node = sensor.left_nodes[0];
-							sensor.left_nodes.erase(sensor.left_nodes.begin());
-							sensor.next_hop_barrier_index = sensors[sensor.dst_node].barrier_index;
-						}
-					} else if(e.direction == RIGHT) {
-						if(sensor.right_nodes.size() == 0) {
-							// No nodes to add
-							// Therefore don't change the next hop node
-							// Try to reach there again and again
-						} else {
-							// Remove the first right node and set the next hop
-							sensor.next_hop_node = sensor.right_nodes[0];
-							sensor.right_nodes.erase(sensor.right_nodes.begin());
-							sensor.next_hop_barrier_index = sensors[sensor.dst_node].barrier_index;
-						}
-					}
-					Event next_hop;
-					next_hop.type = BARRIER_CONNECT_TO_DST;
-					next_hop.direction = e.direction;
-					next_hop.id = e.id;
-					next_hop.dst_id = sensor.dst_node;
-					next_hop.event_number = event_counter++;
-					events.push(make_pair(random_timestamp(timestamp), next_hop));
-				}
 			} else {
-				// Move with VMAX speed towards next hop location
-				Force f(dst_sensor.x - sensor.x, dst_sensor.y - sensor.y);
-				f = f / f.magnitude() * VMAX;
-				f += sensor.chain_force;
-
-				// Move in the direction of force
-				if((sensor.x + f.x) < 0 || (sensor.x + f.x) > belt_length ||
-					(sensor.y + f.y) < 0 || (sensor.y + f.y) > belt_width) {
-					// Don't move
-				} else {
-					if((sensor.is_left_sensor && (sensor.x + f.x - sensing_range) > 0) ||
-						(sensor.is_right_sensor && (sensor.x + f.x + sensing_range) < belt_length)) {
-						// Move in y direction only
-						sensor.distance += f.y;
-						sensor.y += f.y;
-					} else {		
-						sensor.distance += VMAX;
-						sensor.x += f.x;
-						sensor.y += f.y;
-					}
-				}
+				// restore the original location of the sensor
+				sensor.x = init_x;
+				sensor.y = init_y;
+				Force total_force = sensor.chain_force + next_hop_force;
+				move_within_permissible_range(sensor, total_force);
+				sensor.chain_force = null_force;
+				// respawn a barrier connect event
 				// Create another self-triggered event to keep this alive
-				Event follow_dst;
-				follow_dst.type = BARRIER_CONNECT_TO_DST;
-				follow_dst.id = e.id;
-				follow_dst.dst_id = -1;
-				follow_dst.direction = e.direction;
-				follow_dst.event_number = event_counter++;
-				events.push(make_pair(random_timestamp(timestamp), follow_dst));
+				Event follow_next_hop;
+				follow_next_hop.type = BARRIER_CONNECT_TO_DST;
+				follow_next_hop.id = e.id;
+				follow_next_hop.dst_id = -1;
+				follow_next_hop.direction = e.direction;
+				follow_next_hop.event_number = event_counter++;
+				events.push(make_pair(random_timestamp(timestamp), follow_next_hop));
 			}
 		}
 	}
@@ -1037,28 +1054,10 @@ void activate_flattening_sensors(Sensor& sensor, int timestamp) {
 void handle_chain_maintenance(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	apply_chain_force(sensor);
-	if(DEBUG) {
-		printf("##################Before: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
-	}
-	if(sensor.chain_force.magnitude() > VMAX) {
-		sensor.chain_force = sensor.chain_force / sensor.chain_force.magnitude() * VMAX;
-	}
-	if(DEBUG) {
-		printf("###################After: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
-	}
-	// Check if boundary sensor
-	if((sensor.is_left_sensor && (sensor.x + sensor.chain_force.x - sensing_range) > 0) ||
-		(sensor.is_right_sensor && (sensor.x + sensor.chain_force.x + sensing_range) < belt_length)) {
-		// Move in y direction only
-		sensor.distance += sensor.chain_force.y;
-		sensor.y += sensor.chain_force.y;
-	} else {
-		sensor.distance += sensor.chain_force.magnitude();
-		sensor.x += sensor.chain_force.x;
-		sensor.y += sensor.chain_force.y;
-	}
-	// Trigger Chain Maintenace Events for the affected sensors
+	move_within_permissible_range(sensor, sensor.chain_force);
 	sensor.sensor_force = null_force;
+	
+	// Trigger Chain Maintenace Events for the affected sensors
 	vector<int> broken_siblings = broken_chain_sensors(sensor);
 	if(DEBUG) {
 		printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
@@ -1095,17 +1094,12 @@ void handle_flatten_connect(int timestamp, Event& e) {
 		apply_chain_force(sensor);
 		Force f((dst_sensor.x - sensor.x), (dst_sensor.y - sensor.y), FLATTEN_FORCE_MAGNITUDE);
 		f += sensor.chain_force;
+		move_within_permissible_range(sensor, f);
 		sensor.chain_force = null_force;
-		// Normalize f if magnitude greater than VMAX
-		if(f.magnitude() > VMAX) {
-			f = f / f.magnitude() * VMAX;
-		}
-		sensor.x += f.x;
-		sensor.y += f.y;
+
 		if(check_connected(sensor, dst_sensor)) {
 			flag = true;
 		}
-
 		// Check if the connection establishment is possible or not
 		if(flag) {
 			// Establish connection
@@ -1182,18 +1176,24 @@ void process_event(int timestamp, Event& e) {
 	// Sensor Failure
 	if(e.type == SENSOR_FAILURE) {
 		handle_sensor_failure(timestamp, e);
-	} else if(e.type == FAILURE_DETECTED) {
-		handle_failure_detection(timestamp, e);
-	} else if(e.type == SEARCH_BRANCH) {
-		handle_search_branch(timestamp, e);
-	} else if(e.type == BRANCH_CONNECT_TO_DST) {
-		handle_branch_connect(timestamp, e);
-	} else if(e.type == BARRIER_CONNECT_TO_DST) {
-		handle_barrier_connect(timestamp, e);
-	} else if(e.type == CHAIN_MAINTENANCE) {
-		handle_chain_maintenance(timestamp, e);
-	} else if(e.type == FLATTEN_CONNECT_TO_DST) {
-		handle_flatten_connect(timestamp, e);
+	} else {
+		Sensor& sensor = sensors[e.id];
+		if(sensor.has_failed) {
+			return;
+		}
+		if(e.type == FAILURE_DETECTED) {
+			handle_failure_detection(timestamp, e);
+		} else if(e.type == SEARCH_BRANCH) {
+			handle_search_branch(timestamp, e);
+		} else if(e.type == BRANCH_CONNECT_TO_DST) {
+			handle_branch_connect(timestamp, e);
+		} else if(e.type == BARRIER_CONNECT_TO_DST) {
+			handle_barrier_connect(timestamp, e);
+		} else if(e.type == CHAIN_MAINTENANCE) {
+			handle_chain_maintenance(timestamp, e);
+		} else if(e.type == FLATTEN_CONNECT_TO_DST) {
+			handle_flatten_connect(timestamp, e);
+		}
 	}
 }
 
@@ -1354,7 +1354,7 @@ void print_sensor_locs() {
 		if(current_sensor.dst_node != -1) {
 			printf("\nDestination Node: %d", current_sensor.dst_node);
 		}
-		printf("\n");
+		printf("next hop : %3d\n", current_sensor.next_hop_node);
 	}
 	printf("\n\n");
 }
@@ -1381,15 +1381,15 @@ void maintain() {
 			}
 		}
 		process_event(timestamp, e);
-		// printf("timestamp: %5d : ", timestamp);
-		// e.print();
 		if(DEBUG) {
 			// printf("Current Size of the queue: %d\n", (int)events.size());
+			printf("timestamp: %5d : ", timestamp);
+			e.print();
 			print_sensor_locs();
 		}
 		draw_current_state();		
 		// usleep(1);
-		usleep(10000);
+		// usleep(20000);
 		iterations++;
 	}
 }
@@ -1439,6 +1439,7 @@ int main(int argc, char *argv[])
 	srand(time(NULL));
 
 	// Initializing the display window
+	read_input_data();
 	initialize(n_failures);
 	if(DEBUG) {
 		printf("Initializing Display now\n");

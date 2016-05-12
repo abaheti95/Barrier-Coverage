@@ -1,6 +1,7 @@
 #ifndef FORCE_HPP
 #define FORCE_HPP
 
+#include <cstdio>
 #include <cmath>
 
 const double PI = 3.14159265;
@@ -22,6 +23,7 @@ struct Force {
 	friend Force operator*(const Force& f, const double d);
 	double dot(Force&);
 	double angle(Force&);
+	void print();
 };
 
 const Force null_force(0.0,0.0);

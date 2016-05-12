@@ -56,3 +56,7 @@ double Force::angle(Force& f) {
 	double param = dot_product / this->magnitude() / f.magnitude();
 	return (acos(param) * 180.0 / PI);
 }
+
+void Force::print() {
+	printf("%6.3lf, %6.3lf\n", x, y);
+}
