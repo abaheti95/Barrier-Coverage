@@ -1,5 +1,8 @@
-simulator: simulator.cpp simulator.hpp Sensor.o Coordinate.o Force.o Event.o
-	g++ -Wall -g simulator.cpp Sensor.o Force.o Coordinate.o Event.o -o simulator -L/usr/local/lib -lglfw3 -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp -I/usr/include/freetype2
+tester: Simulator.o
+	g++ -Wall -g tester.cpp Simulator.o Event.o Sensor.o Force.o Coordinate.o -o tester -L/usr/local/lib -lglfw3 -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
+
+Simulator.o: Simulator.cpp Simulator.hpp Sensor.o Coordinate.o Force.o Event.o
+	g++ -Wall -g -c Simulator.cpp Sensor.o Force.o Coordinate.o Event.o -o Simulator.o -L/usr/local/lib -lglfw3 -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
 
 Event.o: Event.cpp Event.hpp
 	g++ -Wall -g -c Event.cpp -o Event.o
@@ -14,4 +17,4 @@ Force.o: Force.hpp Force.cpp Coordinate.o
 	g++ -Wall -g -c Force.cpp -o Force.o
 
 clean:
-	rm Coordinate.o Sensor.o Force.o simulator 
+	rm tester Coordinate.o Event.o Sensor.o Force.o Simulator.o

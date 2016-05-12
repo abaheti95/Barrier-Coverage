@@ -1,81 +1,20 @@
-#include "simulator.hpp"
+#include "Simulator.hpp"
 
-using namespace std;
+Simulator::Simulator() {
+	event_counter = 1;
+	max_timestamp = 0;
+	n_failures = 6;			// Default value
+	
+	// Display variables default values
+	display_width = 1000;
+	display_height = 800;
+	window_width = 1.8f;
+	window_height = 1.0f;
 
-const int MAX_SENSORS = 100;
-const double INFINITY_DOUBLE = 100000000.0;
+	num_segments = 60;
+}
 
-const double DELTA = 0.005;		// Permissible error
-const double MULTIPLICATION_FACTOR = 3.0;
-#define VMAX (2.0 * sensing_range)
-#define FLATTEN_FORCE_MAGNITUDE (VMAX / 2)
-// Force parameters
-#define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
-#define CHAIN_FORCE_OFFSET (sensing_range / 2)
-// #define CHAIN_FORCE_OFFSET 0.0
-const double STEEPNESS = 2.0;
-double sensor_force_factor;
-double chain_force_factor;
-
-// Global Simulation Variables
-int event_counter = 1;			// Global event counter
-int iterations;					// Tells the number of iterations requried to complete the simulation
-int max_timestamp = 0;			// Tells the last seen timestamp in the priority queue
-const int timestamp_jump = 5;	// next timestamp could be randomly assigned between 1-timestamp_jump
-const int MAX_ITERATIONS = 5000;
-double belt_length;
-double belt_width;
-double sensing_range;
-double communication_range;
-int n_sensors;					// Total number of sensors used in the simulation
-const int n_failures = 6;
-Coordinate sensor_loc[MAX_SENSORS];
-int barrier_len;				// Number of sensors present in the barrier
-int barrier[MAX_SENSORS];		// List of sensor IDs present in the barrier
-bool on_barrier[MAX_SENSORS];	// Boolean array that tells whether a sensor is on the barrier or not
-Sensor sensors[MAX_SENSORS];	// List of all the data stored in individual sensor nodes
-int within_range[MAX_SENSORS];	// List of sensor IDs that are within the communication range of a given sensor
-// This list will change at every search query and will be shared between all functions
-vector< vector< int > > sensor_graph;	// Complete Sensor Graph
-
-// Event Priority Queue
-typedef pair<int, Event> P;
-struct Order {
-	bool operator()(P const& a, P const& b) const {
-		if(a.first == b.first) {
-			// We want a priority in between events
-			// First all the Barrier Connect and Branch Connect events should be scheduled
-			// Then all the Flattening Events should be scheduled
-			// Finally in all the Chain Maintenance events are scheduled based on some ordering
-			int a_priority = value_from_type(a.second.type);
-			int b_priority = value_from_type(b.second.type);
-			if(a_priority == b_priority) {
-				return a.second.event_number > b.second.event_number;
-			}
-			return a_priority > b_priority;
-		}
-		return a.first > b.first;
-	}
-};
-priority_queue< P, vector<P>, Order> events;
-
-
-
-/****************** Simulation display code *****************/
-int display_width = 1000;
-int display_height = 800;
-double window_width = 1.8f;
-double window_height = 1.0f;
-
-int num_segments = 60;
-GLFWwindow* window;
-
-FTPixmapFont* font;
-/****************** End of display code *********************/
-
-const bool DEBUG = false;
-
-void read_input_data() {
+void Simulator::read_input_data() {
 	// The data is assumed to be coming from stdin
 	// Thus simple scanf will work
 
@@ -132,10 +71,9 @@ void read_input_data() {
 		printf("\n");
 		sensor_graph.push_back(row);
 	}
-	// sleep(100);
 }
 
-void initialize_data() {
+void Simulator::initialize_data() {
 	// After reading the input we will initialize all the sensor data
 
 	// Copy the locations into Sensor nodes
@@ -195,8 +133,9 @@ void initialize_data() {
 	}
 }
 
-void fail_sensors(int n) {
+void Simulator::fail_sensors(int n) {
 	// Number of sensors to be removed is taken as input
+	n_failures = n;
 	int start_index = rand() % (barrier_len - n);
 	for(int i = start_index; i < start_index + n; i++) {
 		sensors[barrier[i]].has_failed = true;
@@ -210,7 +149,7 @@ void fail_sensors(int n) {
 	}
 }
 
-void initialize_display() {
+void Simulator::initialize_display() {
 
 	/* Initialize the library */
 	if (!glfwInit()){
@@ -258,22 +197,23 @@ void initialize_display() {
 	font->FaceSize(18);*/
 }
 
-void initialize(int n) {
+void Simulator::initialize(int n) {
 	initialize_data();
 	fail_sensors(n);
+	initialize_display();
 }
 
-inline double distance(double x1, double y1, double x2, double y2) {
+inline double Simulator::distance(double x1, double y1, double x2, double y2) {
 	double diff_x = x2 - x1;
 	double diff_y = y2 - y1;
 	return sqrt(diff_x * diff_x + diff_y * diff_y);
 }
 
-inline double sensor_distance(Sensor& s1, Sensor& s2) {
+inline double Simulator::sensor_distance(Sensor& s1, Sensor& s2) {
 	return distance(s1.x, s1.y, s2.x, s2.y);
 }
 
-int nearest_barrier_sensor_within_communication_range(int index) {
+int Simulator::nearest_barrier_sensor_within_communication_range(int index) {
 	Sensor& sensor = sensors[index];
 	double min = INFINITY_DOUBLE;
 	int dst_id = -1;
@@ -294,7 +234,7 @@ int nearest_barrier_sensor_within_communication_range(int index) {
 	return dst_id;
 }
 
-int nearest_right_barrier_sensor_within_communication_range(int index) {
+int Simulator::nearest_right_barrier_sensor_within_communication_range(int index) {
 	Sensor& sensor = sensors[index];
 	double min = INFINITY_DOUBLE;
 	int dst_id = -1;
@@ -315,7 +255,7 @@ int nearest_right_barrier_sensor_within_communication_range(int index) {
 	return dst_id;
 }
 
-int nearest_left_barrier_sensor_within_communication_range(int index) {
+int Simulator::nearest_left_barrier_sensor_within_communication_range(int index) {
 	Sensor& sensor = sensors[index];
 	double min = INFINITY_DOUBLE;
 	int dst_id = -1;
@@ -336,7 +276,7 @@ int nearest_left_barrier_sensor_within_communication_range(int index) {
 	return dst_id;
 }
 
-void search_sensors_within_communication_range(Coordinate loc) {
+void Simulator::search_sensors_within_communication_range(Coordinate loc) {
 	int k = 0;
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current = sensors[i];
@@ -351,7 +291,7 @@ void search_sensors_within_communication_range(Coordinate loc) {
 	within_range[k] = -1;
 }
 
-void search_sensors_within_communication_range(int index) {
+void Simulator::search_sensors_within_communication_range(int index) {
 	int k = 0;
 	Sensor& sensor = sensors[index];
 	for(int i = 0; i < n_sensors; i++) {
@@ -375,7 +315,7 @@ inline int random_timestamp(int timestamp) {
 	return (timestamp + (rand() % timestamp_jump) + 1);
 }
 
-void handle_sensor_failure(int timestamp, Event& e) {
+void Simulator::handle_sensor_failure(int timestamp, Event& e) {
 	// Get the ID of the failed node and trigger the nodes adjacent to it
 	search_sensors_within_communication_range(e.failed_node);
 	if(DEBUG) {
@@ -400,7 +340,7 @@ void handle_sensor_failure(int timestamp, Event& e) {
 	}
 }
 
-void handle_failure_detection(int timestamp, Event& e) {
+void Simulator::handle_failure_detection(int timestamp, Event& e) {
 	// Check if current sensor is a sensor adjacent to failed sensor
 	Sensor& sensor = sensors[e.id];
 	Sibling_Type stype = sensor.is_adjacent(e.failed_node);
@@ -507,13 +447,13 @@ void handle_failure_detection(int timestamp, Event& e) {
 // chain_force > sensor_force at x = R_c
 // Therefore b > (VMAX - CHAIN_FORCE_OFFSET) / (R_c - 2*R_s)^3
 
-double sensor_force(double x) {
+double Simulator::sensor_force(double x) {
 	x = abs(x);
 	// return (x*x/(10.0 * sensing_range) + SENSOR_FORCE_OFFSET);
 	return sensor_force_factor * x*x + SENSOR_FORCE_OFFSET;
 }
 
-double chain_force(double x) {
+double Simulator::chain_force(double x) {
 	x = abs(x);
 	if(x <= 2*sensing_range) {
 		return 0.0;
@@ -529,14 +469,14 @@ double chain_force(double x) {
 	return estimate_chain_force;
 }
 
-void apply_sensor_force(Sensor& sensor, Sensor& dst_sensor) {
+void Simulator::apply_sensor_force(Sensor& sensor, Sensor& dst_sensor) {
 	// Apply force towards the destination sensor
 	double sensor_force_magnitude = sensor_force(sensor_distance(sensor, dst_sensor));
 	Force f((dst_sensor.x - sensor.x), (dst_sensor.y - sensor.y), sensor_force_magnitude);
 	sensor.sensor_force = f;
 }
 
-Force calculate_branch_forces(Sensor& sensor) {
+Force Simulator::calculate_branch_forces(Sensor& sensor) {
 	Force f;
 	for(int i = 0; i < (int)sensor.branches.size(); i++) {
 		Sensor& branch = sensors[sensor.branches[i]];
@@ -553,7 +493,7 @@ Force calculate_branch_forces(Sensor& sensor) {
 	return f;
 }
 
-Force calculate_left_right_forces(Sensor& sensor) {
+Force Simulator::calculate_left_right_forces(Sensor& sensor) {
 	Force f1 = null_force;
 	if(sensor.left_nodes.size() > 0) {
 		Sensor& left = sensors[sensor.left_nodes[0]];
@@ -600,7 +540,7 @@ Force calculate_left_right_forces(Sensor& sensor) {
 	return (f1 + f2);
 }
 
-vector<int> broken_chain_sensors(Sensor& sensor) {
+vector<int> Simulator::broken_chain_sensors(Sensor& sensor) {
 	// Return the list of siblings which are violating the chain link connection condition
 	vector<int> broken_siblings;
 	if(sensor.left_nodes.size() > 0) {
@@ -624,7 +564,7 @@ vector<int> broken_chain_sensors(Sensor& sensor) {
 	return broken_siblings;
 }
 
-void apply_chain_force(Sensor& sensor) {
+void Simulator::apply_chain_force(Sensor& sensor) {
 	// We need to find all the neighboring sensors who are applying force on current sensor due to chain links
 	// Force acted upon the sensor based on the chain connections
 	Force f;
@@ -646,11 +586,11 @@ void apply_chain_force(Sensor& sensor) {
 	return;
 }
 
-bool check_connected(Sensor& sensor, Sensor& dst_sensor) {
+inline bool Simulator::check_connected(Sensor& sensor, Sensor& dst_sensor) {
 	return (distance(sensor.x, sensor.y, dst_sensor.x, dst_sensor.y) <= (2*sensing_range));
 }
 
-void handle_search_branch(int timestamp, Event& e) {
+void Simulator::handle_search_branch(int timestamp, Event& e) {
 	// Current sensor periodically searches for some neighboring destination sensor
 	// If at any point in the simulation it finds such a then it will enter the BRANCH_CONNECT_TO_DST state
 	printf("I'm here here here here %d\n", e.id);
@@ -679,7 +619,7 @@ void handle_search_branch(int timestamp, Event& e) {
 	}
 }
 
-double find_k_for_violation(Sensor& current_sensor, Sensor& target_sensor, Force& force) {
+double Simulator::find_k_for_violation(Sensor& current_sensor, Sensor& target_sensor, Force& force) {
 	double x1 = current_sensor.x;
 	double y1 = current_sensor.y;
 	double x2 = target_sensor.x;
@@ -706,7 +646,7 @@ double find_k_for_violation(Sensor& current_sensor, Sensor& target_sensor, Force
 	return k2;
 }
 
-void move_within_permissible_range(Sensor& sensor, Force total_force) {
+void Simulator::move_within_permissible_range(Sensor& sensor, Force total_force) {
 	// When the sensor is moved by the magnitude of total_force some of the links might violate the communication range condition
 	// We want to avoid such scenarios and make all the movements such that no communication range is ever violated
 
@@ -763,7 +703,7 @@ void move_within_permissible_range(Sensor& sensor, Force total_force) {
 	// handle violation 
 	if(violation) {
 		if(k == INFINITY_DOUBLE) {
-			printf("FUCK IM DEAD (((((((((((0)))))))))))))))))))))))))))))))))))))))))))))0\n");
+			printf("This should not happen!\n");
 			k = 1.0;
 		}
 		total_force.x = k*total_force.x;
@@ -795,7 +735,7 @@ void move_within_permissible_range(Sensor& sensor, Force total_force) {
 	}
 }
 
-void handle_branch_connect(int timestamp, Event& e) {
+void Simulator::handle_branch_connect(int timestamp, Event& e) {
 	// This is a branch type sensor and it has to connect to its destination
 	Sensor& sensor = sensors[e.id];
 	Sensor& dst_sensor = sensors[sensor.dst_node];
@@ -844,7 +784,7 @@ void handle_branch_connect(int timestamp, Event& e) {
 	}
 }
 
-void handle_barrier_connect(int timestamp, Event& e) {
+void Simulator::handle_barrier_connect(int timestamp, Event& e) {
 	// Check if current sensor has a destination sensor or not?
 	Sensor& sensor = sensors[e.id];
 	if(DEBUG) {
@@ -1008,7 +948,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 	}
 }
 
-void activate_flattening_sensors(Sensor& sensor, int timestamp) {
+void Simulator::activate_flattening_sensors(Sensor& sensor, int timestamp) {
 	for(int i = 0; i < (int)sensor.branches.size(); i++) {
 		Sensor& branch = sensors[sensor.branches[i]];
 		double distance = INFINITY_DOUBLE;
@@ -1051,7 +991,7 @@ void activate_flattening_sensors(Sensor& sensor, int timestamp) {
 	}
 }
 
-void handle_chain_maintenance(int timestamp, Event& e) {
+void Simulator::handle_chain_maintenance(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	apply_chain_force(sensor);
 	move_within_permissible_range(sensor, sensor.chain_force);
@@ -1081,7 +1021,7 @@ void handle_chain_maintenance(int timestamp, Event& e) {
 	}
 }
 
-void handle_flatten_connect(int timestamp, Event& e) {
+void Simulator::handle_flatten_connect(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	bool flag = false;
 	if(sensor.dst_node != -1) {
@@ -1172,7 +1112,7 @@ void handle_flatten_connect(int timestamp, Event& e) {
 	}
 }
 
-void process_event(int timestamp, Event& e) {
+void Simulator::process_event(int timestamp, Event& e) {
 	// Sensor Failure
 	if(e.type == SENSOR_FAILURE) {
 		handle_sensor_failure(timestamp, e);
@@ -1197,8 +1137,7 @@ void process_event(int timestamp, Event& e) {
 	}
 }
 
-
-void line(double x1, double y1, double x2, double y2) {
+void Simulator::line(double x1, double y1, double x2, double y2) {
 	x1 -= 0.9f;
 	y1 -= 0.9f;
 	x2 -= 0.9f;
@@ -1209,7 +1148,7 @@ void line(double x1, double y1, double x2, double y2) {
 	glEnd();
 }
 
-void circle(double cx, double cy, double radius) {
+void Simulator::circle(double cx, double cy, double radius) {
 	cx -= 0.9f;
 	cy -= 0.9f;
 	glBegin(GL_LINE_LOOP);
@@ -1221,7 +1160,8 @@ void circle(double cx, double cy, double radius) {
 	}
 	glEnd();
 }
-void draw_sensor(Sensor& sensor, float r, float g, float b) {
+
+void Simulator::draw_sensor(Sensor& sensor, float r, float g, float b) {
 	// char sensor_id[10];
 	float x = (float)((double)window_width * sensor.x / belt_length);
 	float y = (float)((double)window_height * sensor.y / belt_width);
@@ -1234,7 +1174,8 @@ void draw_sensor(Sensor& sensor, float r, float g, float b) {
 	float drawing_sensing_range = (float)((double)window_width * sensing_range / belt_length);
 	circle(x, y, drawing_sensing_range);
 }
-void draw_sensors() {
+
+void Simulator::draw_sensors() {
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current_sensor = sensors[i];
 		if(current_sensor.has_failed) {
@@ -1250,7 +1191,7 @@ void draw_sensors() {
 	}
 }
 
-void draw_link(int id1, int id2) {
+void Simulator::draw_link(int id1, int id2) {
 	Sensor& sensor1 = sensors[id1];
 	Sensor& sensor2 = sensors[id2];
 	if(sensor2.has_failed) {
@@ -1267,7 +1208,7 @@ void draw_link(int id1, int id2) {
 	line(x1,y1,x2,y2);
 }
 
-void draw_links() {
+void Simulator::draw_links() {
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current_sensor = sensors[i];
 		if(current_sensor.has_failed) {
@@ -1288,12 +1229,12 @@ void draw_links() {
 	}
 }
 
-void draw_sensors_and_links() {
+void Simulator::draw_sensors_and_links() {
 	draw_sensors();
 	draw_links();
 }
 
-void draw_belt() {
+void Simulator::draw_belt() {
 	// WHITE
 	glColor3f(1.0f, 1.0f, 1.0f);
 	line(0, 0, 0, window_height);
@@ -1308,12 +1249,12 @@ void draw_belt() {
 	line(0, 0, -0.5, 0);
 }
 
-void refresh_display() {
+void Simulator::refresh_display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 }
 
-void draw_current_state() {
+void Simulator::draw_current_state() {
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	
@@ -1326,7 +1267,7 @@ void draw_current_state() {
 	glfwPollEvents();
 }
 
-void print_sensor_locs() {
+void Simulator::print_sensor_locs() {
 	printf("All Sensor Locations:\n");
 	for(int i = 0; i < n_sensors; i++) {
 		Sensor& current_sensor = sensors[i];
@@ -1359,7 +1300,7 @@ void print_sensor_locs() {
 	printf("\n\n");
 }
 
-void maintain() {
+bool Simulator::maintain() {
 	iterations = 0;
 	while(!events.empty()) {
 		// pull out one entry
@@ -1392,19 +1333,20 @@ void maintain() {
 		// usleep(20000);
 		iterations++;
 	}
+	return true;
 }
 
-void delete_sensor_graph() {
+void Simulator::delete_sensor_graph() {
 	for(int i = 0; i < n_sensors; i++) {
 		sensor_graph[i].clear();
 	}
 }
 
-void delete_data() {
+void Simulator::delete_data() {
 	delete_sensor_graph();
 }
 
-void print_results() {
+void Simulator::print_results() {
 	printf("\n\n\n\n\nPRINTING FINAL RESULTS:\n");
 	printf("Belt Dimensions: %lf * %lf\n", belt_length, belt_width);
 	printf("Number of Sensors: %d\n", n_sensors);
@@ -1434,25 +1376,4 @@ void print_results() {
 	printf("Average Distance Moved: %lf\n", avg_distance);
 }
 
-int main(int argc, char *argv[])
-{
-	srand(time(NULL));
 
-	// Initializing the display window
-	read_input_data();
-	initialize(n_failures);
-	if(DEBUG) {
-		printf("Initializing Display now\n");
-	}
-	
-	initialize_display();
-
-	if(DEBUG) {
-		printf("Initializing Done\n");
-	}
-	maintain();
-	print_results();
-	delete_data();
-	
-	return 0;
-}
