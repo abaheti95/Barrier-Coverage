@@ -7,6 +7,7 @@ using namespace std;
 enum Type {
 	SENSOR_FAILURE,				// Some sensor fails
 	FAILURE_DETECTED,			// Some sensor detects a failure within its communication range
+	SEARCH_BRANCH,				// If no branch is found in the failure detection event then branch sensor will periodically search for a destination sensor
 	BRANCH_CONNECT_TO_DST,		// Tell the branch sensor to connect to the nearest sensor on the barrier
 	BARRIER_CONNECT_TO_DST,		// Tell the barrier sensor to connect to the nearest sensor on the barrier
 	CHAIN_MAINTENANCE,			// Tells the sensor to maintain the chain state

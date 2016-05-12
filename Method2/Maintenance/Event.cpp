@@ -30,6 +30,9 @@ void Event::print() {
 		case FAILURE_DETECTED:
 			printf("Event: FAILURE_DETECTED");
 			break;
+		case SEARCH_BRANCH:
+			printf("Event: Branch sensor searching for some sensor to connect");
+			break;
 		case BRANCH_CONNECT_TO_DST:
 			printf("Event: Branch Connecting to Destination");
 			break;

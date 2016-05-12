@@ -18,9 +18,10 @@ double sensor_force_factor;
 double chain_force_factor;
 
 // Global Simulation Variables
-int event_counter = 1;				// Global event counter
+int event_counter = 1;			// Global event counter
 int iterations;					// Tells the number of iterations requried to complete the simulation
 int max_timestamp = 0;			// Tells the last seen timestamp in the priority queue
+const int timestamp_jump = 5;	// next timestamp could be randomly assigned between 1-timestamp_jump
 double belt_length;
 double belt_width;
 double sensing_range;
@@ -369,6 +370,11 @@ void search_sensors_within_communication_range(int index) {
 	within_range[k] = -1;
 }
 
+inline int random_timestamp(int timestamp) {
+	// generate a random number between 1 and timestamp_jump and add it to the input timestamp
+	return (timestamp + (rand() % timestamp_jump) + 1);
+}
+
 void handle_sensor_failure(int timestamp, Event& e) {
 	// Get the ID of the failed node and trigger the nodes adjacent to it
 	search_sensors_within_communication_range(e.failed_node);
@@ -390,7 +396,7 @@ void handle_sensor_failure(int timestamp, Event& e) {
 		failure_detected.failed_node = e.failed_node;
 		failure_detected.failed_index = e.failed_index;
 		failure_detected.event_number = event_counter++;
-		events.push(make_pair(timestamp + 1, failure_detected));
+		events.push(make_pair(random_timestamp(timestamp), failure_detected));
 	}
 }
 
@@ -403,9 +409,15 @@ void handle_failure_detection(int timestamp, Event& e) {
 	} else if(stype == BRANCH_SIBLING) {
 		// Search for nearest sensor within communication range which is on barrier
 		int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
+		printf("At least yahan toh aaya hai %d\n", e.id);
 		if(dst_sensor_id == -1) {
 			// No barrier sensor present within the communication range
-			// TODO: Waiting for someone to wake me up
+			// Enter in the Search branch state and periodically search for some destination sensor
+			printf("Phir yahan bhi gaya!! %d\n", e.id);
+			Event search_branch;
+			search_branch.type = SEARCH_BRANCH;
+			search_branch.id = sensor.id;
+			events.push(make_pair(random_timestamp(timestamp), search_branch));
 		} else {
 			// We have a destination sensor
 			// Start approaching that sensor
@@ -417,7 +429,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			follow_dst.id = e.id;
 			follow_dst.dst_id = dst_sensor_id;
 			follow_dst.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, follow_dst));
+			events.push(make_pair(random_timestamp(timestamp), follow_dst));
 		}
 	} else if(stype == LEFT_SIBLING) {
 		// Search in the left side for a barrier sensor
@@ -435,7 +447,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
 			next_hop.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, next_hop));
+			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		} else {
 			// We have a destination sensor on the left
 			// Hence we will put destination as that sensor
@@ -447,7 +459,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
 			next_hop.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, next_hop));
+			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		}
 	} else if(stype == RIGHT_SIBLING) {
 		// Search in the right side for a barrier sensor
@@ -465,7 +477,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
 			next_hop.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, next_hop));
+			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		} else {
 			// We have a destination sensor on the right
 			// Hence we will put destination as that sensor
@@ -477,7 +489,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
 			next_hop.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, next_hop));
+			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		}
 	} else { // NO_SIBLING
 		// In case of no sibling we don't create a new event.
@@ -638,10 +650,39 @@ bool check_connected(Sensor& sensor, Sensor& dst_sensor) {
 	return (distance(sensor.x, sensor.y, dst_sensor.x, dst_sensor.y) <= (2*sensing_range));
 }
 
+void handle_search_branch(int timestamp, Event& e) {
+	// Current sensor periodically searches for some neighboring destination sensor
+	// If at any point in the simulation it finds such a then it will enter the BRANCH_CONNECT_TO_DST state
+	printf("I'm here here here here %d\n", e.id);
+	// Search for nearest sensor within communication range which is on barrier
+	Sensor& sensor = sensors[e.id];
+	int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
+	if(dst_sensor_id == -1) {
+		// No barrier sensor present within the communication range
+		// Enter in the Search branch state and periodically search for some destination sensor
+		Event search_branch;
+		search_branch.type = SEARCH_BRANCH;
+		search_branch.id = sensor.id;
+		events.push(make_pair(random_timestamp(timestamp), search_branch));
+	} else {
+		// We have a destination sensor
+		// Start approaching that sensor
+
+		Event follow_dst;
+		sensor.dst_node = dst_sensor_id;
+		sensor.dst_barrier_index = sensors[dst_sensor_id].barrier_index;
+		follow_dst.type = BRANCH_CONNECT_TO_DST;
+		follow_dst.id = e.id;
+		follow_dst.dst_id = dst_sensor_id;
+		follow_dst.event_number = event_counter++;
+		events.push(make_pair(random_timestamp(timestamp), follow_dst));
+	}
+}
+
 void handle_branch_connect(int timestamp, Event& e) {
 	// This is a branch type sensor and it has to connect to its destination
 	Sensor& sensor = sensors[e.id];
-	Sensor& dst_sensor = sensors[e.dst_id];
+	Sensor& dst_sensor = sensors[sensor.dst_node];
 	// Apply Sensor Force
 	apply_sensor_force(sensor, dst_sensor);
 	// Apply Chain Force
@@ -673,6 +714,8 @@ void handle_branch_connect(int timestamp, Event& e) {
 		// Create a connection between the two
 		sensor.branches.push_back(dst_sensor.id);
 		dst_sensor.branches.push_back(sensor.id);
+		dst_sensor.has_branches = true;
+		sensor.has_branches = true;
 		// No need to create another event
 	} else {
 		// Add another BRANCH_CONNECT_TO_DST event in the priority queue
@@ -681,11 +724,28 @@ void handle_branch_connect(int timestamp, Event& e) {
 		follow_dst.id = e.id;
 		follow_dst.dst_id = e.dst_id;
 		follow_dst.event_number = event_counter++;
-		events.push(make_pair(timestamp + 1, follow_dst));
+		events.push(make_pair(random_timestamp(timestamp), follow_dst));
+	}
+	// Check for any broken links here!
+	// Trigger Chain Maintenace Events for the affected sensors
+	sensor.sensor_force = null_force;
+	vector<int> broken_siblings = broken_chain_sensors(sensor);
+	if(DEBUG) {
+		printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	}
+	for(int i = 0; i < (int)broken_siblings.size(); i++) {
+		// Create Chain Maintenance Event
+		Event chain_maintenance;
+		chain_maintenance.type = CHAIN_MAINTENANCE;
+		chain_maintenance.id = broken_siblings[i];
+		if(DEBUG) {
+			printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		}
+		chain_maintenance.event_number = event_counter++;
+		events.push(make_pair(random_timestamp(timestamp), chain_maintenance));
 	}
 }
 
-//TODO: Check conditions if the other sensor has already made a connection
 void handle_barrier_connect(int timestamp, Event& e) {
 	// Check if current sensor has a destination sensor or not?
 	Sensor& sensor = sensors[e.id];
@@ -750,7 +810,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			follow_dst.dst_id = e.dst_id;
 			follow_dst.direction = e.direction;
 			follow_dst.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, follow_dst));
+			events.push(make_pair(random_timestamp(timestamp), follow_dst));
 		}
 	} else {
 		// go to the next_hop node location
@@ -782,7 +842,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
 			next_hop.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, next_hop));
+			events.push(make_pair(random_timestamp(timestamp), next_hop));
 		} else if(sensor_distance(sensor, dst_sensor) <= VMAX) {
 			//TODO: handle chain_force in this section	
 			sensor.distance += sensor_distance(sensor, dst_sensor);
@@ -815,7 +875,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 				next_hop.id = e.id;
 				next_hop.dst_id = sensor.dst_node;
 				next_hop.event_number = event_counter++;
-				events.push(make_pair(timestamp + 1, next_hop));
+				events.push(make_pair(random_timestamp(timestamp), next_hop));
 			} else {
 				// Else update the next hop location and create a new event
 				sensor.dst_node = -1;
@@ -846,7 +906,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 				next_hop.id = e.id;
 				next_hop.dst_id = sensor.dst_node;
 				next_hop.event_number = event_counter++;
-				events.push(make_pair(timestamp + 1, next_hop));
+				events.push(make_pair(random_timestamp(timestamp), next_hop));
 			}
 		} else {
 			// Move with VMAX speed towards next hop location
@@ -877,7 +937,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			follow_dst.dst_id = -1;
 			follow_dst.direction = e.direction;
 			follow_dst.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, follow_dst));
+			events.push(make_pair(random_timestamp(timestamp), follow_dst));
 		}
 	}
 	// Trigger Chain Maintenace Events for the affected sensors
@@ -895,7 +955,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
 		}
 		chain_maintenance.event_number = event_counter++;
-		events.push(make_pair(timestamp, chain_maintenance));
+		events.push(make_pair(random_timestamp(timestamp), chain_maintenance));
 	}
 }
 
@@ -937,7 +997,7 @@ void activate_flattening_sensors(Sensor& sensor, int timestamp) {
 				printf("%d %d\n%d %d\n\n\n\n", sensor.id, branch.id, flatten_branch.branch_id, flatten_branch.id);
 			}
 			flatten_branch.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, flatten_branch));
+			events.push(make_pair(random_timestamp(timestamp), flatten_branch));
 		}
 	}
 }
@@ -980,7 +1040,7 @@ void handle_chain_maintenance(int timestamp, Event& e) {
 			printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
 		}
 		chain_maintenance.event_number = event_counter++;
-		events.push(make_pair(timestamp + 1, chain_maintenance));
+		events.push(make_pair(random_timestamp(timestamp), chain_maintenance));
 	}
 	// Since the current sensor has entered Chain Maintenance state, there is a scope for flattening
 	// See if current sensor has any branches or not
@@ -1070,7 +1130,7 @@ void handle_flatten_connect(int timestamp, Event& e) {
 			// Create the same event again
 			Event new_e(e);
 			new_e.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, new_e));
+			events.push(make_pair(random_timestamp(timestamp), new_e));
 		}
 		// Activate chain maintenance here
 		sensor.sensor_force = null_force;
@@ -1081,7 +1141,7 @@ void handle_flatten_connect(int timestamp, Event& e) {
 			chain_maintenance.type = CHAIN_MAINTENANCE;
 			chain_maintenance.id = broken_siblings[i];
 			chain_maintenance.event_number = event_counter++;
-			events.push(make_pair(timestamp + 1, chain_maintenance));
+			events.push(make_pair(random_timestamp(timestamp), chain_maintenance));
 		}
 	}
 }
@@ -1092,6 +1152,8 @@ void process_event(int timestamp, Event& e) {
 		handle_sensor_failure(timestamp, e);
 	} else if(e.type == FAILURE_DETECTED) {
 		handle_failure_detection(timestamp, e);
+	} else if(e.type == SEARCH_BRANCH) {
+		handle_search_branch(timestamp, e);
 	} else if(e.type == BRANCH_CONNECT_TO_DST) {
 		handle_branch_connect(timestamp, e);
 	} else if(e.type == BARRIER_CONNECT_TO_DST) {
