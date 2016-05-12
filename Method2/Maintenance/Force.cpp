@@ -46,3 +46,13 @@ Force operator/(const Force& f, const double d) {
 Force operator*(const Force& f, const double d) {
 	return Force(f.x * d , f.y * d);
 }
+
+double Force::dot(Force& f) {
+	return x*f.x + y*f.y;
+}
+
+double Force::angle(Force& f) {
+	double dot_product = this->dot(f);
+	double param = dot_product / this->magnitude() / f.magnitude();
+	return (acos(param) * 180.0 / PI);
+}

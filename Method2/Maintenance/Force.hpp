@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+const double PI = 3.14159265;
+const double DIFFERENCE_THRESHOLD = 1.0;
 struct Force {
 	double x;				// Force in x-direction
 	double y;				// Force in y-direction
@@ -18,6 +20,8 @@ struct Force {
 	Force& operator-=(const Force& f);
 	friend Force operator/(const Force& f, const double d);
 	friend Force operator*(const Force& f, const double d);
+	double dot(Force&);
+	double angle(Force&);
 };
 
 const Force null_force(0.0,0.0);

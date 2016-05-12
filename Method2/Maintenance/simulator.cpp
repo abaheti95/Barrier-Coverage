@@ -11,20 +11,22 @@ const double MULTIPLICATION_FACTOR = 3.0;
 #define FLATTEN_FORCE_MAGNITUDE (VMAX / 2)
 // Force parameters
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
-#define CHAIN_FORCE_OFFSET (sensing_range / 5)
+#define CHAIN_FORCE_OFFSET (sensing_range / 2)
 // #define CHAIN_FORCE_OFFSET 0.0
-const double STEEPNESS = 3.0;
+const double STEEPNESS = 2.0;
 double sensor_force_factor;
 double chain_force_factor;
 
 // Global Simulation Variables
+int event_counter = 1;				// Global event counter
 int iterations;					// Tells the number of iterations requried to complete the simulation
+int max_timestamp = 0;			// Tells the last seen timestamp in the priority queue
 double belt_length;
 double belt_width;
 double sensing_range;
 double communication_range;
 int n_sensors;					// Total number of sensors used in the simulation
-const int n_failures = 5;
+const int n_failures = 6;
 Coordinate sensor_loc[MAX_SENSORS];
 int barrier_len;				// Number of sensors present in the barrier
 int barrier[MAX_SENSORS];		// List of sensor IDs present in the barrier
@@ -39,7 +41,16 @@ typedef pair<int, Event> P;
 struct Order {
 	bool operator()(P const& a, P const& b) const {
 		if(a.first == b.first) {
-			return a.second.id > b.second.id;
+			// We want a priority in between events
+			// First all the Barrier Connect and Branch Connect events should be scheduled
+			// Then all the Flattening Events should be scheduled
+			// Finally in all the Chain Maintenance events are scheduled based on some ordering
+			int a_priority = value_from_type(a.second.type);
+			int b_priority = value_from_type(b.second.type);
+			if(a_priority == b_priority) {
+				return a.second.event_number > b.second.event_number;
+			}
+			return a_priority > b_priority;
 		}
 		return a.first > b.first;
 	}
@@ -60,7 +71,7 @@ GLFWwindow* window;
 FTPixmapFont* font;
 /****************** End of display code *********************/
 
-const bool DEBUG = true;
+const bool DEBUG = false;
 
 void read_input_data() {
 	// The data is assumed to be coming from stdin
@@ -93,7 +104,7 @@ void read_input_data() {
 	communication_range = MULTIPLICATION_FACTOR * sensing_range;
 	// Calculate the force factors beforehand
 	sensor_force_factor = (VMAX - SENSOR_FORCE_OFFSET) / pow(communication_range, 2.0);
-	chain_force_factor = (VMAX - CHAIN_FORCE_OFFSET) / pow((communication_range - 2*sensing_range), STEEPNESS);
+	chain_force_factor = (VMAX - CHAIN_FORCE_OFFSET) / 3.0 / pow((communication_range - 2*sensing_range), STEEPNESS);
 	// Read the locations of all the sensors
 	for(int i = 0; i < n_sensors; i++) {
 		scanf("%lf %lf", &sensor_loc[i].x, &sensor_loc[i].y);
@@ -192,6 +203,7 @@ void fail_sensors(int n) {
 		e.type = SENSOR_FAILURE;
 		e.failed_node = barrier[i];
 		e.failed_index = i;
+		e.event_number = event_counter++;
 		events.push(make_pair(0, e));
 	}
 }
@@ -217,11 +229,11 @@ void initialize_display() {
 	if(belt_ratio > display_ratio) {
 		// length is dominant
 		window_width = 1.8f;
-		window_height = (int)((double)window_width / belt_ratio);
+		window_height = ((double)window_width / belt_ratio);
 	} else {
 		// width is dominant
-		window_height = 1.0;
-		window_width = (int)((double)window_height * belt_ratio);
+		window_height = 1.0f;
+		window_width = ((double)window_height * belt_ratio);
 	}
 
 	int width, height;
@@ -232,7 +244,7 @@ void initialize_display() {
 
 	printf("Belt Dimensions %lf x %lf\n", belt_length, belt_width);
 	printf("Window dimensions %lf x %lf\n", window_width, window_height);
-
+	// exit(1);
 	// Initialize font
 	/*const char* fontfile = 0;
 	// font = new FTPixmapFont((const char*)fontfile);
@@ -299,9 +311,6 @@ int nearest_right_barrier_sensor_within_communication_range(int index) {
 			}
 		}
 	}
-	if(dst_id == 0) {
-		printf("Fucker found %d\n", index);
-	}
 	return dst_id;
 }
 
@@ -363,10 +372,14 @@ void search_sensors_within_communication_range(int index) {
 void handle_sensor_failure(int timestamp, Event& e) {
 	// Get the ID of the failed node and trigger the nodes adjacent to it
 	search_sensors_within_communication_range(e.failed_node);
-	printf("communication range = %lf\n", communication_range);
-	printf("Failed node: \n");
+	if(DEBUG) {
+		printf("communication range = %lf\n", communication_range);
+		printf("Failed node: \n");
+	}
 	for(int i = 0; i < n_sensors; i++) {
-		printf("%d\n", within_range[i]);
+		if(DEBUG) {
+			printf("%d\n", within_range[i]);
+		}
 		if(within_range[i] == -1) {
 			break;
 		}
@@ -376,6 +389,7 @@ void handle_sensor_failure(int timestamp, Event& e) {
 		failure_detected.id = within_range[i];
 		failure_detected.failed_node = e.failed_node;
 		failure_detected.failed_index = e.failed_index;
+		failure_detected.event_number = event_counter++;
 		events.push(make_pair(timestamp + 1, failure_detected));
 	}
 }
@@ -402,6 +416,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			follow_dst.type = BRANCH_CONNECT_TO_DST;
 			follow_dst.id = e.id;
 			follow_dst.dst_id = dst_sensor_id;
+			follow_dst.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	} else if(stype == LEFT_SIBLING) {
@@ -419,6 +434,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.direction = LEFT;
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
+			next_hop.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, next_hop));
 		} else {
 			// We have a destination sensor on the left
@@ -430,6 +446,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.direction = LEFT;
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
+			next_hop.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, next_hop));
 		}
 	} else if(stype == RIGHT_SIBLING) {
@@ -447,6 +464,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.direction = RIGHT;
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
+			next_hop.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, next_hop));
 		} else {
 			// We have a destination sensor on the right
@@ -458,6 +476,7 @@ void handle_failure_detection(int timestamp, Event& e) {
 			next_hop.direction = RIGHT;
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
+			next_hop.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, next_hop));
 		}
 	} else { // NO_SIBLING
@@ -490,7 +509,9 @@ double chain_force(double x) {
 	// return (x*x*x/(16.0 * sensing_range) + CHAIN_FORCE_OFFSET);
 	double estimate_chain_force = chain_force_factor * pow(x - 2*sensing_range, STEEPNESS) + CHAIN_FORCE_OFFSET;
 	if (estimate_chain_force > (x - 2*sensing_range)) {
-		printf("YOYOYOYOYOYOYOYOYOYOYOYOYYO\n");
+		if(DEBUG) {
+			printf("YOYOYOYOYOYOYOYOYOYOYOYOYYO\n");
+		}
 		return (x - 2*sensing_range);
 	}
 	return estimate_chain_force;
@@ -521,36 +542,50 @@ Force calculate_branch_forces(Sensor& sensor) {
 }
 
 Force calculate_left_right_forces(Sensor& sensor) {
-	Force f;
+	Force f1 = null_force;
 	if(sensor.left_nodes.size() > 0) {
 		Sensor& left = sensors[sensor.left_nodes[0]];
 		if(left.has_failed) {
-			printf("LEFT:: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF\n");
 			sensor.remove_sibling(left.id);
 		} else {
 			double distance = sensor_distance(sensor, left);
 			if(distance > 2*sensing_range) {
 				double chain_force_magnitude = chain_force(distance);
-				Force f1((left.x - sensor.x), (left.y - sensor.y), chain_force_magnitude);
-				f += f1;
+				Force f((left.x - sensor.x), (left.y - sensor.y), chain_force_magnitude);
+				f1 = f;
 			}
 		}
 	}
+	Force f2 = null_force;
 	if(sensor.right_nodes.size() > 0) {
 		Sensor& right = sensors[sensor.right_nodes[0]];
 		if(right.has_failed) {
-			printf("RIGHT:: WTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTFWTF\n");
 			sensor.remove_sibling(right.id);
 		} else {
 			double distance = sensor_distance(sensor, right);
 			if(distance > 2*sensing_range) {
 				double chain_force_magnitude = chain_force(distance);
-				Force f1((right.x - sensor.x), (right.y - sensor.y), chain_force_magnitude);
-				f += f1;
+				Force f((right.x - sensor.x), (right.y - sensor.y), chain_force_magnitude);
+				f2 = f;
 			}
 		}
 	}
-	return f;
+	// If f1 and f2 are large in magnitude and opposing each other then randomly drop one force
+	/*if(f1.magnitude() > DELTA && f2.magnitude() > DELTA) {
+		double theta = f1.angle(f2);
+		if(theta >= 135.0 && (abs(f1.magnitude() - f2.magnitude()) <= DIFFERENCE_THRESHOLD)) {
+			printf("COMPARABLE!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %lf %lf\n", f1.magnitude(), f2.magnitude());
+			// The forces are majorly opposite
+			// Randomly return one of the two
+			double probability = ((double) rand() / (RAND_MAX));
+			if(probability > 0.5) {
+				return f1;
+			} else {
+				return f2;
+			}
+		}
+	}*/
+	return (f1 + f2);
 }
 
 vector<int> broken_chain_sensors(Sensor& sensor) {
@@ -595,7 +630,6 @@ void apply_chain_force(Sensor& sensor) {
 		f += calculate_left_right_forces(sensor);
 		f += calculate_branch_forces(sensor);
 	}
-	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~CHAIN FORCE: %lf\n", f.magnitude());
 	sensor.chain_force = f;
 	return;
 }
@@ -646,6 +680,7 @@ void handle_branch_connect(int timestamp, Event& e) {
 		follow_dst.type = BRANCH_CONNECT_TO_DST;
 		follow_dst.id = e.id;
 		follow_dst.dst_id = e.dst_id;
+		follow_dst.event_number = event_counter++;
 		events.push(make_pair(timestamp + 1, follow_dst));
 	}
 }
@@ -654,15 +689,18 @@ void handle_branch_connect(int timestamp, Event& e) {
 void handle_barrier_connect(int timestamp, Event& e) {
 	// Check if current sensor has a destination sensor or not?
 	Sensor& sensor = sensors[e.id];
-	printf("There is some destination!!!!!!!!!!!!!!!!!!!!!! %d %d\n",e.id, sensor.dst_node);
-
+	if(DEBUG) {
+		printf("There is some destination!!!!!!!!!!!!!!!!!!!!!! %d %d\n",e.id, sensor.dst_node);
+	}
 	apply_chain_force(sensor);
 	if(sensor.dst_node != -1) {
 		// There is some destination node to reach to
 		Sensor& dst_sensor = sensors[sensor.dst_node];
 		// Check if destination is already connected?
 		if(sensor.is_adjacent(sensor.dst_node) != NO_SIBLING) {
-			printf("ALREADY CONNECTD %d %d\n", sensor.id, e.dst_id);
+			if(DEBUG) {
+				printf("ALREADY CONNECTED %d %d\n", sensor.id, e.dst_id);
+			}
 			return;
 		}
 		// Apply Sensor Force
@@ -700,7 +738,9 @@ void handle_barrier_connect(int timestamp, Event& e) {
 				sensor.right_nodes.insert(sensor.right_nodes.begin(), dst_sensor.id);
 				dst_sensor.left_nodes.insert(dst_sensor.left_nodes.begin(), sensor.id);
 			}
-			printf("SUCESSS MAXXXX!\n");
+			if(DEBUG) {
+				printf("SUCESSS MAXXXX!\n");
+			}
 			// No need to create another event
 		} else {
 			// Add another BRANCH_CONNECT_TO_DST event in the priority queue
@@ -709,12 +749,15 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			follow_dst.id = e.id;
 			follow_dst.dst_id = e.dst_id;
 			follow_dst.direction = e.direction;
+			follow_dst.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	} else {
 		// go to the next_hop node location
 		Sensor& dst_sensor = sensors[sensor.next_hop_node];
-		printf("BLOODY BASTARD$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %d %d\n", sensor.id, sensor.next_hop_node);
+		if(DEBUG) {
+			printf("BLOODY BASTARD$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ %d %d\n", sensor.id, sensor.next_hop_node);
+		}
 		if((sensor.is_left_sensor && (dst_sensor.x - sensing_range) > 0) ||
 			(sensor.is_right_sensor && (dst_sensor.x + sensing_range) < belt_length)) {
 			// Move in y direction only
@@ -738,6 +781,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			next_hop.direction = e.direction;
 			next_hop.id = e.id;
 			next_hop.dst_id = sensor.dst_node;
+			next_hop.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, next_hop));
 		} else if(sensor_distance(sensor, dst_sensor) <= VMAX) {
 			//TODO: handle chain_force in this section	
@@ -770,6 +814,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 				next_hop.direction = e.direction;
 				next_hop.id = e.id;
 				next_hop.dst_id = sensor.dst_node;
+				next_hop.event_number = event_counter++;
 				events.push(make_pair(timestamp + 1, next_hop));
 			} else {
 				// Else update the next hop location and create a new event
@@ -788,7 +833,6 @@ void handle_barrier_connect(int timestamp, Event& e) {
 					if(sensor.right_nodes.size() == 0) {
 						// No nodes to add
 						// TODO: handle this: Stuck in the middle of nowhere!!
-						printf("HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK HOLY FUCK\n");
 					} else {
 						// Remove the first right node and set the next hop
 						sensor.next_hop_node = sensor.right_nodes[0];
@@ -801,6 +845,7 @@ void handle_barrier_connect(int timestamp, Event& e) {
 				next_hop.direction = e.direction;
 				next_hop.id = e.id;
 				next_hop.dst_id = sensor.dst_node;
+				next_hop.event_number = event_counter++;
 				events.push(make_pair(timestamp + 1, next_hop));
 			}
 		} else {
@@ -810,7 +855,6 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			f += sensor.chain_force;
 
 			// Move in the direction of force
-			printf("Peace hai yahan hi sahi x %lf fx%lf belt_length %lf \n",sensor.x, f.x, belt_length);
 			if((sensor.x + f.x) < 0 || (sensor.x + f.x) > belt_length ||
 				(sensor.y + f.y) < 0 || (sensor.y + f.y) > belt_width) {
 				// Don't move
@@ -832,19 +876,25 @@ void handle_barrier_connect(int timestamp, Event& e) {
 			follow_dst.id = e.id;
 			follow_dst.dst_id = -1;
 			follow_dst.direction = e.direction;
+			follow_dst.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, follow_dst));
 		}
 	}
 	// Trigger Chain Maintenace Events for the affected sensors
 	sensor.sensor_force = null_force;
 	vector<int> broken_siblings = broken_chain_sensors(sensor);
-	printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	if(DEBUG) {
+		printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	}
 	for(int i = 0; i < (int)broken_siblings.size(); i++) {
 		// Create Chain Maintenance Event
 		Event chain_maintenance;
 		chain_maintenance.type = CHAIN_MAINTENANCE;
 		chain_maintenance.id = broken_siblings[i];
-		printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		if(DEBUG) {
+			printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		}
+		chain_maintenance.event_number = event_counter++;
 		events.push(make_pair(timestamp, chain_maintenance));
 	}
 }
@@ -879,10 +929,14 @@ void activate_flattening_sensors(Sensor& sensor, int timestamp) {
 			Event flatten_branch;
 			flatten_branch.type = FLATTEN_CONNECT_TO_DST;
 			flatten_branch.id = branch.id;
+			flatten_branch.dst_id = dst_sensor;
 			flatten_branch.branch_id = sensor.id;
 			flatten_branch.direction = direction;
-			printf("HOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\n");
-			printf("%d %d\n%d %d\n\n\n\n", sensor.id, branch.id, flatten_branch.branch_id, flatten_branch.id);
+			if(DEBUG) {
+				printf("HOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\nHOLY SHIT!!!!\n");
+				printf("%d %d\n%d %d\n\n\n\n", sensor.id, branch.id, flatten_branch.branch_id, flatten_branch.id);
+			}
+			flatten_branch.event_number = event_counter++;
 			events.push(make_pair(timestamp + 1, flatten_branch));
 		}
 	}
@@ -891,11 +945,15 @@ void activate_flattening_sensors(Sensor& sensor, int timestamp) {
 void handle_chain_maintenance(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	apply_chain_force(sensor);
-	printf("##################Before: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	if(DEBUG) {
+		printf("##################Before: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	}
 	if(sensor.chain_force.magnitude() > VMAX) {
 		sensor.chain_force = sensor.chain_force / sensor.chain_force.magnitude() * VMAX;
 	}
-	printf("###################After: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	if(DEBUG) {
+		printf("###################After: CHAIN FORCE magnitude: %lf\n", sensor.chain_force.magnitude());
+	}
 	// Check if boundary sensor
 	if((sensor.is_left_sensor && (sensor.x + sensor.chain_force.x - sensing_range) > 0) ||
 		(sensor.is_right_sensor && (sensor.x + sensor.chain_force.x + sensing_range) < belt_length)) {
@@ -910,13 +968,18 @@ void handle_chain_maintenance(int timestamp, Event& e) {
 	// Trigger Chain Maintenace Events for the affected sensors
 	sensor.sensor_force = null_force;
 	vector<int> broken_siblings = broken_chain_sensors(sensor);
-	printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	if(DEBUG) {
+		printf("PRINTING LIST OF BROKEN SIBLINGS for %d\n", sensor.id);
+	}
 	for(int i = 0; i < (int)broken_siblings.size(); i++) {
 		// Create Chain Maintenance Event
 		Event chain_maintenance;
 		chain_maintenance.type = CHAIN_MAINTENANCE;
 		chain_maintenance.id = broken_siblings[i];
-		printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		if(DEBUG) {
+			printf("~~~~~~~~~~~~~~ %d ~~~~~~~~~~~~~\n", broken_siblings[i]);
+		}
+		chain_maintenance.event_number = event_counter++;
 		events.push(make_pair(timestamp + 1, chain_maintenance));
 	}
 	// Since the current sensor has entered Chain Maintenance state, there is a scope for flattening
@@ -956,7 +1019,9 @@ void handle_flatten_connect(int timestamp, Event& e) {
 			// Establish connection
 			Sensor& original_sensor = sensors[e.branch_id];
 			// Delete branch link from original sensor and current branch sensor
-			printf("Removing Branch %d -> %d\n", e.branch_id, sensor.id);
+			if(DEBUG) {
+				printf("Removing Branch %d -> %d\n", e.branch_id, sensor.id);
+			}
 			original_sensor.remove_branch(sensor.id);
 			sensor.remove_branch(original_sensor.id);
 			// Add connection to the destination sensor
@@ -1001,10 +1066,22 @@ void handle_flatten_connect(int timestamp, Event& e) {
 				printf("Error: Flatten event direction is NONE\n");
 				exit(1);
 			}
-
 		} else {
 			// Create the same event again
-			events.push(make_pair(timestamp + 1, e));
+			Event new_e(e);
+			new_e.event_number = event_counter++;
+			events.push(make_pair(timestamp + 1, new_e));
+		}
+		// Activate chain maintenance here
+		sensor.sensor_force = null_force;
+		vector<int> broken_siblings = broken_chain_sensors(sensor);
+		for(int i = 0; i < (int)broken_siblings.size(); i++) {
+			// Create Chain Maintenance Event
+			Event chain_maintenance;
+			chain_maintenance.type = CHAIN_MAINTENANCE;
+			chain_maintenance.id = broken_siblings[i];
+			chain_maintenance.event_number = event_counter++;
+			events.push(make_pair(timestamp + 1, chain_maintenance));
 		}
 	}
 }
@@ -1148,7 +1225,6 @@ void draw_current_state() {
 	
 
 	refresh_display();
-	printf("!!!!!!!!!!!!!!!!!Drawing current state!!!!!!!!!!!!!!!!!!!!!\n");
 	draw_belt();
 	draw_sensors_and_links();
 	
@@ -1195,12 +1271,14 @@ void maintain() {
 		// pull out one entry
 		P p = events.top();
 		int timestamp = p.first;
+		max_timestamp = max(max_timestamp, timestamp);
 		Event e = p.second;
 		events.pop();
 		// Event Processing
 		// If the chain maintenance for current sensor is already handled for this timestamp then simply continue
 		if(e.type == CHAIN_MAINTENANCE) {
 			Sensor& sensor = sensors[e.id];
+			// printf("id %d\n", e.id);
 			if(sensor.timestamp != timestamp) {
 				sensor.timestamp = timestamp;
 			}
@@ -1209,16 +1287,13 @@ void maintain() {
 			}
 		}
 		process_event(timestamp, e);
+		// printf("timestamp: %5d : ", timestamp);
+		// e.print();
 		if(DEBUG) {
-			printf("Current Size of the queue: %d\n", (int)events.size());
-			printf("timestamp: %d\n", timestamp);
-			e.print();
+			// printf("Current Size of the queue: %d\n", (int)events.size());
 			print_sensor_locs();
 		}
-		printf("refreshing display\n");
-		draw_current_state();
-		
-		printf("Refreshing done!!\n");
+		draw_current_state();		
 		// usleep(1);
 		usleep(100000);
 		iterations++;
@@ -1249,6 +1324,8 @@ void print_results() {
 	printf("\n");
 	printf("Sensing Range: %lf\n", sensing_range);
 	printf("Communication Range: %lf\n", communication_range);
+	printf("Simulation Iterations: %d\n", iterations);
+	printf("Simulation Timestamps: %d\n", max_timestamp);
 	printf("Sensor final locations and distances:\n");
 	double avg_distance = 0.0;
 	for(int i = 0; i < n_sensors; i++) {
@@ -1265,7 +1342,7 @@ void print_results() {
 
 int main(int argc, char *argv[])
 {
-	// srand(time(NULL));
+	srand(time(NULL));
 
 	// Initializing the display window
 	initialize(n_failures);

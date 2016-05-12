@@ -28,6 +28,7 @@ struct Event {
 	int id;						// ID of the concerned sensor node
 	int branch_id;				// Specifies the original branch of the id
 	int dst_id;					// ID of the destination sensor. The sensor to which the current sensor has to connect.
+	int event_number;			// Updated by event counter
 	Direction direction;		// Tells which side of the current sensor is broken
 
 	Event();					// Constructor
@@ -35,6 +36,7 @@ struct Event {
 	~Event() {}					// Destructor
 	void print();
 };
+int value_from_type(Type type);		// We give a integer value to each type
 
 
 #endif
