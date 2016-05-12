@@ -23,7 +23,7 @@ const int MAX_SENSORS = 100;
 const double INFINITY_DOUBLE = 100000000.0;
 
 const double DELTA = 0.005;		// Permissible error
-const double MULTIPLICATION_FACTOR = 3.0;
+const double MULTIPLICATION_FACTOR = 4.0;
 #define VMAX (2.0 * sensing_range)
 #define FLATTEN_FORCE_MAGNITUDE (VMAX / 2)
 // Force parameters
@@ -31,7 +31,6 @@ const double MULTIPLICATION_FACTOR = 3.0;
 #define CHAIN_FORCE_OFFSET (sensing_range / 2)
 // #define CHAIN_FORCE_OFFSET 0.0
 const double STEEPNESS = 2.0;
-const int timestamp_jump = 5;	// next timestamp could be randomly assigned between 1-timestamp_jump
 const int MAX_ITERATIONS = 5000;
 
 const bool DEBUG = false;
@@ -41,6 +40,7 @@ struct Simulator {
 	double chain_force_factor;
 
 	// Global Simulation Variables
+	int timestamp_jump;				// next timestamp could be randomly assigned between 1-timestamp_jump
 	int event_counter;				// Global event counter
 	int iterations;					// Tells the number of iterations requried to complete the simulation
 	int max_timestamp;				// Tells the last seen timestamp in the priority queue
@@ -91,19 +91,22 @@ struct Simulator {
 
 	// FTPixmapFont* font;
 	/****************** End of display code *********************/
+	// Result variables
+	vector<int> failed_nodes;				// List of indices of failed sensors
+	double avg_distance;					// Avg distance of all the sensor distances
+	double max_distance;					// Max distance of all the sensor distances
 
-
-	Simulator();
+	Simulator(int = 5);
 	~Simulator() {}
 	// Data Handling functions
 	void read_input_data();					// Reads the data from stdin
+	void read_input_from_file(const char *);// Reads data from the file of provided filename
 	void initialize_data();					// Initializes the various data members of simulator
 	void fail_sensors(int n);				// Randomly fails n contiguous sensors from the barrier
 	void initialize_display();				// Initializes the OpenGL display window
 	void initialize(int n);					// Initializes data and fails n sensors
 	void delete_sensor_graph();
 	void delete_data();
-
 	// Display Functions
 	void line(double x1, double y1, double x2, double y2);
 	void circle(double cx, double cy, double radius);
@@ -126,6 +129,7 @@ struct Simulator {
 	vector<int> broken_chain_sensors(Sensor& sensor);
 	void activate_flattening_sensors(Sensor& sensor, int timestamp);
 	inline bool check_connected(Sensor& sensor, Sensor& dst_sensor);
+	inline int random_timestamp(int timestamp);
 	// Debugging Functions
 	void print_sensor_locs();
 	// Force Functions
@@ -150,12 +154,16 @@ struct Simulator {
 	void process_event(int timestamp, Event& e);
 	bool maintain();
 	// Printing and results functions
+	void evaluate_results();
 	void print_results();
+	double get_avg_distance();
+	double get_max_distance();
+	int get_final_timestamp();
+	int get_final_iterations();
 
 };
 // Helper functions
 void draw_sensor(Sensor&, float, float, float);
-inline int random_timestamp(int timestamp);
 
 
 #endif

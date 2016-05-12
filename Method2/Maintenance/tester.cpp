@@ -12,13 +12,18 @@ int main(int argc, char *argv[])
 	// Create a simulator object
 	Simulator simulator;
 
-	// Initializing the display window
-	simulator.read_input_data();
-	simulator.initialize(5);
+	simulator.read_input_from_file("configuration.txt");
 
+	simulator.initialize(5);
 	simulator.maintain();
+	simulator.evaluate_results();
 	simulator.print_results();
-	simulator.delete_data();
-	
+
+	simulator.initialize(2);
+	simulator.maintain();
+	simulator.evaluate_results();
+	simulator.print_results();
+
+	simulator.delete_data();	
 	return 0;
 }

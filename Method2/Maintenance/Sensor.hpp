@@ -2,7 +2,7 @@
 #define SENSOR_HPP
 
 // K is the number of next hop nodes that a sensor remembers
-const int K = 4;
+const int K = 5;
 const int MAX_BRANCHES = 10;
 
 #include <cmath>

@@ -1,6 +1,7 @@
 #include "Simulator.hpp"
 
-Simulator::Simulator() {
+Simulator::Simulator(int jump) {
+	timestamp_jump = jump;
 	event_counter = 1;
 	max_timestamp = 0;
 	n_failures = 6;			// Default value
@@ -57,20 +58,87 @@ void Simulator::read_input_data() {
 		on_barrier[barrier[i]] = true;
 	}
 	// Read the Sensor Graph
-	printf("Printing Graph:\n");
 	for(int i = 0; i < n_sensors; i++) {
 		vector<int> row;
 		int n, id;
 		scanf("%d", &n);
-		printf("%3d: ", i);
 		for(int j = 0; j < n; j++) {
 			scanf("%d", &id);
-			printf("%3d ", id);
 			row.push_back(id);
 		}
-		printf("\n");
 		sensor_graph.push_back(row);
 	}
+}
+
+void Simulator::read_input_from_file(const char* filename) {
+	FILE *f;
+	f = fopen(filename, "r");
+	// The data is assumed to be coming from stdin
+	// Thus simple scanf will work
+
+	// Format of the input data is as follows
+	// belt_length belt_width, sensing_range, n_sensors
+	// n lines of locations of sensors as x_coordinate y_coordinate
+	// Length of the barrier
+	// Array of indices telling the sensors which are present on the barrier
+	// Read the Sensor graph
+
+	// NULL all the data
+	for(int i = 0; i < MAX_SENSORS; i++) {
+		sensor_loc[i].x = sensor_loc[i].y = 0.0;
+		barrier[i] = -1;
+		on_barrier[i] = false;
+		Sensor dummy_sensor;
+		sensors[i] = dummy_sensor;
+		sensors[i].x = sensors[i].y = sensors[i].init_x = sensors[i].init_y = 0.0;
+		
+		sensors[i].left_nodes.clear();
+		sensors[i].right_nodes.clear();
+		sensors[i].branches.clear();
+		sensors[i].on_barrier = sensors[i].has_branches = false;
+		sensors[i].barrier_index = -1;
+	}
+	
+	// First read the global simulation variables
+	fscanf(f, "%lf %lf %lf %d", &belt_length, &belt_width, &sensing_range, &n_sensors);
+	communication_range = MULTIPLICATION_FACTOR * sensing_range;
+	// Calculate the force factors beforehand
+	sensor_force_factor = (VMAX - SENSOR_FORCE_OFFSET) / pow(communication_range, 2.0);
+	chain_force_factor = (VMAX - CHAIN_FORCE_OFFSET) / 3.0 / pow((communication_range - 2*sensing_range), STEEPNESS);
+	// Read the locations of all the sensors
+	for(int i = 0; i < n_sensors; i++) {
+		fscanf(f, "%lf %lf", &sensor_loc[i].x, &sensor_loc[i].y);
+	}
+	// Read the barrier 
+	fscanf(f, "%d", &barrier_len);
+	for(int i = 0; i < barrier_len; i++) {
+		fscanf(f, "%d", &barrier[i]);
+		on_barrier[barrier[i]] = true;
+	}
+	// Read the Sensor Graph
+	if(DEBUG) {
+		printf("Printing Graph:\n");
+	}
+	for(int i = 0; i < n_sensors; i++) {
+		vector<int> row;
+		int n, id;
+		fscanf(f, "%d", &n);
+		if(DEBUG) {
+			printf("%3d: ", i);
+		}
+		for(int j = 0; j < n; j++) {
+			fscanf(f, "%d", &id);
+			if(DEBUG) {
+				printf("%3d ", id);
+			}
+			row.push_back(id);
+		}
+		if(DEBUG) {
+			printf("\n");
+		}
+		sensor_graph.push_back(row);
+	}
+	fclose(f);
 }
 
 void Simulator::initialize_data() {
@@ -78,6 +146,8 @@ void Simulator::initialize_data() {
 
 	// Copy the locations into Sensor nodes
 	for(int i = 0; i < n_sensors; i++) {
+		Sensor dummy_sensor;
+		sensors[i] = dummy_sensor;
 		sensors[i].id = i;
 		sensors[i].init_x = sensors[i].x = sensor_loc[i].x;
 		sensors[i].init_y = sensors[i].y = sensor_loc[i].y;
@@ -136,9 +206,11 @@ void Simulator::initialize_data() {
 void Simulator::fail_sensors(int n) {
 	// Number of sensors to be removed is taken as input
 	n_failures = n;
+	failed_nodes.clear();
 	int start_index = rand() % (barrier_len - n);
 	for(int i = start_index; i < start_index + n; i++) {
 		sensors[barrier[i]].has_failed = true;
+		failed_nodes.push_back(barrier[i]);
 		// Create and add event in the queue
 		Event e;
 		e.type = SENSOR_FAILURE;
@@ -183,8 +255,10 @@ void Simulator::initialize_display() {
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 
-	printf("Belt Dimensions %lf x %lf\n", belt_length, belt_width);
-	printf("Window dimensions %lf x %lf\n", window_width, window_height);
+	if(DEBUG) {
+		printf("Belt Dimensions %lf x %lf\n", belt_length, belt_width);
+		printf("Window dimensions %lf x %lf\n", window_width, window_height);
+	}
 	// exit(1);
 	// Initialize font
 	/*const char* fontfile = 0;
@@ -200,7 +274,7 @@ void Simulator::initialize_display() {
 void Simulator::initialize(int n) {
 	initialize_data();
 	fail_sensors(n);
-	initialize_display();
+	// initialize_display();
 }
 
 inline double Simulator::distance(double x1, double y1, double x2, double y2) {
@@ -310,7 +384,7 @@ void Simulator::search_sensors_within_communication_range(int index) {
 	within_range[k] = -1;
 }
 
-inline int random_timestamp(int timestamp) {
+inline int Simulator::random_timestamp(int timestamp) {
 	// generate a random number between 1 and timestamp_jump and add it to the input timestamp
 	return (timestamp + (rand() % timestamp_jump) + 1);
 }
@@ -349,11 +423,15 @@ void Simulator::handle_failure_detection(int timestamp, Event& e) {
 	} else if(stype == BRANCH_SIBLING) {
 		// Search for nearest sensor within communication range which is on barrier
 		int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
-		printf("At least yahan toh aaya hai %d\n", e.id);
+		if(DEBUG) {
+			printf("At least yahan toh aaya hai %d\n", e.id);
+		}
 		if(dst_sensor_id == -1) {
 			// No barrier sensor present within the communication range
 			// Enter in the Search branch state and periodically search for some destination sensor
-			printf("Phir yahan bhi gaya!! %d\n", e.id);
+			if(DEBUG) {
+				printf("Phir yahan bhi gaya!! %d\n", e.id);
+			}
 			Event search_branch;
 			search_branch.type = SEARCH_BRANCH;
 			search_branch.id = sensor.id;
@@ -593,7 +671,9 @@ inline bool Simulator::check_connected(Sensor& sensor, Sensor& dst_sensor) {
 void Simulator::handle_search_branch(int timestamp, Event& e) {
 	// Current sensor periodically searches for some neighboring destination sensor
 	// If at any point in the simulation it finds such a then it will enter the BRANCH_CONNECT_TO_DST state
-	printf("I'm here here here here %d\n", e.id);
+	if(DEBUG) {
+		printf("I'm here here here here %d\n", e.id);
+	}
 	// Search for nearest sensor within communication range which is on barrier
 	Sensor& sensor = sensors[e.id];
 	int dst_sensor_id = nearest_barrier_sensor_within_communication_range(e.id);
@@ -703,7 +783,9 @@ void Simulator::move_within_permissible_range(Sensor& sensor, Force total_force)
 	// handle violation 
 	if(violation) {
 		if(k == INFINITY_DOUBLE) {
-			printf("This should not happen!\n");
+			if(DEBUG) {
+				printf("This should not happen!\n");
+			}
 			k = 1.0;
 		}
 		total_force.x = k*total_force.x;
@@ -800,6 +882,22 @@ void Simulator::handle_barrier_connect(int timestamp, Event& e) {
 				printf("ALREADY CONNECTED %d %d\n", sensor.id, e.dst_id);
 			}
 			return;
+		} else {
+			// Check if the left and right siblings are already failed nodes
+			if(!sensor.left_nodes.empty()) {
+				Sensor& left = sensors[sensor.left_nodes[0]];
+				if(left.has_failed) {
+					// remove this from sensor's left_nodes list
+					sensor.remove_sibling(left.id);
+				}
+			}
+			if(!sensor.right_nodes.empty()) {
+				Sensor& right = sensors[sensor.right_nodes[0]];
+				if(right.has_failed) {
+					// remove this from sensor's right_nodes list
+					sensor.remove_sibling(right.id);
+				}
+			}
 		}
 		// Apply Sensor Force
 		apply_sensor_force(sensor, dst_sensor);
@@ -881,7 +979,14 @@ void Simulator::handle_barrier_connect(int timestamp, Event& e) {
 				if(e.direction == LEFT) {
 					if(sensor.left_nodes.size() == 0) {
 						// No nodes to add
-				printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+						if(DEBUG) {
+							printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+						}
+						// Check if the current sensor is touching the left boundary. If yes then it has become the new left sensor
+						if((sensor.x - sensing_range) <= DELTA) {
+							sensor.is_left_sensor = true;
+							return;
+						}
 						// Therefore don't change the next hop node
 						// Try to reach there again and again
 					} else {
@@ -893,7 +998,14 @@ void Simulator::handle_barrier_connect(int timestamp, Event& e) {
 				} else if(e.direction == RIGHT) {
 					if(sensor.right_nodes.size() == 0) {
 						// No nodes to add
-				printf("#####################################################################\n");
+						if(DEBUG) {
+							printf("#####################################################################\n");
+						}
+						// Check if the current sensor is touching the right boundary. If yes then it has become the new right sensor
+						if((sensor.x + sensing_range) >= belt_length - DELTA) {
+							sensor.is_right_sensor = true;
+							return;
+						}
 						// Therefore don't change the next hop node
 						// Try to reach there again and again
 					} else {
@@ -1024,8 +1136,44 @@ void Simulator::handle_chain_maintenance(int timestamp, Event& e) {
 void Simulator::handle_flatten_connect(int timestamp, Event& e) {
 	Sensor& sensor = sensors[e.id];
 	bool flag = false;
+	// Calculate the dst node here first
+	Sensor& original_sensor = sensors[e.branch_id];
+	/*double distance = INFINITY_DOUBLE;
+	Direction direction = NO_DIRECTION;
+	int dst_sensor = -1;
+	if(!original_sensor.left_nodes.empty()) {
+		Sensor& left = sensors[original_sensor.left_nodes[0]];
+		if(!left.has_failed) {
+			distance = sensor_distance(sensor, left);
+			dst_sensor = left.id;
+			direction = LEFT;
+		}
+	}
+	if(!original_sensor.right_nodes.empty()) {
+		// Check if the right node is closer or not
+		Sensor& right = sensors[original_sensor.right_nodes[0]];
+		if(!right.has_failed) {
+			if(distance > sensor_distance(sensor, right)) {
+				dst_sensor = right.id;
+				direction = RIGHT;
+			}
+		}
+	}
+	if(dst_sensor != -1) {
+		sensor.dst_node = dst_sensor;
+		e.direction = direction;
+		e.dst_id = dst_sensor;
+	} else {
+		return;
+	}*/
+
 	if(sensor.dst_node != -1) {
 		Sensor& dst_sensor = sensors[sensor.dst_node];
+		// Check if original sensor and dst_sensor are still siblings or not?
+		Sibling_Type st = original_sensor.is_adjacent(dst_sensor.id);
+		if((st != LEFT_SIBLING || e.direction != LEFT) && (st != RIGHT_SIBLING || e.direction != RIGHT)) {
+			return;
+		}
 		// Check if already connect to the destination
 		if(check_connected(sensor, dst_sensor)) {
 			flag = true;
@@ -1043,7 +1191,6 @@ void Simulator::handle_flatten_connect(int timestamp, Event& e) {
 		// Check if the connection establishment is possible or not
 		if(flag) {
 			// Establish connection
-			Sensor& original_sensor = sensors[e.branch_id];
 			// Delete branch link from original sensor and current branch sensor
 			if(DEBUG) {
 				printf("Removing Branch %d -> %d\n", e.branch_id, sensor.id);
@@ -1302,7 +1449,7 @@ void Simulator::print_sensor_locs() {
 
 bool Simulator::maintain() {
 	iterations = 0;
-	while(!events.empty()) {
+	while(!events.empty() && iterations <= MAX_ITERATIONS) {
 		// pull out one entry
 		P p = events.top();
 		int timestamp = p.first;
@@ -1327,13 +1474,31 @@ bool Simulator::maintain() {
 			printf("timestamp: %5d : ", timestamp);
 			e.print();
 			print_sensor_locs();
+			draw_current_state();		
 		}
-		draw_current_state();		
 		// usleep(1);
 		// usleep(20000);
 		iterations++;
 	}
-	return true;
+	bool flag = true;
+	if(iterations <= MAX_ITERATIONS) {
+		return true;
+	} else {
+		// There can be a possibility where all the events in the priority queue are SEARCH_BRANCH event
+		// In such a scenario we have achieved the barrier but priority queue is never empty because the sensor always keeps searching for some destination sensor
+		while(!events.empty()) {
+			P p = events.top();
+			Event e = p.second;
+			events.pop();
+			if(e.type != SEARCH_BRANCH) {
+				flag = false;
+			}
+			// e.print();
+		}
+		// print_sensor_locs();
+	}
+	// printf("\n\n\n\n");
+	return flag;
 }
 
 void Simulator::delete_sensor_graph() {
@@ -1346,16 +1511,29 @@ void Simulator::delete_data() {
 	delete_sensor_graph();
 }
 
+void Simulator::evaluate_results() {
+	// Calculate the avg distance and the max distance travesed by the sensors
+	avg_distance = 0.0;
+	max_distance = 0.0;
+	for(int i = 0; i < n_sensors; i++) {
+		if(sensors[i].has_failed) {
+			continue;
+		}
+		Sensor& sensor = sensors[i];
+		avg_distance += sensor.distance;
+		max_distance = max(max_distance, sensor.distance);
+	}
+	avg_distance /= (double)(n_sensors - n_failures);
+}
+
 void Simulator::print_results() {
 	printf("\n\n\n\n\nPRINTING FINAL RESULTS:\n");
 	printf("Belt Dimensions: %lf * %lf\n", belt_length, belt_width);
 	printf("Number of Sensors: %d\n", n_sensors);
 	printf("Number of Failures: %d\n", n_failures);
 	printf("Failed Sensors: ");
-	for(int i = 0; i < n_sensors; i++) {
-		if(sensors[i].has_failed) {
-			printf("%3d ", i);
-		}
+	for(int i = 0; i < (int)failed_nodes.size(); i++) {
+			printf("%3d ", failed_nodes[i]);
 	}
 	printf("\n");
 	printf("Sensing Range: %lf\n", sensing_range);
@@ -1363,17 +1541,31 @@ void Simulator::print_results() {
 	printf("Simulation Iterations: %d\n", iterations);
 	printf("Simulation Timestamps: %d\n", max_timestamp);
 	printf("Sensor final locations and distances:\n");
-	double avg_distance = 0.0;
 	for(int i = 0; i < n_sensors; i++) {
 		if(sensors[i].has_failed) {
 			continue;
 		}
 		Sensor& sensor = sensors[i];
 		printf("%3d: %5.3lf %5.3lf: %5.3lf\n", sensor.id, sensor.x, sensor.y, sensor.distance);
-		avg_distance += sensor.distance;
 	}
-	avg_distance /= (double)(n_sensors - n_failures);
 	printf("Average Distance Moved: %lf\n", avg_distance);
+	printf("Maximum Distance Moved: %lf\n", max_distance);
+}
+
+double Simulator::get_avg_distance() {
+	return avg_distance;
+}
+
+double Simulator::get_max_distance() {
+	return max_distance;
+}
+
+int Simulator::get_final_timestamp() {
+	return max_timestamp;
+}
+
+int Simulator::get_final_iterations() {
+	return iterations;
 }
 
 
