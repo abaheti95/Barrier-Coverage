@@ -5,6 +5,7 @@ Simulator::Simulator(int jump) {
 	event_counter = 1;
 	max_timestamp = 0;
 	n_failures = 6;			// Default value
+	K = 5;					// Default value
 	
 	// Display variables default values
 	display_width = 1000;
@@ -1511,15 +1512,27 @@ void Simulator::delete_data() {
 	delete_sensor_graph();
 }
 
+void Simulator::change_timestamp_jump(int new_jump) {
+	timestamp_jump = new_jump;
+}
+
+void Simulator::change_K(int new_K) {
+	K = new_K;
+}
+
 void Simulator::evaluate_results() {
 	// Calculate the avg distance and the max distance travesed by the sensors
 	avg_distance = 0.0;
 	max_distance = 0.0;
+	no_of_sensors_moved = 0;
 	for(int i = 0; i < n_sensors; i++) {
 		if(sensors[i].has_failed) {
 			continue;
 		}
 		Sensor& sensor = sensors[i];
+		if(sensor.distance > DELTA) {
+			no_of_sensors_moved++;
+		}
 		avg_distance += sensor.distance;
 		max_distance = max(max_distance, sensor.distance);
 	}
@@ -1568,4 +1581,7 @@ int Simulator::get_final_iterations() {
 	return iterations;
 }
 
+int Simulator::get_no_of_sensors_moved() {
+	return no_of_sensors_moved;
+}
 

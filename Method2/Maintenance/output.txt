@@ -1,0 +1,2616 @@
+Printing Graph:
+  0:   3 
+  1:   4   5 
+  2:   3   4 
+  3:   0   2 
+  4:   1   2 
+  5:   1   6 
+  6:   5   7 
+  7:  12   6 
+  8:  10  13 
+  9:  11  12 
+ 10:   8  11 
+ 11:   9  10 
+ 12:   9   7 
+ 13:   8  16 
+ 14:  16  17 
+ 15:  18  19 
+ 16:  13  14 
+ 17:  19  14 
+ 18:  21  15 
+ 19:  17  15 
+ 20:  26  23 
+ 21:  18  22 
+ 22:  28  21 
+ 23:  20  28 
+ 24:  25  27 
+ 25:  24  26 
+ 26:  25  20 
+ 27:  24  29 
+ 28:  22  23 
+ 29:  27  30  31 
+ 30:  33  29 
+ 31:  32  29 
+ 32:  34  31 
+ 33:  35  30 
+ 34:  32 
+ 35:  33  36 
+ 36:  35  37  38 
+ 37:  36  39 
+ 38:  40  36 
+ 39:  37 
+ 40:  42  43  38 
+ 41:  42  45 
+ 42:  40  41 
+ 43:  40  44 
+ 44:  43 
+ 45:  41  46 
+ 46:  45  47 
+ 47:  48  46 
+ 48:  49  47 
+ 49:  48  50 
+ 50:  49  52 
+ 51:  52  53 
+ 52:  50  51 
+ 53:  57  51 
+ 54:  57  55 
+ 55:  59  54 
+ 56:  58  59 
+ 57:  53  54 
+ 58:  56  60 
+ 59:  56  61  55 
+ 60:  58  62 
+ 61:  59 
+ 62:  60  63 
+ 63:  64  62 
+ 64:  63 
+Belt Dimensions 50.000000 x 8.000000
+Window dimensions 1.800000 x 0.288000
+timestamp:     0 : Event: Sensor Failure: Event number: 1
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     0 : Event: Sensor Failure: Event number: 2
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     0 : Event: Sensor Failure: Event number: 3
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     0 : Event: Sensor Failure: Event number: 4
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     0 : Event: Sensor Failure: Event number: 5
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     0 : Event: Sensor Failure: Event number: 6
+Id:  -1, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 14 17 19 15 branches:next hop :   0
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     1 : Event: FAILURE_DETECTED: Event number: 8
+Id:  16, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 21 18 15 19 right: 28 23 20 26 branches:next hop :   0
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+timestamp:     2 : Event: FAILURE_DETECTED: Event number: 7
+Id:  22, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.300, 3.925
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 16
+Printing Initial Total force: 
+ 0.991,  0.135
+LEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFT
+current sensor:  16 target sensor:  13 distance between them: 1.000001
+ 0.991,  0.135
+a = 1.000000, b = 1.999450, c = -1.249999, D = 2.999633
+K2 = 0.500091
+after k_left = 0.500091
+after k_right = 0.500091
+after k_branch = 0.500091
+Printing Total force
+ 0.496,  0.067
+Current Id : 16
+Printing Initial Total force: 
+ 0.991,  0.135
+LEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFT
+current sensor:  16 target sensor:  13 distance between them: 1.000001
+ 0.991,  0.135
+a = 1.000000, b = 1.999439, c = -1.249999, D = 2.999625
+K2 = 0.500093
+after k_left = 0.500093
+after k_right = 0.500093
+after k_branch = 0.500093
+Printing Total force
+ 0.496,  0.068
+PRINTING LIST OF BROKEN SIBLINGS for 16
+~~~~~~~~~~~~~~ 13 ~~~~~~~~~~~~~
+timestamp:     3 : Event: Barrier Connecting to Destination: Event number: 9
+Id:  16, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 18.199, 4.942
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 22
+Printing Initial Total force: 
+-0.992, -0.130
+after k_left = 100000000.000000
+RIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHT
+current sensor:  22 target sensor:  28 distance between them: 1.000134
+-0.992, -0.130
+a = 1.000000, b = 1.904075, c = -1.249733, D = 2.936738
+K2 = 0.516332
+after k_right = 0.516332
+after k_branch = 0.516332
+Printing Total force
+-0.512, -0.067
+Current Id : 22
+Printing Initial Total force: 
+-0.990, -0.143
+after k_left = 100000000.000000
+RIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHT
+current sensor:  22 target sensor:  28 distance between them: 1.000134
+-0.990, -0.143
+a = 1.000000, b = 1.912107, c = -1.249733, D = 2.941953
+K2 = 0.514923
+after k_right = 0.514923
+after k_branch = 0.514923
+Printing Total force
+-0.510, -0.074
+PRINTING LIST OF BROKEN SIBLINGS for 22
+~~~~~~~~~~~~~~ 28 ~~~~~~~~~~~~~
+timestamp:     4 : Event: Barrier Connecting to Destination: Event number: 10
+Id:  22, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 16
+Printing Initial Total force: 
+ 0.496,  0.067
+LEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFT
+current sensor:  16 target sensor:  13 distance between them: 1.500000
+ 0.496,  0.067
+a = 0.250340, b = 1.500843, c = -0.000000, D = 1.500843
+K2 = 0.000000
+after k_left = 0.000000
+after k_right = 0.000000
+after k_branch = 0.000000
+Printing Total force
+ 0.000,  0.000
+Current Id : 16
+Printing Initial Total force: 
+ 0.496,  0.075
+LEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFT
+current sensor:  16 target sensor:  13 distance between them: 1.500000
+ 0.496,  0.075
+a = 0.251363, b = 1.503340, c = -0.000000, D = 1.503340
+K2 = 0.000000
+after k_left = 0.000000
+after k_right = 0.000000
+after k_branch = 0.000000
+Printing Total force
+ 0.000,  0.000
+PRINTING LIST OF BROKEN SIBLINGS for 16
+~~~~~~~~~~~~~~ 13 ~~~~~~~~~~~~~
+timestamp:     7 : Event: Barrier Connecting to Destination: Event number: 11
+Id:  16, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 22
+Printing Initial Total force: 
+-0.482, -0.056
+after k_left = 100000000.000000
+RIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHT
+current sensor:  22 target sensor:  28 distance between them: 1.500000
+-0.482, -0.056
+a = 0.235644, b = 1.419711, c = -0.000000, D = 1.419711
+K2 = 0.000000
+after k_right = 0.000000
+after k_branch = 0.000000
+Printing Total force
+-0.000, -0.000
+Current Id : 22
+Printing Initial Total force: 
+-0.463,  0.037
+after k_left = 100000000.000000
+RIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHTRIGHT
+current sensor:  22 target sensor:  28 distance between them: 1.500000
+-0.463,  0.037
+a = 0.215596, b = 1.271848, c = -0.000000, D = 1.271848
+K2 = 0.000000
+after k_right = 0.000000
+after k_branch = 0.000000
+Printing Total force
+-0.000,  0.000
+PRINTING LIST OF BROKEN SIBLINGS for 22
+~~~~~~~~~~~~~~ 28 ~~~~~~~~~~~~~
+timestamp:     7 : Event: Barrier Connecting to Destination: Event number: 13
+Id:  22, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 19.103, 5.369
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 28
+Printing Initial Total force: 
+-0.471, -0.167
+after k_left = 100000000.000000
+after k_right = 100000000.000000
+after k_branch = 100000000.000000
+Printing Total force
+-0.471, -0.167
+timestamp:     7 : Event: Chain Maintenance: Event number: 14
+Id:  28, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.307, 3.814
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 18.632, 5.202
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 13
+Printing Initial Total force: 
+ 0.496,  0.060
+after k_left = 100000000.000000
+after k_right = 100000000.000000
+after k_branch = 100000000.000000
+Printing Total force
+ 0.496,  0.060
+timestamp:     8 : Event: Chain Maintenance: Event number: 12
+Id:  13, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.803, 3.874
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 18.632, 5.202
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 28
+Printing Initial Total force: 
+ 0.000,  0.000
+after k_left = 100000000.000000
+after k_right = 100000000.000000
+after k_branch = 100000000.000000
+Printing Total force
+ 0.000,  0.000
+timestamp:     8 : Event: Chain Maintenance: Event number: 18
+Id:  28, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.803, 3.874
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.689, 4.868
+left: 18 15 19 right: 28 23 20 26 branches:next hop :  21
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 18.632, 5.202
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 22
+Printing Initial Total force: 
+-0.482, -0.056
+after k_left = 100000000.000000
+after k_right = 100000000.000000
+after k_branch = 100000000.000000
+Printing Total force
+-0.482, -0.056
+PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???
+PRINTING LIST OF BROKEN SIBLINGS for 22
+~~~~~~~~~~~~~~ 28 ~~~~~~~~~~~~~
+timestamp:     9 : Event: Barrier Connecting to Destination: Event number: 17
+Id:  22, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.803, 3.874
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 11.796, 3.993
+left: 13 8 10 11 right: 17 19 15 branches:next hop :  14
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.207, 4.812
+left: 15 19 right: 28 23 20 26 branches:next hop :  18
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 18.632, 5.202
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id : 16
+Printing Initial Total force: 
+ 0.496,  0.067
+LEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFTLEFT
+current sensor:  16 target sensor:  13 distance between them: 1.000411
+ 0.496,  0.067
+a = 0.250340, b = 1.000973, c = -1.249177, D = 1.500941
+K2 = 0.998577
+after k_left = 0.998577
+after k_right = 0.998577
+after k_branch = 0.998577
+Printing Total force
+ 0.495,  0.067
+PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???PAR YAHAN KYU???
+PRINTING LIST OF BROKEN SIBLINGS for 16
+~~~~~~~~~~~~~~ 13 ~~~~~~~~~~~~~
+timestamp:    11 : Event: Barrier Connecting to Destination: Event number: 15
+Id:  16, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.307, 3.763
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.803, 3.874
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 12.291, 4.060
+left: 13 8 10 11 right: 19 15 branches:next hop :  17
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 right: 22 28 23 20 branches:next hop :   0
+ 22: 17.207, 4.812
+left: 15 19 right: 28 23 20 26 branches:next hop :  18
+ 23: 19.105, 4.405
+left: 28 22 21 18 right: 20 26 25 24 branches:next hop :   0
+ 24: 21.580, 2.829
+left: 25 26 20 23 right: 27 29 30 33 branches:next hop :   0
+ 25: 20.644, 3.182
+left: 26 20 23 28 right: 24 27 29 30 branches:next hop :   0
+ 26: 20.549, 3.049
+left: 20 23 28 22 right: 25 24 27 29 branches:next hop :   0
+ 27: 22.523, 3.160
+left: 24 25 26 20 right: 29 30 33 35 branches:next hop :   0
+ 28: 18.632, 5.202
+left: 22 21 18 15 right: 23 20 26 25 branches:next hop :   0
+ 29: 23.438, 3.564
+left: 27 24 25 26 right: 30 33 35 36 branches: 31next hop :   0
+ 30: 24.330, 4.014
+left: 29 27 24 25 right: 33 35 36 38 branches:next hop :   0
+ 31: 23.546, 2.571
+left: right: branches: 32 29next hop :   0
+ 32: 24.116, 1.748
+left: right: branches: 34 31next hop :   0
+ 33: 25.275, 4.343
+left: 30 29 27 24 right: 35 36 38 40 branches:next hop :   0
+ 34: 24.651, 0.904
+left: right: branches: 32next hop :   0
+ 35: 26.256, 4.535
+left: 33 30 29 27 right: 36 38 40 42 branches:next hop :   0
+ 36: 27.254, 4.606
+left: 35 33 30 29 right: 38 40 42 41 branches: 37next hop :   0
+ 37: 26.922, 5.550
+left: right: branches: 36 39next hop :   0
+ 38: 28.237, 4.425
+left: 36 35 33 30 right: 40 42 41 45 branches:next hop :   0
+ 39: 27.085, 6.536
+left: right: branches: 37next hop :   0
+ 40: 28.951, 3.725
+left: 38 36 35 33 right: 42 41 45 46 branches: 43next hop :   0
+ 41: 30.903, 4.056
+left: 42 40 38 36 right: 45 46 47 48 branches:next hop :   0
+ 42: 29.905, 4.025
+left: 40 38 36 35 right: 41 45 46 47 branches:next hop :   0
+ 43: 28.947, 2.750
+left: right: branches: 40 44next hop :   0
+ 44: 29.235, 1.792
+left: right: branches: 43next hop :   0
+ 45: 31.901, 3.996
+left: 41 42 40 38 right: 46 47 48 49 branches:next hop :   0
+ 46: 32.893, 3.906
+left: 45 41 42 40 right: 47 48 49 50 branches:next hop :   0
+ 47: 33.888, 3.806
+left: 46 45 41 42 right: 48 49 50 52 branches:next hop :   0
+ 48: 34.877, 3.711
+left: 47 46 45 41 right: 49 50 52 51 branches:next hop :   0
+ 49: 35.874, 3.627
+left: 48 47 46 45 right: 50 52 51 53 branches:next hop :   0
+ 50: 36.865, 3.559
+left: 49 48 47 46 right: 52 51 53 57 branches:next hop :   0
+ 51: 38.860, 3.473
+left: 52 50 49 48 right: 53 57 54 55 branches:next hop :   0
+ 52: 37.863, 3.508
+left: 50 49 48 47 right: 51 53 57 54 branches:next hop :   0
+ 53: 39.857, 3.451
+left: 51 52 50 49 right: 57 54 55 59 branches:next hop :   0
+ 54: 41.743, 3.362
+left: 57 53 51 52 right: 55 59 56 58 branches:next hop :   0
+ 55: 42.741, 3.426
+left: 54 57 53 51 right: 59 56 58 60 branches:next hop :   0
+ 56: 44.665, 3.027
+left: 59 55 54 57 right: 58 60 62 63 branches:next hop :   0
+ 57: 40.744, 3.326
+left: 53 51 52 50 right: 54 55 59 56 branches:next hop :   0
+ 58: 45.582, 2.629
+left: 56 59 55 54 right: 60 62 63 64 branches:next hop :   0
+ 59: 43.741, 3.410
+left: 55 54 57 53 right: 56 58 60 62 branches: 61next hop :   0
+ 60: 46.536, 2.330
+left: 58 56 59 55 right: 62 63 64 branches:next hop :   0
+ 61: 44.501, 4.059
+left: right: branches: 59next hop :   0
+ 62: 47.514, 2.118
+left: 60 58 56 59 right: 63 64 branches:next hop :   0
+ 63: 48.503, 1.981
+left: 62 60 58 56 right: 64 branches:next hop :   0
+Right Sensor:
+ 64: 49.500, 1.915
+left: 63 62 60 58 right: branches:next hop :   0
+
+
+Current Id :  8
+Printing Initial Total force: 
+ 0.497,  0.037
+after k_left = 100000000.000000
+after k_right = 100000000.000000
+after k_branch = 100000000.000000
+Printing Total force
+ 0.497,  0.037
+timestamp:    11 : Event: Chain Maintenance: Event number: 19
+Id:   8, Dst_id:  -1, branch_id:  -1
+All Sensor Locations:
+Left Sensor:
+  0: 0.500, 3.751
+left: right: 3 2 4 1 branches:next hop :   0
+  1: 2.137, 5.947
+left: 4 2 3 0 right: 5 6 7 12 branches:next hop :   0
+  2: 1.387, 4.213
+left: 3 0 right: 4 1 5 6 branches:next hop :   0
+  3: 1.353, 3.236
+left: 0 right: 2 4 1 5 branches:next hop :   0
+  4: 1.879, 4.981
+left: 2 3 0 right: 1 5 6 7 branches:next hop :   0
+  5: 3.133, 6.040
+left: 1 4 2 3 right: 6 7 12 9 branches:next hop :   0
+  6: 4.110, 6.251
+left: 5 1 4 2 right: 7 12 9 11 branches:next hop :   0
+  7: 5.088, 6.040
+left: 6 5 1 4 right: 12 9 11 10 branches:next hop :   0
+  8: 9.805, 3.800
+left: 10 11 9 12 right: 13 16 14 17 branches:next hop :   0
+  9: 6.536, 4.699
+left: 12 7 6 5 right: 11 10 8 13 branches:next hop :   0
+ 10: 8.309, 3.835
+left: 11 9 12 7 right: 8 13 16 14 branches:next hop :   0
+ 11: 7.350, 4.119
+left: 9 12 7 6 right: 10 8 13 16 branches:next hop :   0
+ 12: 5.923, 5.490
+left: 7 6 5 1 right: 9 11 10 8 branches:next hop :   0
+ 13: 10.803, 3.874
+left: 8 10 11 9 right: 16 14 17 19 branches:next hop :   0
+** 14: 12.292, 4.060
+left: 16 13 8 10 right: 17 19 15 18 branches:next hop :   0
+** 15: 15.267, 4.450
+left: 19 17 14 16 right: 18 21 22 28 branches:next hop :   0
+ 16: 12.291, 4.060
+left: 13 8 10 11 right: 19 15 branches:next hop :  17
+** 17: 13.283, 4.196
+left: 14 16 13 8 right: 19 15 18 21 branches:next hop :   0
+** 18: 16.250, 4.633
+left: 15 19 17 14 right: 21 22 28 23 branches:next hop :   0
+** 19: 14.275, 4.323
+left: 17 14 16 13 right: 15 18 21 22 branches:next hop :   0
+ 20: 19.735, 3.629
+left: 23 28 22 21 right: 26 25 24 27 branches:next hop :   0
+** 21: 17.207, 4.812
+left: 18 15 19 17 

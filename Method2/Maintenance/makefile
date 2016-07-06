@@ -1,3 +1,6 @@
+plot_data_generator: plot_data_generator.cpp Simulator.o
+	g++ -Wall -g plot_data_generator.cpp Simulator.o Event.o Sensor.o Force.o Coordinate.o -o plot_data_generator -L/usr/local/lib -lglfw3 -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
+
 mass_tester: mass_tester.cpp Simulator.o
 	g++ -Wall -g mass_tester.cpp Simulator.o Event.o Sensor.o Force.o Coordinate.o -o mass_tester -L/usr/local/lib -lglfw3 -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
 

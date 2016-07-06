@@ -40,6 +40,8 @@ struct Simulator {
 	double chain_force_factor;
 
 	// Global Simulation Variables
+	// K is the number of next hop nodes that a sensor remembers
+	int K;
 	int timestamp_jump;				// next timestamp could be randomly assigned between 1-timestamp_jump
 	int event_counter;				// Global event counter
 	int iterations;					// Tells the number of iterations requried to complete the simulation
@@ -95,6 +97,7 @@ struct Simulator {
 	vector<int> failed_nodes;				// List of indices of failed sensors
 	double avg_distance;					// Avg distance of all the sensor distances
 	double max_distance;					// Max distance of all the sensor distances
+	int no_of_sensors_moved;				// Number of Sensors moved during the simulation
 
 	Simulator(int = 5);
 	~Simulator() {}
@@ -107,6 +110,8 @@ struct Simulator {
 	void initialize(int n);					// Initializes data and fails n sensors
 	void delete_sensor_graph();
 	void delete_data();
+	void change_timestamp_jump(int);		// Update the timestamp jump
+	void change_K(int);						// Change the number of next_hop stored
 	// Display Functions
 	void line(double x1, double y1, double x2, double y2);
 	void circle(double cx, double cy, double radius);
@@ -160,6 +165,7 @@ struct Simulator {
 	double get_max_distance();
 	int get_final_timestamp();
 	int get_final_iterations();
+	int get_no_of_sensors_moved();
 
 };
 // Helper functions

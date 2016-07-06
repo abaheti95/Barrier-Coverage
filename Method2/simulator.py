@@ -236,6 +236,9 @@ class Sensor():
 	def draw_sensor(self, color="red"):
 		scale = screen_width / beltWidth
 		p = self.get_screen_coordinates()
+		pygame.draw.circle(pygame_screen, THECOLORS[color], p, int(sensingRange * scale), 4)
+		pygame.draw.circle(pygame_screen, THECOLORS[color], p, int(sensingRange * scale), 3)
+		pygame.draw.circle(pygame_screen, THECOLORS[color], p, int(sensingRange * scale), 2)
 		pygame.draw.circle(pygame_screen, THECOLORS[color], p, int(sensingRange * scale), 1)
 		if DEBUG:
 			coordinate_text = "%d(%.1f,%.1f)" % (self.id,self.x, self.y)
@@ -861,7 +864,7 @@ class ChainGraph():
 				# draw green lines to depict joints
 				p1 = sensors[key].get_screen_coordinates()
 				p2 = sensors[sub_key].get_screen_coordinates()
-				pygame.draw.lines(pygame_screen, THECOLORS["green"], False, [p1,p2])
+				pygame.draw.lines(pygame_screen, THECOLORS["green"], False, [p1,p2], 3)
 		# draw all the sensors of the chain graph
 		for key in self.graph.keys():
 			if self.dominant == key:
@@ -1065,19 +1068,19 @@ def draw_belt():
 	# left
 	p1 = (padding, padding)
 	p2 = (padding, padding + int(screen_height))
-	pygame.draw.lines(pygame_screen, THECOLORS["black"], False, [p1,p2])
+	pygame.draw.lines(pygame_screen, THECOLORS["black"], False, [p1,p2],3)
 	# base
 	p1 = (padding, padding)
 	p2 = (padding + int(screen_width), padding)
-	pygame.draw.lines(pygame_screen, THECOLORS["gray"], False, [p1,p2])
+	pygame.draw.lines(pygame_screen, THECOLORS["gray"], False, [p1,p2],3)
 	# right
 	p1 = (padding + int(screen_width), padding)
 	p2 = (padding + int(screen_width), padding + int(screen_height))
-	pygame.draw.lines(pygame_screen, THECOLORS["black"], False, [p1,p2])
+	pygame.draw.lines(pygame_screen, THECOLORS["black"], False, [p1,p2],3)
 	# top
 	p1 = (padding, padding + int(screen_height))
 	p2 = (padding + int(screen_width), padding + int(screen_height))
-	pygame.draw.lines(pygame_screen, THECOLORS["gray"], False, [p1,p2])
+	pygame.draw.lines(pygame_screen, THECOLORS["gray"], False, [p1,p2],3)
 
 def init_screen():
 	pygame_screen.fill(THECOLORS["white"])
@@ -1398,7 +1401,7 @@ def save_final_configuration():
 
 def print_results():
 	# verify edges
-	print "List of sensor links which are violating the conditions :"
+	# print "List of sensor links which are violating the conditions :"
 	for chain_graph in chain_graphs.values():
 		chain_graph.verify_edges()
 
@@ -1410,8 +1413,8 @@ def print_results():
 	# 	if sensor.id not in barrier:
 	# 		sensor.x = sensor.init_x
 	# 		sensor.y = sensor.init_y
-	print barrier
-	print len(barrier)
+	# print barrier
+	# print len(barrier)
 
 	# sleep(10)
 
@@ -1422,7 +1425,7 @@ def print_results():
 	min_displacement = INFINITY
 	distance = 0.0
 	displacement = 0.0
-	print "Printing Results:"
+	# print "Printing Results:"
 	for sensor in sensors:
 		if DEBUG:
 			sensor.print_results()
@@ -1439,13 +1442,13 @@ def print_results():
 
 	avg_distance = distance / numberOfSensors
 	avg_displacement = displacement / numberOfSensors
-	print "\n\nNumber of sensors Moved : " + str(number_of_sensors_moved)
-	print "Max Distance : " + str(max_distance)
-	print "Max Displacement : " + str(max_displacement)
-	print "Min Distance : " + str(min_distance)
-	print "Min Displacement : " + str(min_displacement)
-	print "Avg Distance : " + str(avg_distance)
-	print "Avg Displacement : " + str(avg_displacement)
+	# print "\n\nNumber of sensors Moved : " + str(number_of_sensors_moved)
+	# print "Max Distance : " + str(max_distance)
+	# print "Max Displacement : " + str(max_displacement)
+	# print "Min Distance : " + str(min_distance)
+	# print "Min Displacement : " + str(min_displacement)
+	# print "Avg Distance : " + str(avg_distance)
+	# print "Avg Displacement : " + str(avg_displacement)
 
 	save_final_configuration()
 
@@ -1467,12 +1470,13 @@ def simulate():
 		chain_graph.draw_chain_graph()
 
 	pygame.display.flip()
-	
 	phasel()
+	time.sleep(1)
 
-	print "l done"
+	# print "l done"
 	phaser()
-	print "r done"
+	time.sleep(1)
+	# print "r done"
 	while not barrier_covered():
 		# get the domianant points for each chain_graph
 		for chain_graph in chain_graphs.values():
@@ -1507,9 +1511,9 @@ def simulate():
 			if flag:
 				break
 
-	print "final Done"
+	# print "final Done"
 	init_screen()
-	print chain_graphs
+	# print chain_graphs
 	update_sensor_positions()
 	# left_chain_graph = right_chain_graph = None
 	# left_sensor = right_sensor = None
@@ -1518,6 +1522,7 @@ def simulate():
 		chain_graph.draw_chain_graph()
 
 	pygame.display.flip()
+	time.sleep(1)
 
 	return print_results()
 
