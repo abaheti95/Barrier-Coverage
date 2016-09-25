@@ -17,6 +17,8 @@ Sensor::Sensor(double x, double y) {
 	this->dst_barrier_index = -1;
 	this->next_hop_node = -1;
 
+	this->is_active = false;
+
 	this->is_left_sensor = false;
 	this->is_right_sensor = false;
 	this->sensor_force = null_force;

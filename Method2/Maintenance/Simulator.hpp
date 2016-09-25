@@ -28,12 +28,16 @@ const double MULTIPLICATION_FACTOR = 4.0;
 #define FLATTEN_FORCE_MAGNITUDE (VMAX / 2)
 // Force parameters
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
-#define CHAIN_FORCE_OFFSET (sensing_range / 2)
+// #define CHAIN_FORCE_OFFSET (sensing_range / 2)
+const double CHAIN_FORCE_FRACTION = 0.1;
+#define CHAIN_FORCE_OFFSET (VMAX/10)
+// #define CHAIN_FORCE_OFFSET (0.0)
 // #define CHAIN_FORCE_OFFSET 0.0
 const double STEEPNESS = 2.0;
 const int MAX_ITERATIONS = 5000;
 
 const bool DEBUG = false;
+const bool DISPLAY = false;
 
 struct Simulator {
 	double sensor_force_factor;

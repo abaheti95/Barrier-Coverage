@@ -49,6 +49,8 @@ struct Sensor {
 	Force chain_force;		// Force applied due to the chain connections
 	int timestamp;			// Tells the timestamp of the sensor wrt chain force maintenance
 
+	bool is_active;			// Tells whether current sensor is active sensor or not
+
 	Sensor(double = 0.0, double = 0.0);
 	Sensor(const Sensor&);
 	~Sensor();

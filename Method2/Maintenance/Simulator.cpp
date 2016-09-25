@@ -275,7 +275,9 @@ void Simulator::initialize_display() {
 void Simulator::initialize(int n) {
 	initialize_data();
 	fail_sensors(n);
-	// initialize_display();
+	if(DISPLAY) {
+		initialize_display();
+	}
 }
 
 inline double Simulator::distance(double x1, double y1, double x2, double y2) {
@@ -537,20 +539,30 @@ double Simulator::chain_force(double x) {
 	if(x <= 2*sensing_range) {
 		return 0.0;
 	}
-	// return (x*x*x/(16.0 * sensing_range) + CHAIN_FORCE_OFFSET);
-	double estimate_chain_force = chain_force_factor * pow(x - 2*sensing_range, STEEPNESS) + CHAIN_FORCE_OFFSET;
-	if (estimate_chain_force > (x - 2*sensing_range)) {
-		if(DEBUG) {
-			printf("YOYOYOYOYOYOYOYOYOYOYOYOYYO\n");
-		}
-		return (x - 2*sensing_range);
+	x = x - 2*sensing_range;
+	double lambda = communication_range - 2*sensing_range;
+	double lambda_frac = lambda * CHAIN_FORCE_FRACTION;
+	if(x <= lambda_frac) {
+		return x;
+	} else {
+		return ((lambda - lambda_frac - CHAIN_FORCE_OFFSET)*(x - lambda_frac)/(lambda - lambda_frac) + lambda_frac);
 	}
-	return estimate_chain_force;
+
+	// return (x*x*x/(16.0 * sensing_range) + CHAIN_FORCE_OFFSET);
+	// double estimate_chain_force = chain_force_factor * pow(x - 2*sensing_range, STEEPNESS) + CHAIN_FORCE_OFFSET;
+	// if (estimate_chain_force > (x - 2*sensing_range)) {
+	// 	if(DEBUG) {
+	// 		printf("YOYOYOYOYOYOYOYOYOYOYOYOYYO\n");
+	// 	}
+	// 	return (x - 2*sensing_range);
+	// }
+	// return estimate_chain_force;
 }
 
 void Simulator::apply_sensor_force(Sensor& sensor, Sensor& dst_sensor) {
 	// Apply force towards the destination sensor
-	double sensor_force_magnitude = sensor_force(sensor_distance(sensor, dst_sensor));
+	// double sensor_force_magnitude = sensor_force(sensor_distance(sensor, dst_sensor));
+	double sensor_force_magnitude = VMAX;
 	Force f((dst_sensor.x - sensor.x), (dst_sensor.y - sensor.y), sensor_force_magnitude);
 	sensor.sensor_force = f;
 }
@@ -1475,7 +1487,9 @@ bool Simulator::maintain() {
 			printf("timestamp: %5d : ", timestamp);
 			e.print();
 			print_sensor_locs();
-			draw_current_state();		
+		}
+		if(DISPLAY){
+			draw_current_state();	
 		}
 		// usleep(1);
 		// usleep(20000);
