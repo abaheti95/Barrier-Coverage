@@ -29,7 +29,7 @@ const double MULTIPLICATION_FACTOR = 4.0;
 // Force parameters
 #define SENSOR_FORCE_OFFSET (sensing_range / 2.5)
 // #define CHAIN_FORCE_OFFSET (sensing_range / 2)
-const double CHAIN_FORCE_FRACTION = 0.1;
+const double CHAIN_FORCE_FRACTION = 0.9;
 #define CHAIN_FORCE_OFFSET (VMAX/10)
 // #define CHAIN_FORCE_OFFSET (0.0)
 // #define CHAIN_FORCE_OFFSET 0.0

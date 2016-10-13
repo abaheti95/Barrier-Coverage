@@ -173,6 +173,34 @@ def main():
 		print np.std(avg_disp)
 		plot_avg_disp_error.append(np.std(avg_disp))
 
+	# Save the relevant data
+	np_plot_shen_max_disp = np.array(plot_shen_max_disp)
+	np.save("cent_data/np_plot_shen_max_disp", np_plot_shen_max_disp)
+	np_plot_shen_max_disp_err = np.array(plot_shen_max_disp_err)
+	np.save("cent_data/np_plot_shen_max_disp_err", np_plot_shen_max_disp_err)
+	np_plot_max_dist = np.array(plot_max_dist)
+	np.save("cent_data/np_plot_max_dist", np_plot_max_dist)
+	np_plot_max_dist_error = np.array(plot_max_dist_error)
+	np.save("cent_data/np_plot_max_dist_error", np_plot_max_dist_error)
+	np_plot_max_disp = np.array(plot_max_disp)
+	np.save("cent_data/np_plot_max_disp", np_plot_max_disp)
+	np_plot_max_disp_error = np.array(plot_max_disp_error)
+	np.save("cent_data/plot_max_disp_error", plot_max_disp_error)
+
+	np_plot_shen_avg_disp = np.array(plot_shen_avg_disp)
+	np.save("cent_data/np_plot_shen_avg_disp", np_plot_shen_avg_disp)
+	np_plot_shen_avg_disp_err = np.array(plot_shen_avg_disp_err)
+	np.save("cent_data/np_plot_shen_avg_disp_err", np_plot_shen_avg_disp_err)
+	np_plot_avg_dist = np.array(plot_avg_dist)
+	np.save("cent_data/np_plot_avg_dist", np_plot_avg_dist)
+	np_plot_avg_dist_error = np.array(plot_avg_dist_error)
+	np.save("cent_data/np_plot_avg_dist_error", np_plot_avg_dist_error)
+	np_plot_avg_disp = np.array(plot_avg_disp)
+	np.save("cent_data/np_plot_avg_disp", np_plot_avg_disp)
+	np_plot_avg_disp_error = np.array(plot_avg_disp_error)
+	np.save("cent_data/plot_avg_disp_error", plot_avg_disp_error)
+
+
 	# Draw Plots
 	# Number of sensors moved
 	plt.xlabel("Number of Sensors")
@@ -184,7 +212,7 @@ def main():
 	# Max Distance and Displacement
 	plt.xlabel("Number of Sensors")
 	plt.ylabel("Distance (m)")
-	plt.errorbar(plot_n_sensors, plot_shen_max_disp, yerr=plot_shen_avg_disp_err, label="shen max displacement", color="red")
+	plt.errorbar(plot_n_sensors, plot_shen_max_disp, yerr=plot_shen_max_disp_err, label="shen max displacement", color="red")
 	plt.errorbar(plot_n_sensors, plot_max_dist, yerr=plot_max_dist_error, label="centralized max distance", color="green")
 	plt.errorbar(plot_n_sensors, plot_max_disp, yerr=plot_max_disp_error, label="centralized max displacement", color="blue")
 	plt.legend(loc=0)
@@ -194,7 +222,7 @@ def main():
 	# Min Distance and Displacement
 	plt.xlabel("Number of Sensors")
 	plt.ylabel("Distance (m)")
-	plt.errorbar(plot_n_sensors, plot_shen_min_disp, yerr=plot_shen_avg_disp_err, label="shen min displacement", color="red")
+	plt.errorbar(plot_n_sensors, plot_shen_min_disp, yerr=plot_shen_min_disp_err, label="shen min displacement", color="red")
 	plt.errorbar(plot_n_sensors, plot_min_dist, yerr=plot_min_dist_error, label="centralized min distance", color="green")
 	plt.errorbar(plot_n_sensors, plot_min_disp, yerr=plot_min_disp_error, label="centralized min displacement", color="blue")
 	plt.legend(loc=0)

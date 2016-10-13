@@ -1,3 +1,6 @@
+plot_data_generator_2: plot_data_generator_2.cpp Simulator.o
+	g++ -Wall -g plot_data_generator_2.cpp Simulator.o Event.o Sensor.o Force.o Coordinate.o -o plot_data_generator_2 -L/usr/local/lib -lglfw -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
+
 plot_data_generator: plot_data_generator.cpp Simulator.o
 	g++ -Wall -g plot_data_generator.cpp Simulator.o Event.o Sensor.o Force.o Coordinate.o -o plot_data_generator -L/usr/local/lib -lglfw -lrt -lXrandr -lXi -lGL -lm -ldl -lXrender -ldrm -lXdamage -lX11-xcb -lxcb-glx -lxcb-dri2 -lxcb-dri3 -lxcb-present -lxcb-sync -lxshmfence -lXxf86vm -lXfixes -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp
 
@@ -23,4 +26,4 @@ Force.o: Force.hpp Force.cpp Coordinate.o
 	g++ -Wall -g -c Force.cpp -o Force.o
 
 clean:
-	rm tester Coordinate.o Event.o Sensor.o Force.o Simulator.o
+	rm tester Coordinate.o Event.o Sensor.o Force.o Simulator.o plot_data_generator plot_data_generator_2
